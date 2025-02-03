@@ -2,20 +2,40 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@layer components {
+  .container {
+    @apply w-full 3xl:!max-w-[1400px] 2xl:!max-w-[1000px] xl:!max-w-[1700px] lg:!max-w-full md:!max-w-full sm:!max-w-full xs:!max-w-full;
+  }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+  a.link {
+    @apply text-primary underline underline-offset-2;
+  }
+
+  .shadow-card {
+    @apply shadow-[0px_0px_100px_2px_#1E1E1E1A];
   }
 }
 
+.input {
+  @apply w-full px-3 sm:px-4 py-3.5 rounded-md !outline-none bg-transparent !border !border-subtext/20 text-xs sm:text-sm placeholder:text-xs sm:placeholder:text-sm placeholder:!text-subtext/50 first-letter:!uppercase !text-subtext/50 transition duration-200 resize-none;
+}
+
+
+/* globals.css */
+:root {
+  --font-rubik: "Rubik", sans-serif;
+  --font-raleway: "Raleway", sans-serif;
+  --font-inter: "Inter", sans-serif;
+}
+
 body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-inter); 
+}
+
+h1, h2, h3 {
+  font-family: var(--font-rubik);
+}
+
+p, span {
+  font-family: var(--font-raleway);
 }
