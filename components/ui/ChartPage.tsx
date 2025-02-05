@@ -401,7 +401,6 @@ export default function ChartPage() {
     chartOptions[selectedMetric]
   );
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [loading, setLoading] = useState<boolean>(false);
 
   const [isClient, setIsClient] = useState(false);
@@ -428,7 +427,7 @@ export default function ChartPage() {
         return;
       }
 
-      console.log("Data: ", data);
+      // console.log("Data: ", data);
 
       // Extract the correct data for the selected metric
       const newData =
@@ -465,7 +464,6 @@ export default function ChartPage() {
     };
 
     fetchData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedMetric]);
 
   useEffect(() => {
