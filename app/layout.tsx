@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Rubik, Raleway, Inter } from "next/font/google";
 import "./globals.css";
 import Layout from "@/components/Atoms/Layout";
+import ToastProvider from "@/components/Molecules/ToastProvider";
 
 // Load the fonts from Google Fonts
 const rubik = Rubik({
@@ -78,7 +79,10 @@ export default function RootLayout({
       <body
         className={`${rubik.variable} ${raleway.variable} ${inter.variable} antialiased`}
       >
-        <Layout>{children}</Layout>
+        <Layout>
+          <ToastProvider />
+          {children}
+        </Layout>
       </body>
     </html>
   );

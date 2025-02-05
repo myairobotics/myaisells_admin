@@ -1,88 +1,482 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
+
 import { AgCharts } from "ag-charts-react";
 import { Select, SelectItem } from "@/components/Atoms/Select";
-import { FC, useEffect, useMemo, useState } from "react";
-import { IoIosArrowRoundDown, IoIosArrowRoundUp } from "react-icons/io";
+import { useEffect, useState } from "react";
+import Axios from "../utils/axios";
+import { toast } from "react-toastify";
+import Loader from "../Molecules/Loader";
+import { MetricCard } from "./MetricCard";
 
-const chartOptionsMap: Record<string, any> = {
-  "No of Registered Users": { type: "card" },
-  "No of Verified / Active users": { type: "card" },
-  "No of Users by Country": {
-    type: "pie",
-    data: [
-      { country: "USA", users: 1200 },
-      { country: "UK", users: 800 },
-    ],
-    series: [{ type: "pie", angleKey: "users", labelKey: "country" }],
-  },
-  "Number of users by plan": {
-    type: "bar",
-    data: [
-      { plan: "Free", users: 500 },
-      { plan: "Premium", users: 300 },
-    ],
-    series: [{ type: "bar", xKey: "plan", yKey: "users" }],
-  },
-  "Number of different campaign types created": {
-    type: "bar",
-    data: [
-      { campaign: "Sales", count: 100 },
-      { campaign: "Outreach", count: 200 },
-    ],
-    series: [{ type: "bar", xKey: "campaign", yKey: "count" }],
-  },
-  "No. of upgrades": { type: "card" },
-  "Number of Downgrades": { type: "card" },
-  "No of Appointments booked": {
-    type: "line",
-    data: [
-      { date: "2024-01-01", count: 10 },
-      { date: "2024-01-02", count: 15 },
-    ],
-    series: [{ type: "line", xKey: "date", yKey: "count" }],
-  },
-  "No of Conversations": {
-    type: "line",
-    data: [
-      { date: "2024-01-01", messages: 50 },
-      { date: "2024-01-02", messages: 80 },
-    ],
-    series: [{ type: "line", xKey: "date", yKey: "messages" }],
-    legend: { position: "bottom" },
-    tooltip: {
-      renderer: (params: any) => {
-        return `<div style="padding: 5px; background-color: #fff; border-radius: 3px;">
-                  <b>${params.series.yName}</b><br />
-                  Value: ${params.datum[params.series.yKey]}<br />
-                </div>`;
-      },
-    },
-    title: {
-      text: "Campaign Types Overview",
-      fontStyle: "bold",
-      fontSize: 16,
-    },
-  },
+const endpoints = {
+  subscription: "/metrics/subscription",
+  userCount: "/metrics/users-count",
+  campaigns: "/metrics/campaigns",
+  conversations: "/metrics/conversations",
+  appointments: "/metrics/appointments",
+  userByCountry: "/metrics/users-by-country",
+};
+
+const metricEndpointMap: Record<string, string> = {
+  "Number of Registered Users": endpoints.userCount,
+  "Number of Users by Country": endpoints.userByCountry,
+  "Number of Verified / Active users": endpoints.userCount,
+  "Number of Users by Plan": endpoints.subscription,
+  "Number of Different Campaign Types Created": endpoints.campaigns,
+  "Number of Upgrades": endpoints.subscription,
+  "Number of Downgrades": endpoints.subscription,
+  "Number of Appointments Booked": endpoints.appointments,
+  "Number of Conversations": endpoints.conversations,
+};
+
+export const fetchChartData = async (url: string) => {
+  try {
+    const response = await Axios.get(`/a${url}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching chart data:", error);
+    toast.error("Error fetching chart data", error as any);
+    return null;
+  }
 };
 
 export default function ChartPage() {
+  const [chartOptions, setChartOptions] = useState({
+    "Number of Registered Users": {
+      type: "card",
+      data: [],
+      legend: {
+        position: "bottom",
+        interactive: true,
+        item: {
+          marker: {
+            shape: "circle",
+          },
+        },
+      },
+      axes: [
+        {
+          type: "category",
+          position: "bottom",
+          title: { text: "Date" },
+        },
+        {
+          type: "number",
+          position: "left",
+          title: { text: "Users" },
+        },
+      ],
+      tooltip: {
+        renderer: (params: any) => {
+          return `<div style="padding: 5px; background-color: #fff; border-radius: 3px;">
+                <b>Registered Users</b><br />
+                Users: ${params.datum[params.series.yKey]}<br />
+              </div>`;
+        },
+      },
+      title: {
+        text: "Registered Users Overview",
+        fontStyle: "bold",
+        fontSize: 16,
+      },
+    },
+    "Number of Verified / Active users": {
+      type: "line",
+      series: [
+        {
+          type: "line",
+          xKey: "date",
+          yKey: "unverified",
+          name: "Unverified Users",
+          stroke: "red",
+        },
+        {
+          type: "line",
+          xKey: "date",
+          yKey: "verified",
+          name: "Verified Users",
+          stroke: "green",
+        },
+      ],
+      legend: {
+        position: "bottom",
+        interactive: true,
+        item: {
+          marker: {
+            shape: "circle",
+          },
+        },
+      },
+      axes: [
+        {
+          type: "category",
+          position: "bottom",
+          title: { text: "Time" },
+        },
+        {
+          type: "number",
+          position: "left",
+          title: { text: "Users" },
+        },
+      ],
+      tooltip: {
+        renderer: (params: any) => {
+          return `<div style="padding: 5px; background-color: #fff; border-radius: 3px;">
+                  <b>Active Users</b><br />
+                  Value: ${params.datum[params.series.yKey]}<br />
+                </div>`;
+        },
+      },
+      title: {
+        text: "Active Users Overview",
+        fontStyle: "bold",
+        fontSize: 16,
+      },
+    },
+    "Number of Users by Country": {
+      type: "pie",
+      data: [],
+      series: [{ type: "pie", angleKey: "count", labelKey: "country" }],
+      legend: {
+        position: "bottom",
+        interactive: true,
+        item: {
+          marker: {
+            shape: "circle",
+          },
+        },
+      },
+      tooltip: {
+        renderer: (params: any) => {
+          return `<div style="padding: 5px; background-color: #fff; border-radius: 3px;">
+                  <b>${params.datum.country}</b><br />
+                  Users: ${params.datum.users}<br />
+                </div>`;
+        },
+      },
+      title: {
+        text: "Users by Country",
+        fontStyle: "bold",
+        fontSize: 16,
+      },
+    },
+    "Number of Users by Plan": {
+      type: "bar",
+      data: [],
+      series: [{ type: "bar", xKey: "plan", yKey: "users" }],
+      legend: {
+        position: "bottom",
+        interactive: true,
+        item: {
+          marker: {
+            shape: "circle",
+          },
+        },
+      },
+      axes: [
+        {
+          type: "category",
+          position: "bottom",
+          title: { text: "Plan" },
+        },
+        {
+          type: "number",
+          position: "left",
+          title: { text: "Users" },
+        },
+      ],
+      tooltip: {
+        renderer: (params: any) => {
+          return `<div style="padding: 5px; background-color: #fff; border-radius: 3px;">
+                  <b>${params.datum.plan}</b><br />
+                  Users: ${params.datum.users}<br />
+                </div>`;
+        },
+      },
+      title: {
+        text: "Users by Plan",
+        fontStyle: "bold",
+        fontSize: 16,
+      },
+    },
+    "Number of Different Campaign Types Created": {
+      type: "bar",
+      data: [],
+      series: [{ type: "bar", xKey: "campaign", yKey: "count" }],
+      legend: {
+        position: "bottom",
+        interactive: true,
+        item: {
+          marker: {
+            shape: "circle",
+          },
+        },
+      },
+      axes: [
+        {
+          type: "category",
+          position: "bottom",
+          title: { text: "Campaign Type" },
+        },
+        {
+          type: "number",
+          position: "left",
+          title: { text: "Count" },
+        },
+      ],
+      tooltip: {
+        renderer: (params: any) => {
+          return `<div style="padding: 5px; background-color: #fff; border-radius: 3px;">
+                  <b>${params.datum.campaign}</b><br />
+                  Campaigns: ${params.datum.count}<br />
+                </div>`;
+        },
+      },
+      title: {
+        text: "Campaign Types Overview",
+        fontStyle: "bold",
+        fontSize: 16,
+      },
+    },
+    "Number of Upgrades": {
+      type: "card",
+      legend: {
+        position: "bottom",
+        interactive: true,
+        item: {
+          marker: {
+            shape: "circle",
+          },
+        },
+      },
+      axes: [
+        {
+          type: "category",
+          position: "bottom",
+          title: { text: "Time" },
+        },
+        {
+          type: "number",
+          position: "left",
+          title: { text: "Upgrades" },
+        },
+      ],
+      tooltip: {
+        renderer: (params: any) => {
+          return `<div style="padding: 5px; background-color: #fff; border-radius: 3px;">
+                  <b>Upgrades</b><br />
+                  Value: ${params.datum[params.series.yKey]}<br />
+                </div>`;
+        },
+      },
+      title: {
+        text: "Upgrades Overview",
+        fontStyle: "bold",
+        fontSize: 16,
+      },
+    },
+    "Number of Downgrades": {
+      type: "card",
+      legend: {
+        position: "bottom",
+        interactive: true,
+        item: {
+          marker: {
+            shape: "circle",
+          },
+        },
+      },
+      axes: [
+        {
+          type: "category",
+          position: "bottom",
+          title: { text: "Time" },
+        },
+        {
+          type: "number",
+          position: "left",
+          title: { text: "Downgrades" },
+        },
+      ],
+      tooltip: {
+        renderer: (params: any) => {
+          return `<div style="padding: 5px; background-color: #fff; border-radius: 3px;">
+                  <b>Downgrades</b><br />
+                  Value: ${params.datum[params.series.yKey]}<br />
+                </div>`;
+        },
+      },
+      title: {
+        text: "Downgrades Overview",
+        fontStyle: "bold",
+        fontSize: 16,
+      },
+    },
+    "Number of Appointments Booked": {
+      type: "line",
+      data: [],
+      series: [{ type: "line", xKey: "date", yKey: "count" }],
+      legend: {
+        position: "bottom",
+        interactive: true,
+        item: {
+          marker: {
+            shape: "circle",
+          },
+        },
+      },
+      axes: [
+        {
+          type: "category",
+          position: "bottom",
+          title: { text: "Date" },
+        },
+        {
+          type: "number",
+          position: "left",
+          title: { text: "Appointments" },
+        },
+      ],
+      tooltip: {
+        renderer: (params: any) => {
+          return `<div style="padding: 5px; background-color: #fff; border-radius: 3px;">
+                  <b>Appointments</b><br />
+                  Count: ${params.datum[params.series.yKey]}<br />
+                </div>`;
+        },
+      },
+      title: {
+        text: "Appointments Booked",
+        fontStyle: "bold",
+        fontSize: 16,
+      },
+    },
+    "Number of Conversations": {
+      type: "line",
+      data: [],
+      series: [{ type: "line", xKey: "date", yKey: "messages" }],
+      legend: {
+        position: "bottom",
+        interactive: true,
+        item: {
+          marker: {
+            shape: "circle",
+          },
+        },
+      },
+      axes: [
+        {
+          type: "category",
+          position: "bottom",
+          title: { text: "Date" },
+        },
+        {
+          type: "number",
+          position: "left",
+          title: { text: "Messages" },
+        },
+      ],
+      tooltip: {
+        renderer: (params: any) => {
+          return `<div style="padding: 5px; background-color: #fff; border-radius: 3px;">
+                  <b>Appointments</b><br />
+                  Messages: ${params.datum[params.series.yKey]}<br />
+                </div>`;
+        },
+      },
+      title: {
+        text: "Campaign Types Overview",
+        fontStyle: "bold",
+        fontSize: 16,
+      },
+    },
+  });
   const [selectedMetric, setSelectedMetric] = useState<string>(
-    "No of Registered Users"
+    "Number of Registered Users"
   );
-  const [randomNumber, setRandomNumber] = useState<number | null>(null);
+
+  const [type, setType] = useState<"card" | "line" | "bar" | "pie">("card");
+  const [selectedOptions, setSelectedOptions] = useState<any>(
+    chartOptions[selectedMetric]
+  );
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [loading, setLoading] = useState<boolean>(false);
+
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   const handleSelectChange = (value: string) => {
+    setType(chartOptions[value]?.type);
     setSelectedMetric(value);
   };
 
-  const selectedOptions = useMemo(
-    () => chartOptionsMap[selectedMetric],
-    [selectedMetric]
-  );
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      const endpoint =
+        metricEndpointMap[selectedMetric] || "/metrics/users-count";
+      const data = await fetchChartData(endpoint);
+
+      if (!data) {
+        toast.error("Error fetching chart data");
+        setLoading(false);
+        return;
+      }
+
+      console.log("Data: ", data);
+
+      // Extract the correct data for the selected metric
+      const newData =
+        selectedMetric === "Number of Registered Users"
+          ? data?.data?.totalUsers
+          : selectedMetric === "Number of Users by Country"
+          ? data?.data
+          : selectedMetric === "Number of Users by Plan"
+          ? data?.data
+          : selectedMetric === "Number of Verified / Active users"
+          ? data?.data?.dailyCounts
+          : selectedMetric === "Number of Different Campaign Types Created"
+          ? data?.data?.dailyCounts
+          : selectedMetric === "Number of Upgrades"
+          ? data?.data?.dailyCounts
+          : selectedMetric === "Number of Downgrades"
+          ? data?.data?.dailyCounts
+          : selectedMetric === "Number of Appointments Booked"
+          ? data?.data?.dailyAppointments
+          : selectedMetric === "Number of Conversations"
+          ? data?.data?.dailyCounts
+          : data?.data?.dailyCounts;
+
+      // Update the chart options correctly
+      setChartOptions((prev: any) => ({
+        ...prev,
+        [selectedMetric]: {
+          ...prev[selectedMetric],
+          data: newData,
+        },
+      }));
+
+      setLoading(false);
+    };
+
+    fetchData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedMetric]);
 
   useEffect(() => {
-    setRandomNumber(Math.floor(Math.random() * 1000));
-  }, [selectedMetric]);
+    console.log("CHART OPTIONS: ", chartOptions);
+
+    setSelectedOptions(chartOptions[selectedMetric]);
+  }, [chartOptions, selectedMetric]);
+
+  if (!isClient) {
+    return null;
+  }
 
   return (
     <div className='p-4 space-y-4 h-full'>
@@ -99,7 +493,7 @@ export default function ChartPage() {
             onValueChange={handleSelectChange}
             defaultValue={selectedMetric}
           >
-            {Object.keys(chartOptionsMap).map((metric) => (
+            {Object.keys(chartOptions).map((metric) => (
               <SelectItem key={metric} value={metric}>
                 {metric}
               </SelectItem>
@@ -108,72 +502,37 @@ export default function ChartPage() {
         </div>
       </div>
 
-      {selectedOptions.type === "card" ? (
+      {loading && (
+        <div className='flex items-center justify-center h-full w-full'>
+          <Loader />
+        </div>
+      )}
+
+      {selectedOptions && type === "card" && (
         <MetricCard
           title={selectedMetric}
-          growth={randomNumber ?? 0}
-          value={randomNumber ?? 0}
+          value={+selectedOptions.data}
           icon='/assets/total_sales.svg'
           background_color='#f0f0f0'
         />
-      ) : (
+      )}
+
+      {selectedOptions && type !== "card" && (
         <div className='flex flex-col space-y-4 my-6 mx-2 md:mx-4 h-full'>
           <h2 className='font-bold text-lg md:text-xl font-inter'>Charts</h2>
           <div className='h-fit'>
-            <AgCharts options={selectedOptions} className="!bg-transparent" style={{ width: "100%", height: "700px", backgroundColor: "transparent" }} />
+            <AgCharts
+              options={selectedOptions}
+              className='!bg-transparent'
+              style={{
+                width: "100%",
+                height: "700px",
+                backgroundColor: "transparent",
+              }}
+            />
           </div>
         </div>
       )}
     </div>
   );
 }
-
-interface MetricCardProps {
-  title: string;
-  growth: number;
-  value: string | number;
-  icon: string;
-  background_color: string;
-}
-
-export const MetricCard: FC<MetricCardProps> = ({
-  title,
-  growth,
-  value,
-  icon,
-  background_color,
-}) => {
-  return (
-    <div className='flex flex-col w-full xs:w-1/2 md:w-1/3 lg:w-1/4 px-2 py-2'>
-      <div
-        className='py-6 px-4 space-y-4 rounded-xl flex flex-col justify-between shadow-md transition-transform hover:scale-100'
-        style={{ backgroundColor: background_color }}
-      >
-        {/* Icon */}
-        <img className='w-6 h-6 xl:w-8 xl:h-8' src={icon} alt='icon' />
-
-        {/* Value */}
-        <h4 className='text-base sm:text-lg font-semibold font-rubik text-left px-1'>
-          {value}
-        </h4>
-
-        {/* Title and Growth */}
-        <div className='flex flex-row w-full justify-between mt-4'>
-          <h1 className='text-secondary font-medium font-rubik text-sm sm:text-base'>
-            {title}
-          </h1>
-          <div className='flex items-center sm:justify-end text-sm font-rubik sm:mt-0'>
-            {growth > 0 ? (
-              <IoIosArrowRoundUp className='text-green-500 text-lg sm:text-xl' />
-            ) : (
-              <IoIosArrowRoundDown className='text-red-500 text-lg sm:text-xl' />
-            )}
-            <p className='ml-1' style={{ color: growth > 0 ? "green" : "red" }}>
-              {growth}
-            </p>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
