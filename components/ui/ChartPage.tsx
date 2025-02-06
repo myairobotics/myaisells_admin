@@ -10,7 +10,7 @@ import Loader from "../Molecules/Loader";
 import { MetricCard } from "./MetricCard";
 
 const endpoints = {
-  subscription: "/metrics/subscription",
+  subscription: "/metrics/subscriptions",
   userCount: "/metrics/users-count",
   campaigns: "/metrics/campaigns",
   conversations: "/metrics/conversations",
@@ -47,6 +47,7 @@ export default function ChartPage() {
       type: "card",
       data: [],
       legend: {
+        enabled: true,
         position: "bottom",
         interactive: true,
         item: {
@@ -89,17 +90,16 @@ export default function ChartPage() {
           xKey: "date",
           yKey: "unverified",
           name: "Unverified Users",
-          stroke: "red",
         },
         {
           type: "line",
           xKey: "date",
           yKey: "verified",
           name: "Verified Users",
-          stroke: "green",
         },
       ],
       legend: {
+        enabled: true,
         position: "bottom",
         interactive: true,
         item: {
@@ -137,8 +137,20 @@ export default function ChartPage() {
     "Number of Users by Country": {
       type: "pie",
       data: [],
-      series: [{ type: "pie", angleKey: "count", labelKey: "country" }],
+      series: [
+        {
+          type: "pie",
+          angleKey: "count",
+          labelKey: "country",
+          calloutLabelKey: "country",
+          calloutLabel: {
+            enabled: false,
+            fontSize: 12,
+          },
+        },
+      ],
       legend: {
+        enabled: true,
         position: "bottom",
         interactive: true,
         item: {
@@ -149,23 +161,34 @@ export default function ChartPage() {
       },
       tooltip: {
         renderer: (params: any) => {
+          console.log(params.datum); // Debugging: Check what is actually available
           return `<div style="padding: 5px; background-color: #fff; border-radius: 3px;">
-                  <b>${params.datum.country}</b><br />
-                  Users: ${params.datum.users}<br />
-                </div>`;
+              <b>${params.datum.country || "Unknown"}</b><br />
+              Users: ${params.datum.count || 0}<br />
+            </div>`;
         },
       },
+
       title: {
         text: "Users by Country",
         fontStyle: "bold",
         fontSize: 16,
       },
     },
+
     "Number of Users by Plan": {
       type: "bar",
       data: [],
-      series: [{ type: "bar", xKey: "plan", yKey: "users" }],
+      series: [
+        {
+          type: "line",
+          xKey: "plan",
+          yKey: "count",
+          calloutLabelKey: "plan",
+        },
+      ],
       legend: {
+        enabled: true,
         position: "bottom",
         interactive: true,
         item: {
@@ -178,12 +201,16 @@ export default function ChartPage() {
         {
           type: "category",
           position: "bottom",
-          title: { text: "Plan" },
+          title: {
+            text: "Plan",
+          },
         },
         {
           type: "number",
           position: "left",
-          title: { text: "Users" },
+          title: {
+            text: "Users",
+          },
         },
       ],
       tooltip: {
@@ -203,8 +230,24 @@ export default function ChartPage() {
     "Number of Different Campaign Types Created": {
       type: "bar",
       data: [],
-      series: [{ type: "bar", xKey: "campaign", yKey: "count" }],
+      series: [
+        {
+          type: "bar",
+          xKey: "date",
+          yKey: "outreach",
+          stacked: false,
+          yName: "Outreach Campaigns",
+        },
+        {
+          type: "bar",
+          xKey: "date",
+          yKey: "sales",
+          stacked: false,
+          yName: "Sales Campaigns",
+        },
+      ],
       legend: {
+        enabled: true,
         position: "bottom",
         interactive: true,
         item: {
@@ -316,8 +359,16 @@ export default function ChartPage() {
     "Number of Appointments Booked": {
       type: "line",
       data: [],
-      series: [{ type: "line", xKey: "date", yKey: "count" }],
+      series: [
+        {
+          type: "line",
+          xKey: "date",
+          yKey: "count",
+          yName: "Appointments",
+        },
+      ],
       legend: {
+        enabled: true,
         position: "bottom",
         interactive: true,
         item: {
@@ -330,24 +381,27 @@ export default function ChartPage() {
         {
           type: "category",
           position: "bottom",
-          title: { text: "Date" },
+          title: { text: "Date of Appointment" },
         },
         {
           type: "number",
           position: "left",
-          title: { text: "Appointments" },
+          title: { text: "Number of Appointments" },
         },
       ],
       tooltip: {
-        renderer: (params: any) => {
-          return `<div style="padding: 5px; background-color: #fff; border-radius: 3px;">
-                  <b>Appointments</b><br />
-                  Count: ${params.datum[params.series.yKey]}<br />
+        renderer: (params) => {
+          const date = params.datum["date"] || "N/A";
+          const count = params.datum[params.series.yKey] || 0;
+          return `<div style="padding: 5px; background-color: #fff; border-radius: 3px; border: 1px solid #ddd;">
+                  <b>Appointments Booked</b><br />
+                  <b>Date:</b> ${date}<br />
+                  <b>Count:</b> ${count}
                 </div>`;
         },
       },
       title: {
-        text: "Appointments Booked",
+        text: "Total Appointments Booked",
         fontStyle: "bold",
         fontSize: 16,
       },
@@ -355,7 +409,32 @@ export default function ChartPage() {
     "Number of Conversations": {
       type: "line",
       data: [],
-      series: [{ type: "line", xKey: "date", yKey: "messages" }],
+      series: [
+        {
+          type: "line",
+          xKey: "date",
+          yKey: "web_agents",
+          yName: "Web Agents",
+        },
+        {
+          type: "line",
+          xKey: "date",
+          yKey: "web_agent_chat",
+          yName: "Web Agent Chats",
+        },
+        {
+          type: "line",
+          xKey: "date",
+          yKey: "outreach",
+          yName: "Outreach",
+        },
+        {
+          type: "line",
+          xKey: "date",
+          yKey: "sales",
+          yName: "Sales",
+        },
+      ],
       legend: {
         position: "bottom",
         interactive: true,
@@ -369,12 +448,16 @@ export default function ChartPage() {
         {
           type: "category",
           position: "bottom",
-          title: { text: "Date" },
+          title: {
+            text: "Date",
+          },
         },
         {
           type: "number",
           position: "left",
-          title: { text: "Messages" },
+          title: {
+            text: "Number of Conversations",
+          },
         },
       ],
       tooltip: {
@@ -386,7 +469,7 @@ export default function ChartPage() {
         },
       },
       title: {
-        text: "Campaign Types Overview",
+        text: "Number of Conversations",
         fontStyle: "bold",
         fontSize: 16,
       },
@@ -423,42 +506,41 @@ export default function ChartPage() {
 
       if (!data) {
         toast.error("Error fetching chart data");
-        setLoading(false);
         return;
       }
 
-      // console.log("Data: ", data);
+      if (data) {
+        // Extract the correct data for the selected metric
+        const newData =
+          selectedMetric === "Number of Registered Users"
+            ? data?.data?.totalUsers
+            : selectedMetric === "Number of Users by Country"
+            ? data?.data
+            : selectedMetric === "Number of Users by Plan"
+            ? data?.data
+            : selectedMetric === "Number of Verified / Active users"
+            ? data?.data?.dailyCounts
+            : selectedMetric === "Number of Different Campaign Types Created"
+            ? data?.data?.dailyCounts
+            : selectedMetric === "Number of Upgrades"
+            ? data?.data?.dailyCounts
+            : selectedMetric === "Number of Downgrades"
+            ? data?.data?.dailyCounts
+            : selectedMetric === "Number of Appointments Booked"
+            ? data?.data?.dailyAppointments
+            : selectedMetric === "Number of Conversations"
+            ? data?.data?.dailyCounts
+            : data?.data?.dailyCounts;
 
-      // Extract the correct data for the selected metric
-      const newData =
-        selectedMetric === "Number of Registered Users"
-          ? data?.data?.totalUsers
-          : selectedMetric === "Number of Users by Country"
-          ? data?.data
-          : selectedMetric === "Number of Users by Plan"
-          ? data?.data
-          : selectedMetric === "Number of Verified / Active users"
-          ? data?.data?.dailyCounts
-          : selectedMetric === "Number of Different Campaign Types Created"
-          ? data?.data?.dailyCounts
-          : selectedMetric === "Number of Upgrades"
-          ? data?.data?.dailyCounts
-          : selectedMetric === "Number of Downgrades"
-          ? data?.data?.dailyCounts
-          : selectedMetric === "Number of Appointments Booked"
-          ? data?.data?.dailyAppointments
-          : selectedMetric === "Number of Conversations"
-          ? data?.data?.dailyCounts
-          : data?.data?.dailyCounts;
-
-      // Update the chart options correctly
-      setChartOptions((prev: any) => ({
-        ...prev,
-        [selectedMetric]: {
-          ...prev[selectedMetric],
-          data: newData,
-        },
-      }));
+        // Update the chart options correctly
+        setChartOptions((prev: any) => ({
+          ...prev,
+          [selectedMetric]: {
+            ...prev[selectedMetric],
+            data: newData,
+          },
+        }));
+      }
 
       setLoading(false);
     };
@@ -467,8 +549,6 @@ export default function ChartPage() {
   }, [selectedMetric]);
 
   useEffect(() => {
-    console.log("CHART OPTIONS: ", chartOptions);
-
     setSelectedOptions(chartOptions[selectedMetric]);
   }, [chartOptions, selectedMetric]);
 
@@ -500,36 +580,35 @@ export default function ChartPage() {
         </div>
       </div>
 
-      {loading && (
+      {loading ? (
         <div className='flex items-center justify-center h-full w-full'>
           <Loader />
         </div>
-      )}
-
-      {selectedOptions && type === "card" && (
+      ) : selectedOptions && type === "card" ? (
         <MetricCard
           title={selectedMetric}
           value={+selectedOptions.data}
           icon='/assets/total_sales.svg'
           background_color='#f0f0f0'
         />
-      )}
-
-      {selectedOptions && type !== "card" && (
-        <div className='flex flex-col space-y-4 my-6 mx-2 md:mx-4 h-full'>
-          <h2 className='font-bold text-lg md:text-xl font-inter'>Charts</h2>
-          <div className='h-fit'>
-            <AgCharts
-              options={selectedOptions}
-              className='!bg-transparent'
-              style={{
-                width: "100%",
-                height: "700px",
-                backgroundColor: "transparent",
-              }}
-            />
+      ) : (
+        selectedOptions &&
+        type !== "card" && (
+          <div className='flex flex-col space-y-4 my-6 mx-2 md:mx-4 h-full'>
+            <h2 className='font-bold text-lg md:text-xl font-inter'>Charts</h2>
+            <div className='h-fit'>
+              <AgCharts
+                options={selectedOptions}
+                className='!bg-transparent'
+                style={{
+                  width: "100%",
+                  height: "700px",
+                  backgroundColor: "transparent",
+                }}
+              />
+            </div>
           </div>
-        </div>
+        )
       )}
     </div>
   );
