@@ -56,7 +56,7 @@ jobs:
           key: ${{ secrets.PROD_VM_SSH_KEY }}  # Set the VM SSH private key in GitHub secrets
           script: |
             cd sales-ai
-            # Stop and remove the old container
+            # Stop and remove the old containers
             docker compose down
             # Pull the latest Docker image
             docker pull myairobotics/myai-admin
