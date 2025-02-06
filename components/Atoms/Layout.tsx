@@ -3,14 +3,13 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import Input from "./Input";
 import Logo from "./Logo";
 import { LuChevronsUpDown, LuSearch } from "react-icons/lu";
 import { HiOutlineMenuAlt1 } from "react-icons/hi";
 import { FaBell } from "react-icons/fa";
-import { FaCirclePlus } from "react-icons/fa6";
 import { MdLogout } from "react-icons/md";
 import { usePathname } from "next/navigation";
+import Image from "next/image";
 
 type LayoutProps = {
   children: React.ReactNode;
@@ -19,9 +18,8 @@ type LayoutProps = {
 const Layout = ({ children }: LayoutProps) => {
   const pathname = usePathname();
   const [isDropDownOpen, setIsDropDownOpen] = useState(false);
-  const [BusinessDropDownOptions, setBusinessDropDownOptions] = useState<any[]>(
-    []
-  );
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const [BusinessDropDownOptions] = useState<any[]>([]);
 
   // Add the type for the ref here
   const dropdownRef = useRef<HTMLDivElement | null>(null);
@@ -46,7 +44,6 @@ const Layout = ({ children }: LayoutProps) => {
   const Tab = ({
     name,
     link,
-    isSubTab,
     relatedLinks = [],
     activeIcon,
     inactiveIcon,
@@ -84,7 +81,9 @@ const Layout = ({ children }: LayoutProps) => {
               backgroundColor: "transparent",
             }}
           >
-            <img
+            <Image
+              width={1000}
+              height={1000}
               src={`/assets/${inactiveIcon}`}
               alt={`${name} icon`}
               style={{
@@ -102,11 +101,7 @@ const Layout = ({ children }: LayoutProps) => {
     );
   };
 
-  const {
-    register,
-    control,
-    formState: { errors },
-  } = useForm();
+  const { control } = useForm();
 
   return (
     <div className='bg-[#F9FBFF] transition-all ease-in-out scroll-smooth container mx-auto'>
@@ -117,7 +112,7 @@ const Layout = ({ children }: LayoutProps) => {
           <Controller
             name='search_text'
             control={control}
-            render={({ field }) => (
+            render={({}) => (
               <div>
                 <div className='p-2 mt-0 flex flex-row items-center form-input w-full rounded-xl py-3 text-lightblack bg-skygray border-[2px]'>
                   <LuSearch className='text-xl text-gray-500' />
@@ -143,7 +138,9 @@ const Layout = ({ children }: LayoutProps) => {
           <FaBell className='text-xl' />
           <div className='flex flex-row items-center gap-[30px] cursor-pointer'>
             <div className='flex flex-row items-center'>
-              <img
+              <Image
+                width={1000}
+                height={1000}
                 className='rounded-full w-[30px] h-[30px] object-cover'
                 src={"/assets/placeholder.jpg"}
                 alt='logo'
@@ -169,7 +166,9 @@ const Layout = ({ children }: LayoutProps) => {
                           key={index}
                           className='flex items-center justify-start space-x-2 py-2 mx-4'
                         >
-                          <img
+                          <Image
+                            width={1000}
+                            height={1000}
                             className='rounded-full w-[30px] h-[30px] object-cover'
                             src={option?.logo || "/assets/placeholder.jpg"}
                             alt='logo'

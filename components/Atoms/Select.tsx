@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState } from "react";
 
 export function Select({ onValueChange, defaultValue, children }: any) {
@@ -38,7 +39,7 @@ export function Select({ onValueChange, defaultValue, children }: any) {
   );
 }
 
-export function SelectItem({ children, value, onClick }: any) {
+export function SelectItem({ children, onClick }: any) {
   return (
     <li
       onClick={onClick}

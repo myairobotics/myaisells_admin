@@ -24,11 +24,9 @@ const Input: React.FC<InputProps> = ({
   className,
   validationError, // Error message
   isValid, // Boolean
-  handleInputChange, // Function
   inputWidth, // Input size
   status, // Accepts warning, error, success strings only
   type: Type, // Input Type
-  inputSize,
   ...inputProps // Other properties
 }) => {
   const [showInput, setShowInput] = useState<boolean | undefined>(false);
