@@ -1,0 +1,64 @@
+name: Build and Push React App Docker Image
+
+on:
+  push:
+    branches:
+      - main # Trigger on push to main branch, adjust to your branch
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout the repository
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Step 2: Set up Docker Buildx
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      # Step 3: Cache dependencies (optional but recommended)
+      - name: Cache node modules
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-modules-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-modules-
+
+      # Step 4: Install dependencies and build the React app
+      - name: Install dependencies and build React app
+        run: |
+          npm install
+          npm run build
+
+      - name: Build Docker image
+        run: |
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/myai-admin:latest -f Dockerfile .
+
+      # Step 6: Log in to Docker Hub
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      # Step 7: Push the Docker image to Docker Hub
+      - name: Push Docker image
+        run: |
+          docker push ${{ secrets.DOCKER_USERNAME }}/myai-admin:latest
+      - name: Deploy to VM
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.PROD_VM_HOST }}  # Set the VM host in GitHub secrets
+          username: ${{ secrets.PROD_VM_USER }}  # Set the VM username in GitHub secrets
+          key: ${{ secrets.PROD_VM_SSH_KEY }}  # Set the VM SSH private key in GitHub secrets
+          script: |
+            cd sales-ai
+            # Stop and remove the old container
+            docker compose down
+            # Pull the latest Docker image
+            docker pull myairobotics/myai-admin
+            # Restart the container with the new image
+            docker compose up -d
