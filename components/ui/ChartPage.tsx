@@ -16,6 +16,7 @@ const endpoints = {
   conversations: "/metrics/conversations",
   appointments: "/metrics/appointments",
   userByCountry: "/metrics/users-by-country",
+  upgradeDowngrade: "/metrics/downgrade-upgrade",
 };
 
 const metricEndpointMap: Record<string, string> = {
@@ -24,8 +25,7 @@ const metricEndpointMap: Record<string, string> = {
   "Number of Verified / Active users": endpoints.userCount,
   "Number of Users by Plan": endpoints.subscription,
   "Number of Different Campaign Types Created": endpoints.campaigns,
-  "Number of Upgrades": endpoints.subscription,
-  "Number of Downgrades": endpoints.subscription,
+  "Number of Upgrades / Downgrades": endpoints.upgradeDowngrade,
   "Number of Appointments Booked": endpoints.appointments,
   "Number of Conversations": endpoints.conversations,
 };
@@ -43,45 +43,6 @@ export const fetchChartData = async (url: string) => {
 
 export default function ChartPage() {
   const [chartOptions, setChartOptions] = useState({
-    "Number of Registered Users": {
-      type: "card",
-      data: [],
-      legend: {
-        enabled: true,
-        position: "bottom",
-        interactive: true,
-        item: {
-          marker: {
-            shape: "circle",
-          },
-        },
-      },
-      axes: [
-        {
-          type: "category",
-          position: "bottom",
-          title: { text: "Date" },
-        },
-        {
-          type: "number",
-          position: "left",
-          title: { text: "Users" },
-        },
-      ],
-      tooltip: {
-        renderer: (params: any) => {
-          return `<div style="padding: 5px; background-color: #fff; border-radius: 3px;">
-                <b>Registered Users</b><br />
-                Users: ${params.datum[params.series.yKey]}<br />
-              </div>`;
-        },
-      },
-      title: {
-        text: "Registered Users Overview",
-        fontStyle: "bold",
-        fontSize: 16,
-      },
-    },
     "Number of Verified / Active users": {
       type: "line",
       series: [
@@ -134,6 +95,45 @@ export default function ChartPage() {
         fontSize: 16,
       },
     },
+    "Number of Registered Users": {
+      type: "card",
+      data: [],
+      legend: {
+        enabled: true,
+        position: "bottom",
+        interactive: true,
+        item: {
+          marker: {
+            shape: "circle",
+          },
+        },
+      },
+      axes: [
+        {
+          type: "category",
+          position: "bottom",
+          title: { text: "Date" },
+        },
+        {
+          type: "number",
+          position: "left",
+          title: { text: "Users" },
+        },
+      ],
+      tooltip: {
+        renderer: (params: any) => {
+          return `<div style="padding: 5px; background-color: #fff; border-radius: 3px;">
+                <b>Registered Users</b><br />
+                Users: ${params.datum[params.series.yKey]}<br />
+              </div>`;
+        },
+      },
+      title: {
+        text: "Registered Users Overview",
+        fontStyle: "bold",
+        fontSize: 16,
+      },
+    },
     "Number of Users by Country": {
       type: "pie",
       data: [],
@@ -161,7 +161,6 @@ export default function ChartPage() {
       },
       tooltip: {
         renderer: (params: any) => {
-          console.log(params.datum); // Debugging: Check what is actually available
           return `<div style="padding: 5px; background-color: #fff; border-radius: 3px;">
               <b>${params.datum.country || "Unknown"}</b><br />
               Users: ${params.datum.count || 0}<br />
@@ -175,7 +174,6 @@ export default function ChartPage() {
         fontSize: 16,
       },
     },
-
     "Number of Users by Plan": {
       type: "bar",
       data: [],
@@ -282,9 +280,10 @@ export default function ChartPage() {
         fontSize: 16,
       },
     },
-    "Number of Upgrades": {
-      type: "card",
+    "Number of Upgrades / Downgrades": {
+      type: "line",
       legend: {
+        enabled: true,
         position: "bottom",
         interactive: true,
         item: {
@@ -293,65 +292,58 @@ export default function ChartPage() {
           },
         },
       },
+      series: [
+        {
+          type: "line",
+          xKey: "month",
+          yKey: "upgraded",
+          yName: "Number of Upgrades",
+        },
+        {
+          type: "line",
+          xKey: "month",
+          yKey: "downgraded",
+          yName: "Number of Downgrades",
+        },
+      ],
       axes: [
         {
           type: "category",
           position: "bottom",
-          title: { text: "Time" },
-        },
-        {
-          type: "number",
-          position: "left",
-          title: { text: "Upgrades" },
-        },
-      ],
-      tooltip: {
-        renderer: (params: any) => {
-          return `<div style="padding: 5px; background-color: #fff; border-radius: 3px;">
-                  <b>Upgrades</b><br />
-                  Value: ${params.datum[params.series.yKey]}<br />
-                </div>`;
-        },
-      },
-      title: {
-        text: "Upgrades Overview",
-        fontStyle: "bold",
-        fontSize: 16,
-      },
-    },
-    "Number of Downgrades": {
-      type: "card",
-      legend: {
-        position: "bottom",
-        interactive: true,
-        item: {
-          marker: {
-            shape: "circle",
+          title: {
+            text: "Month and Year",
+          },
+          label: {
+            formatter: (params: any) => {
+              return params.datum.year
+                ? `${params.value}\n${params.datum.year}`
+                : `${params.value}`;
+            },
           },
         },
-      },
-      axes: [
-        {
-          type: "category",
-          position: "bottom",
-          title: { text: "Time" },
-        },
         {
           type: "number",
           position: "left",
-          title: { text: "Downgrades" },
+          title: {
+            text: "Count of Upgrades and Downgrades",
+          },
         },
       ],
       tooltip: {
+        enabled: true,
         renderer: (params: any) => {
-          return `<div style="padding: 5px; background-color: #fff; border-radius: 3px;">
-                  <b>Downgrades</b><br />
-                  Value: ${params.datum[params.series.yKey]}<br />
-                </div>`;
+          const { datum, series } = params;
+          return `<div style="padding: 8px; background: white; border-radius: 4px; box-shadow: 0px 0px 5px rgba(0,0,0,0.2);">
+            <b>${series.yName}</b><br />
+            <b>Month:</b> ${datum?.month || "N/A"}<br />
+            <b>Year:</b> ${datum?.year || "N/A"}<br />
+            <b>Count:</b> ${datum?.[series.yKey] || 0}
+        </div>`;
         },
       },
+
       title: {
-        text: "Downgrades Overview",
+        text: "Monthly Upgrades and Downgrades Analysis",
         fontStyle: "bold",
         fontSize: 16,
       },
@@ -461,6 +453,7 @@ export default function ChartPage() {
         },
       ],
       tooltip: {
+        enabled: true,
         renderer: (params: any) => {
           return `<div style="padding: 5px; background-color: #fff; border-radius: 3px;">
                   <b>Appointments</b><br />
@@ -476,10 +469,10 @@ export default function ChartPage() {
     },
   });
   const [selectedMetric, setSelectedMetric] = useState<string>(
-    "Number of Registered Users"
+    "Number of Verified / Active users"
   );
 
-  const [type, setType] = useState<"card" | "line" | "bar" | "pie">("card");
+  const [type, setType] = useState<"card" | "line" | "bar" | "pie">("line");
   const [selectedOptions, setSelectedOptions] = useState<any>(
     chartOptions[selectedMetric]
   );
@@ -522,10 +515,8 @@ export default function ChartPage() {
             ? data?.data?.dailyCounts
             : selectedMetric === "Number of Different Campaign Types Created"
             ? data?.data?.dailyCounts
-            : selectedMetric === "Number of Upgrades"
-            ? data?.data?.dailyCounts
-            : selectedMetric === "Number of Downgrades"
-            ? data?.data?.dailyCounts
+            : selectedMetric === "Number of Upgrades / Downgrades"
+            ? data?.data
             : selectedMetric === "Number of Appointments Booked"
             ? data?.data?.dailyAppointments
             : selectedMetric === "Number of Conversations"
@@ -549,6 +540,7 @@ export default function ChartPage() {
   }, [selectedMetric]);
 
   useEffect(() => {
+    console.log("selectedOptions", chartOptions);
     setSelectedOptions(chartOptions[selectedMetric]);
   }, [chartOptions, selectedMetric]);
 
