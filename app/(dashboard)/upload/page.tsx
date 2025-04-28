@@ -28,7 +28,7 @@ export default function MultipleVideoUpload() {
         if (upload.thumbnailUrl) URL.revokeObjectURL(upload.thumbnailUrl);
       });
     };
-  }, []);
+  }, [uploads]);
 
   const validateFile = (file: File, type: "video" | "image") => {
     if (file.size > FILE_SIZE_LIMITS[type]) {
@@ -160,6 +160,7 @@ export default function MultipleVideoUpload() {
 
       toast.success("Videos uploaded successfully!");
       setUploads([]);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       toast.error(error.response?.data?.message || "Upload failed");
     } finally {

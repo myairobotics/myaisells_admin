@@ -9,7 +9,6 @@ import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 import Image from "next/image";
 import axios from "axios";
-import Axios from "@/components/utils/axios";
 
 type SignInData = {
   email: string;
@@ -47,8 +46,12 @@ export default function SignIn() {
         router.push("/");
         toast.success(response.data.message || "Signed in successfully!");
       }
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || "Failed to sign in");
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        toast.error(error.response?.data?.message || "Failed to sign in");
+      } else {
+        toast.error("An unexpected error occurred");
+      }
     } finally {
       setLoading(false);
     }

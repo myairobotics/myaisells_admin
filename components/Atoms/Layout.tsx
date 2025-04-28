@@ -10,7 +10,6 @@ import { FaBell } from "react-icons/fa";
 import { MdLogout } from "react-icons/md";
 import { usePathname } from "next/navigation";
 import Image from "next/image";
-import { toast } from "react-hot-toast";
 import { useAuth } from "@/context/AuthContext";
 
 type LayoutProps = {
@@ -105,12 +104,6 @@ const Layout = ({ children }: LayoutProps) => {
   };
 
   const { control } = useForm();
-
-  const handleSignOut = () => {
-    localStorage.removeItem("token");
-    window.location.href = "/auth/signin";
-    toast.success("Signed out successfully!");
-  };
 
   return (
     <div className="bg-[#F9FBFF] transition-all ease-in-out scroll-smooth container mx-auto">
