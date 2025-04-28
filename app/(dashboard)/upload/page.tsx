@@ -11,6 +11,7 @@ import { toast } from "react-toastify";
 import { FiX } from "react-icons/fi";
 import { PiPlus } from "react-icons/pi";
 import Image from "next/image";
+import Input from "@/components/Atoms/Input";
 
 interface VideoUploadFormWithUrls extends VideoUploadForm {
   videoUrl?: string;
@@ -28,7 +29,8 @@ export default function MultipleVideoUpload() {
         if (upload.thumbnailUrl) URL.revokeObjectURL(upload.thumbnailUrl);
       });
     };
-  }, [uploads]);
+    //  eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const validateFile = (file: File, type: "video" | "image") => {
     if (file.size > FILE_SIZE_LIMITS[type]) {
@@ -254,7 +256,7 @@ export default function MultipleVideoUpload() {
                   <label className="block text-sm font-medium text-gray-700">
                     Title
                   </label>
-                  <input
+                  <Input
                     type="text"
                     className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 ${
                       upload.errors?.title ? "border-red-500" : ""
@@ -277,8 +279,9 @@ export default function MultipleVideoUpload() {
                   <label className="block text-sm font-medium text-gray-700">
                     Duration (MM:SS)
                   </label>
-                  <input
+                  <Input
                     type="text"
+                    readOnly={true}
                     placeholder="e.g. 05:30"
                     pattern="[0-9]{1,2}:[0-9]{2}"
                     className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 ${
@@ -303,7 +306,7 @@ export default function MultipleVideoUpload() {
                     Description
                   </label>
                   <textarea
-                    className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 ${
+                    className={`mt-1 px-3 py-2 border-2 !border-gray-200 rounded-lg block w-full outline-none shadow-sm focus:border-indigo-500 focus:ring-indigo-500 ${
                       upload.errors?.description ? "border-red-500" : ""
                     }`}
                     rows={3}
@@ -366,6 +369,8 @@ export default function MultipleVideoUpload() {
                   />
                   {upload.thumbnailUrl && (
                     <Image
+                      height={1000}
+                      width={1000}
                       src={upload.thumbnailUrl}
                       alt="Thumbnail preview"
                       className="mt-2 max-h-32 rounded object-cover"

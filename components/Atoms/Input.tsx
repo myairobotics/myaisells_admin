@@ -45,7 +45,7 @@ const Input: React.FC<InputProps> = ({
       : "#1E1E1E60";
   return (
     <div
-      className='space-y-1 w-full'
+      className="space-y-1 w-full"
       style={{
         width:
           inputWidth && typeof inputWidth === "string"
@@ -55,7 +55,7 @@ const Input: React.FC<InputProps> = ({
             : "",
       }}
     >
-      <div className='flex relative items-center w-full'>
+      <div className="flex relative items-center w-full">
         <input
           type={showInput ? "" : Type}
           {...inputProps}
@@ -68,12 +68,12 @@ const Input: React.FC<InputProps> = ({
         />
         {Type === "password" && showInput ? (
           <VisibilityOutlined
-            className='absolute right-3 top-1/2 -translate-y-1/2 text-subtext/50 !text-[1.2rem]'
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-subtext/50 !text-[1.2rem]"
             onClick={showInputField}
           />
         ) : Type === "password" && !showInput ? (
           <VisibilityOffOutlined
-            className='absolute right-3 top-1/2 -translate-y-1/2 text-subtext/50 !text-[1.2rem]'
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-subtext/50 !text-[1.2rem]"
             onClick={showInputField}
           />
         ) : (
@@ -81,8 +81,8 @@ const Input: React.FC<InputProps> = ({
         )}
       </div>
       {validationError && isValid && (
-        <div className='flex items-center space-x-1'>
-          <span className='flex items-center'>
+        <div className="flex items-center space-x-1">
+          <span className="flex items-center">
             <InfoOutlined
               sx={{ fontSize: "1.2rem", color: `${statusColor}` }}
             />
