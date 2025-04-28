@@ -10,12 +10,15 @@ import { FaBell } from "react-icons/fa";
 import { MdLogout } from "react-icons/md";
 import { usePathname } from "next/navigation";
 import Image from "next/image";
+import { toast } from "react-hot-toast";
+import { useAuth } from "@/context/AuthContext";
 
 type LayoutProps = {
   children: React.ReactNode;
 };
 
 const Layout = ({ children }: LayoutProps) => {
+  const { logout } = useAuth();
   const pathname = usePathname();
   const [isDropDownOpen, setIsDropDownOpen] = useState(false);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -103,80 +106,86 @@ const Layout = ({ children }: LayoutProps) => {
 
   const { control } = useForm();
 
+  const handleSignOut = () => {
+    localStorage.removeItem("token");
+    window.location.href = "/auth/signin";
+    toast.success("Signed out successfully!");
+  };
+
   return (
-    <div className='bg-[#F9FBFF] transition-all ease-in-out scroll-smooth container mx-auto'>
+    <div className="bg-[#F9FBFF] transition-all ease-in-out scroll-smooth container mx-auto">
       {/* Top Navigation Menu */}
-      <div className='flex items-center justify-between py-2 px-3.5 md:px-7 border-b w-full h-[70px] bg-[#F9FBFF] z-[90] fixed top-0 container mx-auto'>
+      <div className="flex items-center justify-between py-2 px-3.5 md:px-7 border-b w-full h-[70px] bg-[#F9FBFF] z-[90] fixed top-0 container mx-auto">
         <Logo />
-        <div className='w-[40%] hidden md:block'>
+        <div className="w-[40%] hidden md:block">
           <Controller
-            name='search_text'
+            name="search_text"
             control={control}
             render={({}) => (
               <div>
-                <div className='p-2 mt-0 flex flex-row items-center form-input w-full rounded-xl py-3 text-lightblack bg-skygray border-[2px]'>
-                  <LuSearch className='text-xl text-gray-500' />
+                <div className="p-2 mt-0 flex flex-row items-center form-input w-full rounded-xl py-3 text-lightblack bg-skygray border-[2px]">
+                  <LuSearch className="text-xl text-gray-500" />
                   <input
-                    id='search_text'
-                    placeholder='Search anything that comes to mind'
+                    id="search_text"
+                    placeholder="Search anything that comes to mind"
                     required
-                    type='search'
-                    className='w-full outline-none bg-transparent text-gray-600 mx-2 placeholder:text-gray-400'
+                    type="search"
+                    className="w-full outline-none bg-transparent text-gray-600 mx-2 placeholder:text-gray-400"
                   />
                 </div>
               </div>
             )}
           />
         </div>
-        <div className='h-[40px] w-[40px] cursor-pointer rounded-xl bg-lightBlue shrink-0 flex items-center justify-center md:hidden'>
-          <HiOutlineMenuAlt1 className='text-2xl text-white' />
+        <div className="h-[40px] w-[40px] cursor-pointer rounded-xl bg-lightBlue shrink-0 flex items-center justify-center md:hidden">
+          <HiOutlineMenuAlt1 className="text-2xl text-white" />
         </div>
         <div
           onClick={() => setIsDropDownOpen(!isDropDownOpen)}
-          className='flex-row items-center gap-[16px] hidden md:flex'
+          className="flex-row items-center gap-[16px] hidden md:flex"
         >
-          <FaBell className='text-xl' />
-          <div className='flex flex-row items-center gap-[30px] cursor-pointer'>
-            <div className='flex flex-row items-center'>
+          <FaBell className="text-xl" />
+          <div className="flex flex-row items-center gap-[30px] cursor-pointer">
+            <div className="flex flex-row items-center">
               <Image
                 width={1000}
                 height={1000}
-                className='rounded-full w-[30px] h-[30px] object-cover'
+                className="rounded-full w-[30px] h-[30px] object-cover"
                 src={"/assets/placeholder.jpg"}
-                alt='logo'
+                alt="logo"
               />
-              <div className='relative inline-block text-left'>
+              <div className="relative inline-block text-left">
                 <button
-                  type='button'
-                  className='inline-flex w-full justify-center rounded-md px-3 py-2 text-sm font-medium text-gray-900 ring-gray-300'
+                  type="button"
+                  className="inline-flex w-full justify-center rounded-md px-3 py-2 text-sm font-medium text-gray-900 ring-gray-300"
                 >
                   Myai Sells
                 </button>
                 {isDropDownOpen && (
-                  <div ref={dropdownRef} className='flex justify-center'>
+                  <div ref={dropdownRef} className="flex justify-center">
                     <div
-                      className='absolute z-10 mt-2 w-56 origin-top-right divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none'
-                      role='menu'
-                      aria-orientation='vertical'
-                      aria-labelledby='menu-button'
+                      className="absolute z-10 mt-2 w-56 origin-top-right divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
+                      role="menu"
+                      aria-orientation="vertical"
+                      aria-labelledby="menu-button"
                       tabIndex={-1}
                     >
                       {BusinessDropDownOptions?.map((option, index) => (
                         <div
                           key={index}
-                          className='flex items-center justify-start space-x-2 py-2 mx-4'
+                          className="flex items-center justify-start space-x-2 py-2 mx-4"
                         >
                           <Image
                             width={1000}
                             height={1000}
-                            className='rounded-full w-[30px] h-[30px] object-cover'
+                            className="rounded-full w-[30px] h-[30px] object-cover"
                             src={option?.logo || "/assets/placeholder.jpg"}
-                            alt='logo'
+                            alt="logo"
                           />
                           <span
                             id={option.id}
-                            className='text-gray-700 block py-2 text-sm whitespace-nowrap'
-                            role='menuitem'
+                            className="text-gray-700 block py-2 text-sm whitespace-nowrap"
+                            role="menuitem"
                             tabIndex={-1}
                             onClick={() => {
                               setIsDropDownOpen(false);
@@ -186,13 +195,13 @@ const Layout = ({ children }: LayoutProps) => {
                           </span>
                         </div>
                       ))}
-                      <div className='flex justify-start items-center space-x-2 py-2 mx-4'>
-                        <MdLogout size={22} color='gray' />
+                      <div className="flex justify-start items-center space-x-2 py-2 mx-4">
+                        <MdLogout size={22} color="gray" />
                         <button
-                          onClick={() => {}}
-                          type='button'
-                          className='text-gray-700 flex items-center justify-center py-2 text-sm'
-                          role='menuitem'
+                          onClick={logout}
+                          type="button"
+                          className="text-gray-700 flex items-center justify-center py-2 text-sm"
+                          role="menuitem"
                           tabIndex={-1}
                         >
                           Logout
@@ -204,29 +213,35 @@ const Layout = ({ children }: LayoutProps) => {
               </div>
             </div>
             <span
-              id='menu-button'
+              id="menu-button"
               aria-expanded={isDropDownOpen}
-              aria-haspopup='true'
+              aria-haspopup="true"
             >
-              <LuChevronsUpDown className='text-gray-500 text-lg cursor-pointer' />
+              <LuChevronsUpDown className="text-gray-500 text-lg cursor-pointer" />
             </span>
           </div>
         </div>
       </div>
 
       {/* Bottom Content */}
-      <div className='flex justify-between mt-[70px] w-full bg-[#F9FBFF]'>
+      <div className="flex justify-between mt-[70px] w-full bg-[#F9FBFF]">
         {/* Side Navigation */}
-        <div className='h-[calc(100vh-70px)] w-[300px] overflow-y-auto hidden md:flex border-r-[1px] border-r-gray-200 duration-300 flex-col shrink-0 px-3 pt-10 pb-2 fixed top-[70px] bg-[#F9FBFF] z-[90]'>
+        <div className="h-[calc(100vh-70px)] w-[300px] overflow-y-auto hidden md:flex border-r-[1px] border-r-gray-200 duration-300 flex-col shrink-0 px-3 pt-10 pb-2 fixed top-[70px] bg-[#F9FBFF] z-[90]">
           <Tab
-            name='Dashboard'
-            link='/'
-            inactiveIcon='dashboard.svg'
-            activeIcon='dashboard_active.png'
+            name="Dashboard"
+            link="/"
+            inactiveIcon="dashboard.svg"
+            activeIcon="dashboard_active.png"
+          />
+          <Tab
+            name="Upload"
+            link="/upload"
+            inactiveIcon="dashboard.svg"
+            activeIcon="dashboard_active.png"
           />
         </div>
 
-        <div className='flex-1 w-full md:w-[calc(100vw-300px)] h-[calc(100vh-70px)] md:ml-[300px] overflow-hidden'>
+        <div className="flex-1 w-full md:w-[calc(100vw-300px)] h-[calc(100vh-70px)] md:ml-[300px] overflow-hidden">
           {children}
         </div>
       </div>

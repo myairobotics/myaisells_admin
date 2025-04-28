@@ -1,10 +1,10 @@
-import type { Metadata } from "next";
-import { Rubik, Raleway, Inter } from "next/font/google";
 import "./globals.css";
-import Layout from "@/components/Atoms/Layout";
 import ToastProvider from "@/components/Molecules/ToastProvider";
+import { AuthProvider } from "@/context/AuthContext";
+import { Metadata } from "next";
+import { Inter, Raleway, Rubik } from "next/font/google";
+import React from "react";
 
-// Load the fonts from Google Fonts
 const rubik = Rubik({
   variable: "--font-rubik",
   subsets: ["latin"],
@@ -68,21 +68,20 @@ export const metadata: Metadata = {
   },
 };
 
-
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   return (
-    <html lang='en'>
+    <html lang="en">
       <body
         className={`${rubik.variable} ${raleway.variable} ${inter.variable} antialiased`}
       >
-        <Layout>
+        <AuthProvider>
           <ToastProvider />
           {children}
-        </Layout>
+        </AuthProvider>
       </body>
     </html>
   );
