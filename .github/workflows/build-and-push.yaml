@@ -48,17 +48,17 @@ jobs:
       - name: Push Docker image
         run: |
           docker push ${{ secrets.DOCKER_USERNAME }}/myai-admin:latest
-      - name: Deploy to VM
-        uses: appleboy/ssh-action@v1.2.0
-        with:
-          host: ${{ secrets.PROD_VM_HOST }}  # Set the VM host in GitHub secrets
-          username: ${{ secrets.PROD_VM_USER }}  # Set the VM username in GitHub secrets
-          key: ${{ secrets.PROD_VM_SSH_KEY }}  # Set the VM SSH private key in GitHub secrets
-          script: |
-            cd sales-ai
-            # Stop and remove the old containers
-            docker compose down
-            # Pull the latest Docker image
-            docker pull myairobotics/myai-admin
-            # Restart the container with the new image
-            docker compose up -d
+      # - name: Deploy to VM
+      #   uses: appleboy/ssh-action@v1.2.0
+      #   with:
+      #     host: ${{ secrets.PROD_VM_HOST }}  # Set the VM host in GitHub secrets
+      #     username: ${{ secrets.PROD_VM_USER }}  # Set the VM username in GitHub secrets
+      #     key: ${{ secrets.PROD_VM_SSH_KEY }}  # Set the VM SSH private key in GitHub secrets
+      #     script: |
+      #       cd sales-ai
+      #       # Stop and remove the old containers
+      #       docker compose down
+      #       # Pull the latest Docker image
+      #       docker pull myairobotics/myai-admin
+      #       # Restart the container with the new image
+      #       docker compose up -d
