@@ -32,13 +32,13 @@ export default function SignIn() {
         `https://demo.myairesource.us/api/v1/auth/login`,
         data
       );
-      if (response.data?.token) {
-        sessionStorage.setItem("token", response.data.token);
+      if (response.data?.token?.token) {
+        sessionStorage.setItem("token", response.data.token.token);
         const resp = await axios.get<BusinessResponse>(
           `https://demo.myairesource.us/api/v1/businesses`,
           {
             headers: {
-              Authorization: `Bearer ${response.data.token}`,
+              Authorization: `Bearer ${response.data.token.token}`,
             },
           }
         );

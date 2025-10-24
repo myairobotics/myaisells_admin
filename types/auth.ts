@@ -17,8 +17,14 @@ export interface Profile {
   user: Business;
 }
 
-export interface AuthResponse {
+export interface TokenData {
   token: string;
+  expires: number;
+  refresh_token: string;
+}
+
+export interface AuthResponse {
+  token: TokenData;
   message: string;
   status: string;
   is_bucket_owner: boolean;
