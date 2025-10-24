@@ -2,7 +2,7 @@ import axios, { AxiosInstance } from "axios";
 import { toast } from "react-toastify";
 
 const Axios: AxiosInstance = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_BASE_URL!,
+  baseURL: "https://demo.myairesource.us",
   headers: {
     "Content-Type": "application/json",
   },
@@ -25,7 +25,6 @@ Axios.interceptors.response.use(
   (error) => {
     if (error.response?.status === 401) {
       toast.error("Unauthorized! Redirecting to login...");
-
     }
     return Promise.reject(error);
   }

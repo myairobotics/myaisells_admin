@@ -87,7 +87,8 @@ export default function MultipleVideoUpload() {
             formData.append("files", upload.mainVideo);
 
             const mainVideoResponse = await axios.post<FileAsset[]>(
-              `${process.env.NEXT_PUBLIC_BASE_URL}/api/v1/buckets/${
+              // `${process.env.NEXT_PUBLIC_BASE_URL}/api/v1/buckets/${
+              `https://demo.myairesource.us/api/v1/buckets/${
                 JSON.parse(sessionStorage.getItem("profile") || "{}").bucket_id
               }/files`,
               formData,
@@ -114,7 +115,7 @@ export default function MultipleVideoUpload() {
             formData.append("files", upload.thumbnail);
 
             const thumbnailResponse = await axios.post<FileAsset[]>(
-              `${process.env.NEXT_PUBLIC_BASE_URL}/api/v1/buckets/${
+              `https://demo.myairesource.us/api/v1/buckets/${
                 JSON.parse(sessionStorage.getItem("profile") || "{}").bucket_id
               }/files`,
               formData,
@@ -141,7 +142,7 @@ export default function MultipleVideoUpload() {
 
       // Create and submit help video posts
       await axios.post(
-        `${process.env.NEXT_PUBLIC_BASE_URL}/api/v1/howtos`,
+        `https://demo.myairesource.us/api/v1/howtos`,
         uploadResults.map(({ upload, files }) => ({
           title: upload.title,
           description: upload.description,

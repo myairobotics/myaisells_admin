@@ -29,13 +29,13 @@ export default function SignIn() {
     try {
       setLoading(true);
       const response = await axios.post<AuthResponse>(
-        `${process.env.NEXT_PUBLIC_BASE_URL}/api/v1/auth/login`,
+        `https://demo.myairesource.us/api/v1/auth/login`,
         data
       );
       if (response.data?.token) {
         sessionStorage.setItem("token", response.data.token);
         const resp = await axios.get<BusinessResponse>(
-          `${process.env.NEXT_PUBLIC_BASE_URL}/api/v1/businesses`,
+          `https://demo.myairesource.us/api/v1/businesses`,
           {
             headers: {
               Authorization: `Bearer ${response.data.token}`,
