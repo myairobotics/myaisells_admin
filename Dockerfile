@@ -9,7 +9,7 @@ COPY package*.json ./
 
 ENV NEXT_PUBLIC_BASE_URL=https://prod.myairesource.us
 ENV NEXT_PUBLIC_BASE_URL_DOCS=https://prod.myairesource.us/api-docs
-ENV NEXT_PUBLIC_PRIVATE_KEY=mLF8*\$4LwRfEzDYyDi!_0w
+ENV NEXT_PUBLIC_PRIVATE_KEY=mLF8*#87!TiLwRfEzDYyDi!_0w
 
 # Step 4: Install dependencies
 RUN npm install
