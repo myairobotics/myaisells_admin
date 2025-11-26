@@ -1,5 +1,5 @@
 # Step 1: Use an official Node.js image as the base image
-FROM node:18 AS builder
+FROM node:22-alpine AS builder
 
 # Step 2: Set the working directory inside the container
 WORKDIR /app
@@ -21,7 +21,7 @@ COPY . .
 RUN npm run build
 
 # Step 7: Create a production image
-FROM node:18 AS production
+FROM node:22-alpine AS production
 
 # Step 8: Set the working directory for the production environment
 WORKDIR /app
