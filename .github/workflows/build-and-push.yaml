@@ -20,7 +20,7 @@ jobs:
 
       # Step 3: Cache dependencies (optional but recommended)
       - name: Cache node modules
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ~/.npm
           key: ${{ runner.os }}-node-modules-${{ hashFiles('**/package-lock.json') }}
