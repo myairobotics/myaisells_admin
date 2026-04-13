@@ -1,11 +1,12 @@
 'use client';
 
 import Image from 'next/image';
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { FaBell } from 'react-icons/fa';
 import { HiOutlineMenuAlt1 } from 'react-icons/hi';
 import { LuChevronsUpDown, LuSearch } from 'react-icons/lu';
+import { signOut } from 'next-auth/react';
 import { DropdownMenu, Logo, Tab } from '@/components/ui';
 
 type BaseTemplateProps = {
@@ -16,24 +17,14 @@ const BaseTemplate = ({ children }: BaseTemplateProps) => {
   const [isDropDownOpen, setIsDropDownOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [BusinessDropDownOptions] = useState<any[]>([]);
-  const dropdownRef = useRef<HTMLDivElement | null>(null);
   const triggerRef = useRef<HTMLButtonElement | null>(null);
 
   const { control } = useForm();
 
   const logout = () => {
-    console.warn('Logout clicked');
+    signOut({ callbackUrl: '/auth/signin' });
   };
 
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setIsDropDownOpen(false);
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
 
   return (
     <div className="min-h-screen bg-linear-to-br from-primary-50 via-primary-100/50 to-primary-200/30">
@@ -70,7 +61,7 @@ const BaseTemplate = ({ children }: BaseTemplateProps) => {
               <span className="absolute top-2 right-2 h-2 w-2 animate-pulse rounded-full border-2 border-primary-500 bg-white shadow-lg" />
             </button>
 
-            <div className="relative hidden md:block" ref={dropdownRef}>
+            <div className="relative hidden md:block">
               <button
                 ref={triggerRef}
                 type="button"
@@ -133,6 +124,7 @@ const BaseTemplate = ({ children }: BaseTemplateProps) => {
             <Tab name="Users Management" link="/users-management" inactiveIcon="dashboard.svg" activeIcon="dashboard_active.png" />
             <Tab name="Payment History" link="/payment-history" inactiveIcon="dashboard.svg" activeIcon="dashboard_active.png" />
             <Tab name="Campaign Analytics" link="/campaign-analytics" inactiveIcon="dashboard.svg" activeIcon="dashboard_active.png" />
+            <Tab name="Partners" link="/partners" inactiveIcon="dashboard.svg" activeIcon="dashboard_active.png" />
           </nav>
         </aside>
 
@@ -151,6 +143,7 @@ const BaseTemplate = ({ children }: BaseTemplateProps) => {
               <nav className="relative space-y-2 p-4">
                 <Tab name="Dashboard" link="/" inactiveIcon="dashboard.svg" activeIcon="dashboard_active.png" />
                 <Tab name="Upload" link="/upload" inactiveIcon="dashboard.svg" activeIcon="dashboard_active.png" />
+                <Tab name="Partners" link="/partners" inactiveIcon="dashboard.svg" activeIcon="dashboard_active.png" />
               </nav>
               <div className="relative mt-4 border-t-2 border-primary-200 p-4">
                 <button

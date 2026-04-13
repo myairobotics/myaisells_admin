@@ -7,4 +7,5 @@ export * from './help';
 export * from './metrics';
 export * from './search';
 export * from './upload';
+export * from './partners';
 export * from './user';
