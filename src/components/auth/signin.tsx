@@ -7,6 +7,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'react-toastify';
 import { Button, Input } from '@/components/ui';
+import { getBaseUrl } from '@/utils/Helpers';
 
 type SignInData = {
   email: string;
@@ -27,6 +28,21 @@ export default function SignInPage() {
     try {
       setLoading(true);
 
+      const baseUrl = getBaseUrl();
+      const loginRes = await fetch(`${baseUrl}/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: data.email, password: data.password }),
+      });
+
+      const loginData = await loginRes.json();
+
+      if (!loginRes.ok) {
+        console.error('[SignIn] API error:', loginRes.status, loginData);
+        toast.error(loginData.message || 'Login failed. Please try again.');
+        return;
+      }
+
       const result = await signIn('credentials', {
         redirect: false,
         email: data.email,
@@ -34,16 +50,16 @@ export default function SignInPage() {
       });
 
       if (result?.error) {
-        console.error('[SignIn Error]:', result.error);
-        toast.error(result.error || 'Invalid email or password');
+        console.error('[SignIn] NextAuth error:', result);
+        toast.error('Authentication failed. Please try again.');
         return;
       }
 
       toast.success('Signed in successfully!');
       router.push('/');
-    } catch (error) {
-      toast.error('An unexpected error occurred');
-      console.error(error);
+    } catch (error: any) {
+      console.error('[SignIn] Error:', error);
+      toast.error(error.message || 'An unexpected error occurred');
     } finally {
       setLoading(false);
     }
