@@ -7,20 +7,20 @@ WORKDIR /app
 # Step 3: Copy package files to the container
 COPY package.json ./
 
-ENV NEXT_PUBLIC_BASE_URL=https://prod.myairesource.us
+ENV NEXT_PUBLIC_BASE_URL=https://demo.myairesource.us
 ENV NEXT_PUBLIC_BASE_URL_DOCS=https://prod.myairesource.us/api-docs
 ENV NEXT_PUBLIC_PRIVATE_KEY=mLF8*#87!TiLwRfEzDYyDi!_0w
 ENV PORT=3000
 ENV NEXT_RUNTIME=nodejs
 ENV CI=
-ENV NEXT_PUBLIC_ENVIRONMENT=production
+ENV NEXT_PUBLIC_ENVIRONMENT=demo
 ENV NEXT_PUBLIC_APP_URL=https://admin.myaisells.com
 ENV NEXT_PUBLIC_APP_BASE_URL=https://admin.myaisells.com
 ENV NEXT_PUBLIC_NEW_APP_BASE_URL=https://admin.myaisells.com
 ENV NEXT_PUBLIC_DOMAIN_URL=https://admin.myaisells.com
 ENV NEXT_PUBLIC_DOMAIN_WEBSITE_URL=https://admin.myaisells.com
 ENV NEXT_PUBLIC_URL=https://admin.myaisells.com
-ENV NEXT_PUBLIC_PROD_URL=https://prod.myairesource.us
+ENV NEXT_PUBLIC_PROD_URL=https://demo.myairesource.us
 ENV NEXT_PUBLIC_DEMO_URL=https://demo.myairesource.us
 ENV NEXT_PUBLIC_STAGING_URL=https://staging.myairesource.us
 ENV NEXT_PUBLIC_PROD_APP_URL=https://app.myairesource.us
@@ -51,7 +51,7 @@ RUN npm install && npm install @tailwindcss/oxide-linux-x64-musl
 COPY . .
 
 # Step 6: Build the Next.js application
-ENV NODE_ENV=production
+ENV NODE_ENV=demo
 RUN npm run build
 
 # Step 7: Create a production image
@@ -67,10 +67,10 @@ COPY --from=builder /app/.next ./.next
 COPY --from=builder /app/public ./public
 
 # Step 10: Set runtime env vars
-ENV NODE_ENV=production
+ENV NODE_ENV=demo
 ENV PORT=3000
-ENV NEXT_PUBLIC_ENVIRONMENT=production
-ENV NEXT_PUBLIC_PROD_URL=https://prod.myairesource.us
+ENV NEXT_PUBLIC_ENVIRONMENT=demo
+ENV NEXT_PUBLIC_PROD_URL=https://demo.myairesource.us
 ENV NEXTAUTH_URL=https://admin.myaisells.com
 ENV NEXTAUTH_SECRET=CNwC4RsQeADriV8deXuXLwDF1TJvrDYlxvlyOjcRJkE=
 ENV AUTH_TRUST_HOST=true
