@@ -97,7 +97,7 @@ export default function SignInPage() {
 
           <div className="mb-8 text-center">
             <h1 className="mb-2 bg-linear-to-r from-primary-600 via-primary-500 to-primary-600 bg-clip-text text-3xl font-bold text-transparent md:text-4xl">
-              Welcome Back
+              Welcome Back.
             </h1>
             <p className="text-sm text-slate-600">Sign in to continue to your dashboard</p>
           </div>
