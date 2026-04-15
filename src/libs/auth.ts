@@ -123,20 +123,27 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
           throw new Error('Email and password are required.');
         }
 
-        const loginResponse = await login({
-          email: credentials.email as string,
-          password: credentials.password as string,
-        });
+        console.log('[Auth] Attempting login to:', API_BASE_URL);
 
-        return {
-          accessToken: loginResponse.accessToken,
-          refreshToken: loginResponse.refreshToken,
-          accessTokenExpires: loginResponse.accessTokenExpires,
-          isBucketOwner: loginResponse.isBucketOwner,
-          user: loginResponse.user,
-          business: loginResponse.business,
-          businesses: loginResponse.businesses,
-        } as ExtendedUser;
+        try {
+          const loginResponse = await login({
+            email: credentials.email as string,
+            password: credentials.password as string,
+          });
+
+          return {
+            accessToken: loginResponse.accessToken,
+            refreshToken: loginResponse.refreshToken,
+            accessTokenExpires: loginResponse.accessTokenExpires,
+            isBucketOwner: loginResponse.isBucketOwner,
+            user: loginResponse.user,
+            business: loginResponse.business,
+            businesses: loginResponse.businesses,
+          } as ExtendedUser;
+        } catch (error: any) {
+          console.error('[Auth] Login failed:', error.message || error);
+          throw error;
+        }
       },
     }),
   ],
