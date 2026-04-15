@@ -149,7 +149,7 @@ span {
   @apply w-full 3xl:max-w-[1400px]! 2xl:max-w-[1000px]! xl:max-w-[1700px]! lg:max-w-full! md:max-w-full! sm:max-w-full! xs:max-w-full!;
 }
 
-@utility a.link {
+@utility alink {
   @apply text-primary-600 underline underline-offset-2 hover:text-primary-700 transition-colors;
 }
 
