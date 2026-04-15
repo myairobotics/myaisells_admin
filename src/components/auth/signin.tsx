@@ -1,6 +1,6 @@
 'use client';
 
-import { signIn } from 'next-auth/react';
+import { getCsrfToken, signIn } from 'next-auth/react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
@@ -46,6 +46,8 @@ export default function SignInPage() {
         toast.error(msg);
         return;
       }
+
+      await getCsrfToken();
 
       await signIn('credentials', {
         redirect: false,
