@@ -110,6 +110,7 @@ async function refreshAccessToken(token: any) {
 export const { auth, handlers, signIn, signOut } = NextAuth({
   session: { strategy: 'jwt' },
   pages: { signIn: '/auth/signin' },
+  useSecureCookies: process.env.NEXTAUTH_URL?.startsWith('https://') ?? false,
 
   providers: [
     CredentialsProvider({
