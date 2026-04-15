@@ -110,21 +110,7 @@ async function refreshAccessToken(token: any) {
 export const { auth, handlers, signIn, signOut } = NextAuth({
   session: { strategy: 'jwt' },
   pages: { signIn: '/auth/signin' },
-  useSecureCookies: false,
-  cookies: {
-    csrfToken: {
-      name: 'next-auth.csrf-token',
-      options: { httpOnly: true, sameSite: 'lax', path: '/', secure: false },
-    },
-    sessionToken: {
-      name: 'next-auth.session-token',
-      options: { httpOnly: true, sameSite: 'lax', path: '/', secure: false },
-    },
-    callbackUrl: {
-      name: 'next-auth.callback-url',
-      options: { httpOnly: true, sameSite: 'lax', path: '/', secure: false },
-    },
-  },
+  useSecureCookies: process.env.NEXTAUTH_URL?.startsWith('https://') ?? false,
 
   providers: [
     CredentialsProvider({
