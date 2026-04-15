@@ -4,13 +4,12 @@ FROM node:22-alpine AS builder
 # Step 2: Set the working directory inside the container
 WORKDIR /app
 
-# Step 3: Copy package.json to the container
+# Step 3: Copy package files to the container
 COPY package.json ./
 
 ENV NEXT_PUBLIC_BASE_URL=https://prod.myairesource.us
 ENV NEXT_PUBLIC_BASE_URL_DOCS=https://prod.myairesource.us/api-docs
 ENV NEXT_PUBLIC_PRIVATE_KEY=mLF8*#87!TiLwRfEzDYyDi!_0w
-ENV NODE_ENV=production
 ENV PORT=3000
 ENV NEXT_RUNTIME=nodejs
 ENV CI=
@@ -52,6 +51,7 @@ RUN npm install && npm install @tailwindcss/oxide-linux-x64-musl
 COPY . .
 
 # Step 6: Build the Next.js application
+ENV NODE_ENV=production
 RUN npm run build
 
 # Step 7: Create a production image
