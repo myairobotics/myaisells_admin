@@ -4,8 +4,8 @@ FROM node:22-alpine AS builder
 # Step 2: Set the working directory inside the container
 WORKDIR /app
 
-# Step 3: Copy package.json and package-lock.json (or yarn.lock) to the container
-COPY package*.json ./
+# Step 3: Copy package.json to the container
+COPY package.json ./
 
 ENV NEXT_PUBLIC_BASE_URL=https://prod.myairesource.us
 ENV NEXT_PUBLIC_BASE_URL_DOCS=https://prod.myairesource.us/api-docs
@@ -61,12 +61,19 @@ FROM node:22-alpine AS production
 WORKDIR /app
 
 # Step 9: Copy only the necessary files from the builder stage
-COPY --from=builder /app/package*.json ./
+COPY --from=builder /app/package.json ./
+COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/.next ./.next
 COPY --from=builder /app/public ./public
 
-# Step 10: Install production dependencies
-RUN npm install --production
+# Step 10: Set runtime env vars
+ENV NODE_ENV=production
+ENV PORT=3000
+ENV NEXT_PUBLIC_ENVIRONMENT=production
+ENV NEXT_PUBLIC_PROD_URL=https://prod.myairesource.us
+ENV NEXTAUTH_URL=https://admin.myaisells.com
+ENV NEXTAUTH_SECRET=CNwC4RsQeADriV8deXuXLwDF1TJvrDYlxvlyOjcRJkE=
+ENV AUTH_TRUST_HOST=true
 
 # Step 11: Expose the default port (3000 for Next.js)
 EXPOSE 3000
