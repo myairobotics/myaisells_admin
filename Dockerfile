@@ -45,8 +45,8 @@ ENV NEXT_PUBLIC_ENCRYPTION_SALT=dev_salt_123
 ENV NEXT_PUBLIC_POSTHOG_KEY=ph_test_123456
 ENV NEXT_PUBLIC_POSTHOG_HOST=https://app.posthog.com
 
-# Step 4: Install dependencies
-RUN npm install
+# Step 4: Install dependencies + Tailwind native binding for Alpine (musl)
+RUN npm install && npm install @tailwindcss/oxide-linux-x64-musl
 
 # Step 5: Copy the rest of the application code
 COPY . .
