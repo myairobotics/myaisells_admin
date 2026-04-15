@@ -49,11 +49,18 @@ export default function SignInPage() {
 
       await getCsrfToken();
 
-      await signIn('credentials', {
+      const authResult = await signIn('credentials', {
         redirect: false,
         email: data.email,
         password: data.password,
       });
+
+      if (authResult?.error) {
+        const msg = 'Could not start your session. Check your account status or try again.';
+        setErrorMsg(msg);
+        toast.error(msg);
+        return;
+      }
 
       toast.success('Signed in successfully!');
       router.push('/');

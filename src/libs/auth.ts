@@ -32,7 +32,7 @@ async function fetchUserProfile(accessToken: string) {
       console.error('[Profile Fetch Error] Data:', data);
       throw new Error(data.message || 'Failed to fetch user profile');
     }
-
+    console.log('[Profile Fetch] Data:', data);
     return data;
   } catch (error: any) {
     console.error('[Profile Fetch Error]:', error.message || error);
@@ -121,16 +121,24 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
       },
       async authorize(credentials): Promise<ExtendedUser | null> {
         if (!credentials?.email || !credentials?.password) {
-          throw new Error('Email and password are required.');
+          return null;
         }
-
-        console.log('[Auth] Attempting login to:', API_BASE_URL);
 
         try {
           const loginResponse = await login({
             email: credentials.email as string,
             password: credentials.password as string,
           });
+
+          if (
+            !loginResponse.accessToken
+            || !loginResponse.refreshToken
+            || typeof loginResponse.accessTokenExpires !== 'number'
+            || !loginResponse.user
+          ) {
+            console.error('[Auth] Authorize: incomplete login response');
+            return null;
+          }
 
           return {
             accessToken: loginResponse.accessToken,
@@ -142,8 +150,8 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
             businesses: loginResponse.businesses,
           } as ExtendedUser;
         } catch (error: any) {
-          console.error('[Auth] Login failed:', error.message || error);
-          throw error;
+          console.error('[Auth] Authorize failed:', error?.message || error);
+          return null;
         }
       },
     }),
