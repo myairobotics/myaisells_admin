@@ -74,12 +74,15 @@ async function login(credentials: { email: string; password: string }) {
   const { token, refresh_token, expires } = tokenData;
 
   const profileData = await fetchUserProfile(token);
-  const userId = profileData.business?.owner_id || profileData.user?.email || 'unknown';
+
+  // /me returns user fields flat: { first_name, last_name, email, businesses: [...], ... }
+  // profileData IS the user — there's no .user wrapper
+  const userId = profileData.businesses?.[0]?.owner_id || profileData.email || 'unknown';
 
   return {
     id: userId,
-    user: profileData.user,
-    business: profileData.business || profileData.businesses?.[0],
+    user: profileData,
+    business: profileData.businesses?.[0],
     businesses: profileData.businesses,
     accessToken: token,
     refreshToken: refresh_token,
@@ -123,7 +126,7 @@ async function refreshAccessToken(token: any) {
 export const { auth, handlers, signIn, signOut } = NextAuth({
   session: { strategy: 'jwt' },
   pages: { signIn: '/auth/signin' },
-  useSecureCookies: process.env.NEXTAUTH_URL?.startsWith('https://') ?? false,
+  trustHost: true,
 
   providers: [
     CredentialsProvider({
@@ -149,6 +152,7 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
             || typeof loginResponse.accessTokenExpires !== 'number'
             || !loginResponse.user
           ) {
+            console.error('[Auth] Incomplete login response');
             return null;
           }
 
