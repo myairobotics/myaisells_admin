@@ -41,38 +41,51 @@ async function fetchUserProfile(accessToken: string) {
 }
 
 async function login(credentials: { email: string; password: string }) {
+  const url = `${API_BASE_URL}/auth/login`;
+  let res: Response;
+
   try {
-    const res = await fetch(`${API_BASE_URL}/auth/login`, {
+    res = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(credentials),
     });
-
-    const authData = await res.json();
-
-    if (!res.ok) {
-      console.error('[Login Error] Data:', authData);
-      throw new Error(authData.message || 'Login failed');
-    }
-
-    const { token: tokenData, is_bucket_owner } = authData;
-    const { token, refresh_token, expires } = tokenData;
-
-    const userProfile = await fetchUserProfile(token);
-
-    return {
-      user: userProfile,
-      business: userProfile.businesses?.[0],
-      businesses: userProfile.businesses,
-      accessToken: token,
-      refreshToken: refresh_token,
-      accessTokenExpires: Date.now() + expires * 1000,
-      isBucketOwner: is_bucket_owner,
-    };
-  } catch (err: any) {
-    console.error('[Login Function] Error:', err.message || err);
-    throw new Error(err.message || 'Invalid login credentials');
+  } catch (error: any) {
+    throw new Error(`Network error contacting ${url}: ${error.message}`);
   }
+
+  if (!res.ok) {
+    const text = await res.text().catch(() => '');
+    throw new Error(`Login failed (${res.status}): ${text}`);
+  }
+
+  let authData: any;
+  try {
+    authData = await res.json();
+  } catch {
+    throw new Error('Login response is not valid JSON');
+  }
+
+  const { token: tokenData, is_bucket_owner } = authData;
+  if (!tokenData?.token || !tokenData?.refresh_token) {
+    throw new Error('Login response missing token data');
+  }
+
+  const { token, refresh_token, expires } = tokenData;
+
+  const profileData = await fetchUserProfile(token);
+  const userId = profileData.business?.owner_id || profileData.user?.email || 'unknown';
+
+  return {
+    id: userId,
+    user: profileData.user,
+    business: profileData.business || profileData.businesses?.[0],
+    businesses: profileData.businesses,
+    accessToken: token,
+    refreshToken: refresh_token,
+    accessTokenExpires: Date.now() + expires * 1000,
+    isBucketOwner: is_bucket_owner,
+  };
 }
 
 async function refreshAccessToken(token: any) {
@@ -136,11 +149,11 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
             || typeof loginResponse.accessTokenExpires !== 'number'
             || !loginResponse.user
           ) {
-            console.error('[Auth] Authorize: incomplete login response');
             return null;
           }
 
           return {
+            id: loginResponse.id,
             accessToken: loginResponse.accessToken,
             refreshToken: loginResponse.refreshToken,
             accessTokenExpires: loginResponse.accessTokenExpires,

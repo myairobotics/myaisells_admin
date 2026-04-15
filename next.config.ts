@@ -19,7 +19,9 @@ const baseConfig: NextConfig = {
   },
 
   compiler: {
-    removeConsole: Env.NODE_ENV === 'production' || Env.NODE_ENV === 'demo',
+    removeConsole: (Env.NODE_ENV === 'production' || Env.NODE_ENV === 'demo')
+      ? { exclude: ['error', 'warn'] }
+      : false,
   },
 
   turbopack: {

@@ -11,7 +11,7 @@ export const getAppUrl = () => {
   }
 
   if (Env.NEXT_PUBLIC_ENVIRONMENT === 'demo') {
-    return Env.NEXT_PUBLIC_DEMO_APP_URL || `https://${Env.VERCEL_URL || 'demo-app.myairesource.us'}`;
+    return Env.NEXT_PUBLIC_DEMO_APP_URL || `https://${Env.VERCEL_URL || 'demo.myairesource.us'}`;
   }
 
   return Env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
