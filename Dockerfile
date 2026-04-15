@@ -51,7 +51,7 @@ RUN npm install && npm install @tailwindcss/oxide-linux-x64-musl
 COPY . .
 
 # Step 6: Build the Next.js application
-ENV NODE_ENV=demo
+ENV NODE_ENV=production
 RUN npm run build
 
 # Step 7: Create a production image
@@ -67,10 +67,10 @@ COPY --from=builder /app/.next ./.next
 COPY --from=builder /app/public ./public
 
 # Step 10: Set runtime env vars
-ENV NODE_ENV=demo
+ENV NODE_ENV=production
 ENV PORT=3000
 ENV NEXT_PUBLIC_ENVIRONMENT=demo
-ENV NEXT_PUBLIC_PROD_URL=https://demo.myairesource.us
+ENV NEXT_PUBLIC_DEMO_URL=https://demo.myairesource.us
 ENV NEXTAUTH_URL=https://admin.myaisells.com
 ENV NEXTAUTH_SECRET=CNwC4RsQeADriV8deXuXLwDF1TJvrDYlxvlyOjcRJkE=
 ENV AUTH_TRUST_HOST=true

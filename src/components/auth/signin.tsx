@@ -16,6 +16,7 @@ type SignInData = {
 
 export default function SignInPage() {
   const [loading, setLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
   const router = useRouter();
 
   const {
@@ -25,41 +26,39 @@ export default function SignInPage() {
   } = useForm<SignInData>();
 
   const onSubmit = async (data: SignInData) => {
-    try {
-      setLoading(true);
+    setErrorMsg('');
+    setLoading(true);
 
+    try {
       const baseUrl = getBaseUrl();
-      const loginRes = await fetch(`${baseUrl}/auth/login`, {
+
+      const res = await fetch(`${baseUrl}/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: data.email, password: data.password }),
       });
 
-      const loginData = await loginRes.json();
+      const json = await res.json();
 
-      if (!loginRes.ok) {
-        console.error('[SignIn] API error:', loginRes.status, loginData);
-        toast.error(loginData.message || 'Login failed. Please try again.');
+      if (!res.ok) {
+        const msg = json.message || `Login failed (${res.status})`;
+        setErrorMsg(msg);
+        toast.error(msg);
         return;
       }
 
-      const result = await signIn('credentials', {
+      await signIn('credentials', {
         redirect: false,
         email: data.email,
         password: data.password,
       });
 
-      if (result?.error) {
-        console.error('[SignIn] NextAuth error:', result);
-        toast.error('Authentication failed. Please try again.');
-        return;
-      }
-
       toast.success('Signed in successfully!');
       router.push('/');
-    } catch (error: any) {
-      console.error('[SignIn] Error:', error);
-      toast.error(error.message || 'An unexpected error occurred');
+    } catch (err: any) {
+      const msg = err.message || 'Network error. Please try again.';
+      setErrorMsg(msg);
+      toast.error(msg);
     } finally {
       setLoading(false);
     }
@@ -74,7 +73,6 @@ export default function SignInPage() {
       <div className="relative mx-4 w-full max-w-md">
         <div className="absolute inset-0 rounded-3xl bg-white/30 blur-xl" />
         <div className="relative rounded-3xl border-2 border-white/50 bg-white/95 p-8 shadow-2xl shadow-primary-900/30 backdrop-blur-2xl md:p-10">
-          {/* Logo */}
           <div className="mb-8 flex justify-center">
             <div className="relative rounded-2xl bg-linear-to-br from-primary-500 to-primary-700 p-4 shadow-lg shadow-primary-500/50">
               <Image
@@ -94,6 +92,12 @@ export default function SignInPage() {
             </h1>
             <p className="text-sm text-slate-600">Sign in to continue to your dashboard</p>
           </div>
+
+          {errorMsg && (
+            <div className="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
+              {errorMsg}
+            </div>
+          )}
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
             <div className="space-y-2">
