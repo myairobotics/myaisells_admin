@@ -75,15 +75,19 @@ async function login(credentials: { email: string; password: string }) {
 
   const profileData = await fetchUserProfile(token);
 
-  // /me returns user fields flat: { first_name, last_name, email, businesses: [...], ... }
-  // profileData IS the user — there's no .user wrapper
-  const userId = profileData.businesses?.[0]?.owner_id || profileData.email || 'unknown';
+  const { businesses: rawBusinesses, ...userData } = profileData;
+  const minifiedBusinesses = (rawBusinesses || []).map((b: any) => {
+    const { description, ...rest } = b;
+    return rest;
+  });
+
+  const userId = minifiedBusinesses?.[0]?.owner_id || userData.email || 'unknown';
 
   return {
     id: userId,
-    user: profileData,
-    business: profileData.businesses?.[0],
-    businesses: profileData.businesses,
+    user: userData,
+    business: minifiedBusinesses?.[0],
+    businesses: minifiedBusinesses,
     accessToken: token,
     refreshToken: refresh_token,
     accessTokenExpires: Date.now() + expires * 1000,
