@@ -15,7 +15,7 @@ import type {
 import { getBaseUrl } from '@/utils/Helpers';
 import { baseApi } from '../store/api/baseApi';
 
-const baseUrl = getBaseUrl('/a');
+const baseUrl = getBaseUrl();
 
 export const metrics = baseApi.injectEndpoints({
   endpoints: builder => ({
