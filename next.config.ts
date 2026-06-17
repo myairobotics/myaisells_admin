@@ -47,7 +47,7 @@ if (Env.ANALYZE) {
   configWithPlugins = withBundleAnalyzer()(configWithPlugins);
 }
 
-if (!Env.NEXT_PUBLIC_SENTRY_DISABLED) {
+if (!Env.NEXT_PUBLIC_SENTRY_DISABLED && Env.NEXT_PUBLIC_SENTRY_DSN) {
   configWithPlugins = withSentryConfig(configWithPlugins, {
     org: Env.SENTRY_ORGANIZATION,
     project: Env.SENTRY_PROJECT,

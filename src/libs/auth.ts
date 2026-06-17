@@ -8,42 +8,49 @@ const API_BASE_URL = getBaseUrl();
 
 export type ExtendedUser = {
   accessToken: string;
-  refreshToken: string;
-  accessTokenExpires: number;
-  isBucketOwner: boolean;
+  accessTokenExpiresAt: number;
   user: User;
   business?: Business;
-  businesses?: Business[];
+  isBucketOwner: boolean;
 } & User;
 
-async function fetchUserProfile(accessToken: string) {
+function decodeJwtExpiry(token: string): number {
   try {
-    const res = await fetch(`${API_BASE_URL}/me`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${accessToken}`,
-      },
-    });
-
-    const data = await res.json();
-
-    if (!res.ok) {
-      console.error('[Profile Fetch Error] Data:', data);
-      throw new Error(data.message || 'Failed to fetch user profile');
+    const part = token.split('.')[1];
+    if (!part) {
+      throw new Error('Invalid JWT');
     }
-    console.log('[Profile Fetch] Data:', data);
-    return data;
-  } catch (error: any) {
-    console.error('[Profile Fetch Error]:', error.message || error);
-    throw new Error('Could not retrieve user profile.');
+    const base64 = part.replace(/-/g, '+').replace(/_/g, '/');
+    const payload = JSON.parse(atob(base64));
+    return payload.exp * 1000;
+  } catch {
+    return Date.now() + 15 * 60 * 1000;
   }
 }
 
-async function login(credentials: { email: string; password: string }) {
-  const url = `${API_BASE_URL}/auth/login`;
-  let res: Response;
+async function fetchUserProfile(accessToken: string) {
+  const res = await fetch(`${API_BASE_URL}/admin/profile`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${accessToken}`,
+    },
+  });
 
+  const data = await res.json();
+
+  if (!res.ok) {
+    console.error('[Auth] Profile fetch error:', data);
+    throw new Error(data.message || 'Failed to fetch user profile');
+  }
+
+  return data;
+}
+
+async function login(credentials: { email: string; password: string }) {
+  const url = `${API_BASE_URL}/admin/auth/login`;
+
+  let res: Response;
   try {
     res = await fetch(url, {
       method: 'POST',
@@ -51,7 +58,7 @@ async function login(credentials: { email: string; password: string }) {
       body: JSON.stringify(credentials),
     });
   } catch (error: any) {
-    throw new Error(`Network error contacting ${url}: ${error.message}`);
+    throw new Error(`Network error: ${error.message}`);
   }
 
   if (!res.ok) {
@@ -59,72 +66,40 @@ async function login(credentials: { email: string; password: string }) {
     throw new Error(`Login failed (${res.status}): ${text}`);
   }
 
-  let authData: any;
+  const authData = await res.json();
+
+  // Response: { success: true, data: { token: "eyJ...", account_type: "admin" } }
+  const accessToken: string = authData?.data?.token;
+  if (!accessToken) {
+    console.error('[Auth] Missing token in login response:', authData);
+    throw new Error('Login response missing token');
+  }
+
+  const accessTokenExpiresAt = decodeJwtExpiry(accessToken);
+
+  let profileData: any = null;
   try {
-    authData = await res.json();
-  } catch {
-    throw new Error('Login response is not valid JSON');
+    profileData = await fetchUserProfile(accessToken);
+  } catch (err) {
+    console.error('[Auth] Could not fetch profile, continuing without it:', err);
   }
 
-  const { token: tokenData, is_bucket_owner } = authData;
-  if (!tokenData?.token || !tokenData?.refresh_token) {
-    throw new Error('Login response missing token data');
-  }
+  const rawUser = profileData?.data || profileData || {};
+  const { businesses: rawBusinesses, ...userData } = rawUser;
+  const primaryBusiness = rawBusinesses?.[0]
+    ? (({ description: _d, ...rest }: any) => rest)(rawBusinesses[0])
+    : undefined;
 
-  const { token, refresh_token, expires } = tokenData;
-
-  const profileData = await fetchUserProfile(token);
-
-  const { businesses: rawBusinesses, ...userData } = profileData;
-  const minifiedBusinesses = (rawBusinesses || []).map((b: any) => {
-    const { description, ...rest } = b;
-    return rest;
-  });
-
-  const userId = minifiedBusinesses?.[0]?.owner_id || userData.email || 'unknown';
+  const userId = primaryBusiness?.owner_id || userData.email || userData.id || 'unknown';
 
   return {
     id: userId,
     user: userData,
-    business: minifiedBusinesses?.[0],
-    businesses: minifiedBusinesses,
-    accessToken: token,
-    refreshToken: refresh_token,
-    accessTokenExpires: Date.now() + expires * 1000,
-    isBucketOwner: is_bucket_owner,
+    business: primaryBusiness,
+    accessToken,
+    accessTokenExpiresAt,
+    isBucketOwner: false,
   };
-}
-
-async function refreshAccessToken(token: any) {
-  if (!token.refreshToken) {
-    console.error('No refresh token available.');
-    return { ...token, error: 'NoRefreshToken' };
-  }
-
-  try {
-    const res = await fetch(`${API_BASE_URL}/auth/tokens/refresh`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ refresh_token: token.refreshToken }),
-    });
-
-    const data = await res.json();
-
-    if (!res.ok) {
-      console.error('[Refresh Error] Data:', data);
-      throw new Error(data?.message || 'Failed to refresh token');
-    }
-
-    return {
-      ...token,
-      accessToken: data.token,
-      accessTokenExpires: Date.now() + data.expires * 1000,
-      error: undefined,
-    };
-  } catch (error) {
-    console.error('[Refresh Token Error]:', error);
-    return { ...token, error: 'RefreshAccessTokenError' };
-  }
 }
 
 export const { auth, handlers, signIn, signOut } = NextAuth({
@@ -139,7 +114,7 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
         email: { label: 'Email', type: 'text' },
         password: { label: 'Password', type: 'password' },
       },
-      async authorize(credentials): Promise<ExtendedUser | null> {
+      async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
           return null;
         }
@@ -150,25 +125,13 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
             password: credentials.password as string,
           });
 
-          if (
-            !loginResponse.accessToken
-            || !loginResponse.refreshToken
-            || typeof loginResponse.accessTokenExpires !== 'number'
-            || !loginResponse.user
-          ) {
-            console.error('[Auth] Incomplete login response');
-            return null;
-          }
-
           return {
             id: loginResponse.id,
             accessToken: loginResponse.accessToken,
-            refreshToken: loginResponse.refreshToken,
-            accessTokenExpires: loginResponse.accessTokenExpires,
+            accessTokenExpiresAt: loginResponse.accessTokenExpiresAt,
             isBucketOwner: loginResponse.isBucketOwner,
             user: loginResponse.user,
             business: loginResponse.business,
-            businesses: loginResponse.businesses,
           } as ExtendedUser;
         } catch (error: any) {
           console.error('[Auth] Authorize failed:', error?.message || error);
@@ -180,44 +143,45 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
 
   callbacks: {
     async jwt({ token, user, trigger, session }) {
-      if (trigger === 'update' && session) {
-        return { ...token, ...session };
-      }
-
       if (user) {
         const u = user as ExtendedUser;
-        return {
-          ...token,
-          ...u,
-          refreshToken: u.refreshToken,
-          accessToken: u.accessToken,
-          accessTokenExpires: u.accessTokenExpires,
-          isBucketOwner: u.isBucketOwner,
-          user: u.user,
-          business: u.business,
-          businesses: u.businesses,
-        };
-      }
-
-      if (token.accessTokenExpires && typeof token.accessTokenExpires === 'number' && Date.now() < token.accessTokenExpires) {
+        token.accessToken = u.accessToken;
+        token.accessTokenExpiresAt = u.accessTokenExpiresAt;
+        token.isBucketOwner = u.isBucketOwner;
+        token.user = u.user;
+        token.business = u.business;
         return token;
       }
 
-      return await refreshAccessToken(token);
+      if (trigger === 'update' && session) {
+        if (session.accessToken) {
+          token.accessToken = session.accessToken;
+          token.accessTokenExpiresAt = decodeJwtExpiry(session.accessToken as string);
+        }
+        if (session.user) {
+          token.user = { ...(token.user as any), ...session.user };
+        }
+        return token;
+      }
+
+      // Token still valid
+      if (Date.now() < (token.accessTokenExpiresAt as number)) {
+        return token;
+      }
+
+      // No refresh token available for this API — signal expiry
+      return { ...token, error: 'TokenExpired' };
     },
 
     async session({ session, token }) {
-      const t = token as any;
-      return {
-        ...session,
-        user: t.user,
-        business: t.business,
-        businesses: t.businesses,
-        accessToken: t.accessToken,
-        refreshToken: t.refreshToken,
-        accessTokenExpires: t.accessTokenExpires,
-        isBucketOwner: t.isBucketOwner,
-      };
+      session.accessToken = token.accessToken as string;
+      session.user = (token as any).user;
+      session.business = (token as any).business;
+      session.isBucketOwner = token.isBucketOwner as boolean;
+      if (token.error) {
+        session.error = token.error as string;
+      }
+      return session;
     },
   },
 });

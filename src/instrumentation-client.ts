@@ -4,7 +4,7 @@
 import * as Sentry from '@sentry/nextjs';
 import { Env } from './libs/Env';
 
-if (!Env.NEXT_PUBLIC_SENTRY_DISABLED) {
+if (!Env.NEXT_PUBLIC_SENTRY_DISABLED && Env.NEXT_PUBLIC_SENTRY_DSN) {
   Sentry.init({
     dsn: Env.NEXT_PUBLIC_SENTRY_DSN,
 
@@ -41,4 +41,6 @@ if (!Env.NEXT_PUBLIC_SENTRY_DISABLED) {
   });
 }
 
-export const onRouterTransitionStart = Sentry.captureRouterTransitionStart;
+export const onRouterTransitionStart = Env.NEXT_PUBLIC_SENTRY_DSN
+  ? Sentry.captureRouterTransitionStart
+  : undefined;

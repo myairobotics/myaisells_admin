@@ -26,7 +26,7 @@ const sentryOptions: Sentry.NodeOptions | Sentry.EdgeOptions = {
 };
 
 export async function register() {
-  if (!Env.NEXT_PUBLIC_SENTRY_DISABLED) {
+  if (!Env.NEXT_PUBLIC_SENTRY_DISABLED && Env.NEXT_PUBLIC_SENTRY_DSN) {
     if (Env.NEXT_RUNTIME === 'nodejs') {
       // Node.js Sentry configuration
       Sentry.init(sentryOptions);
