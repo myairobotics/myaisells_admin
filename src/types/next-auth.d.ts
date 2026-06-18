@@ -6,8 +6,7 @@ declare module 'next-auth' {
     user: BaseUser;
     business?: Business;
     accessToken: string;
-    refreshToken: string;
-    accessTokenExpires?: number;
+    refreshToken?: string;
     isBucketOwner?: boolean;
     error?: string;
   }
