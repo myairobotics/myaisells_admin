@@ -6,6 +6,7 @@ import { notFound } from 'next/navigation';
 import { Env } from '@/libs/Env';
 import { routing } from '@/libs/I18nRouting';
 
+import { NavigationProgress } from '@/components/global/navigation-progress';
 import Provider from '@/libs/providers';
 import '@/styles/global.css';
 
@@ -93,6 +94,7 @@ export default async function RootLayout(props: {
       >
         <NextIntlClientProvider locale={locale}>
           <Provider>
+            <NavigationProgress />
             {props.children}
           </Provider>
         </NextIntlClientProvider>

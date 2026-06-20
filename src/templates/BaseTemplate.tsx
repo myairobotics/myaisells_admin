@@ -1,33 +1,183 @@
 'use client';
 
-import Image from 'next/image';
-import { useRef, useState } from 'react';
-import { Controller, useForm } from 'react-hook-form';
+import { useState } from 'react';
 import { FaBell } from 'react-icons/fa';
+import {
+  FiActivity,
+  FiAlertTriangle,
+  FiBarChart2,
+  FiBriefcase,
+  FiCalendar,
+  FiCreditCard,
+  FiGlobe,
+  FiGrid,
+  FiHelpCircle,
+  FiLink,
+  FiList,
+  FiLock,
+  FiLogOut,
+  FiSettings,
+  FiShield,
+  FiUser,
+  FiUserCheck,
+  FiUsers,
+  FiZap,
+} from 'react-icons/fi';
 import { HiOutlineMenuAlt1 } from 'react-icons/hi';
-import { LuChevronsUpDown, LuSearch } from 'react-icons/lu';
-import { signOut } from 'next-auth/react';
-import { DropdownMenu, Logo, Tab } from '@/components/ui';
+import { LuChevronsUpDown } from 'react-icons/lu';
+import { signOut, useSession } from 'next-auth/react';
+import {
+  DialogContent,
+  DialogRoot,
+  Dropdown,
+  DropdownItem,
+  DropdownSeparator,
+  Logo,
+  Tab,
+} from '@/components/ui';
 
 type BaseTemplateProps = {
   children: React.ReactNode;
 };
 
+const NAV_SECTIONS = [
+  {
+    label: 'Overview',
+    items: [
+      { name: 'Dashboard', link: '/home', icon: <FiGrid /> },
+    ],
+  },
+  {
+    label: 'Management',
+    items: [
+      { name: 'Partners', link: '/partners', icon: <FiGlobe /> },
+      { name: 'Businesses', link: '/businesses', icon: <FiBriefcase /> },
+      { name: 'Users', link: '/users-management', icon: <FiUsers /> },
+      { name: 'Sales Agents', link: '/sales-agents', icon: <FiUserCheck /> },
+    ],
+  },
+  {
+    label: 'Operations',
+    items: [
+      { name: 'Campaigns', link: '/campaign-analytics', icon: <FiActivity /> },
+      { name: 'Appointments', link: '/appointments', icon: <FiCalendar /> },
+      { name: 'Subscriptions', link: '/subscription', icon: <FiCreditCard /> },
+      { name: 'Token Management', link: '/token-management', icon: <FiZap /> },
+    ],
+  },
+  {
+    label: 'Analytics & Reports',
+    items: [
+      { name: 'Analytics', link: '/analytics', icon: <FiBarChart2 /> },
+      { name: 'Payment History', link: '/payment-history', icon: <FiList /> },
+    ],
+  },
+  {
+    label: 'Access & Security',
+    items: [
+      { name: 'Support Access', link: '/support-access', icon: <FiShield /> },
+      { name: 'Roles & Permissions', link: '/roles-permissions', icon: <FiLock /> },
+      { name: 'Audit Logs', link: '/audit-logs', icon: <FiActivity /> },
+    ],
+  },
+  {
+    label: 'Settings',
+    items: [
+      { name: 'Referral Management', link: '/referral-management', icon: <FiLink /> },
+      { name: 'Platform Settings', link: '/settings', icon: <FiSettings /> },
+      { name: 'Help Center', link: '/help', icon: <FiHelpCircle /> },
+    ],
+  },
+];
+
+function LogoutConfirmDialog({
+  open,
+  onCancel,
+  onConfirm,
+  isLoggingOut,
+}: {
+  open: boolean;
+  onCancel: () => void;
+  onConfirm: () => void;
+  isLoggingOut: boolean;
+}) {
+  return (
+    <DialogRoot open={open} onOpenChange={open => { if (!open) onCancel(); }}>
+      <DialogContent hideClose title="Sign out" className="max-w-sm">
+        <div className="flex flex-col items-center gap-4 py-2 text-center">
+          <div className="flex h-14 w-14 items-center justify-center rounded-full bg-red-100">
+            <FiAlertTriangle className="h-7 w-7 text-red-500" />
+          </div>
+          <div>
+            <p className="text-sm text-slate-500">
+              Are you sure you want to sign out of your account?
+            </p>
+          </div>
+          <div className="flex w-full gap-3 pt-1">
+            <button
+              type="button"
+              onClick={onCancel}
+              className="flex-1 rounded-xl border border-slate-200 py-2.5 text-sm font-semibold text-slate-600 transition-colors hover:bg-slate-50"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={onConfirm}
+              disabled={isLoggingOut}
+              className="flex-1 rounded-xl bg-red-500 py-2.5 text-sm font-bold text-white transition-colors hover:bg-red-600 disabled:opacity-60"
+            >
+              {isLoggingOut ? 'Signing out…' : 'Sign out'}
+            </button>
+          </div>
+        </div>
+      </DialogContent>
+    </DialogRoot>
+  );
+}
+
+const SidebarContent = ({ onLinkClick }: { onLinkClick?: () => void }) => (
+  <div className="flex h-full flex-col">
+    <div className="flex-1 overflow-y-auto p-3">
+      {NAV_SECTIONS.map(section => (
+        <div key={section.label} className="mb-4">
+          <p className="mb-1 px-3 text-[10px] font-bold uppercase tracking-widest text-slate-400">
+            {section.label}
+          </p>
+          <div className="space-y-0.5">
+            {section.items.map(item => (
+              <div key={item.link} onClick={onLinkClick}>
+                <Tab name={item.name} link={item.link} icon={item.icon} />
+              </div>
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+);
+
 const BaseTemplate = ({ children }: BaseTemplateProps) => {
-  const [isDropDownOpen, setIsDropDownOpen] = useState(false);
+  const { data: session } = useSession();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [BusinessDropDownOptions] = useState<any[]>([]);
-  const triggerRef = useRef<HTMLButtonElement | null>(null);
+  const [showLogoutDialog, setShowLogoutDialog] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
-  const { control } = useForm();
+  const user = session?.user;
+  const fullName = user?.first_name
+    ? `${user.first_name} ${user.last_name ?? ''}`.trim()
+    : 'Admin';
+  const initials = user?.first_name
+    ? `${user.first_name[0]}${user.last_name?.[0] ?? ''}`.toUpperCase()
+    : 'A';
 
-  const logout = () => {
-    signOut({ callbackUrl: '/auth/signin' });
+  const handleLogout = async () => {
+    setIsLoggingOut(true);
+    await signOut({ callbackUrl: '/auth/signin' });
   };
 
-
   return (
-    <div className="min-h-screen bg-linear-to-br from-primary-50 via-primary-100/50 to-primary-200/30">
+    <div className="min-h-screen bg-slate-50">
       <header className="fixed top-0 right-0 left-0 z-50 border-b-2 border-primary-200/50 bg-white/90 shadow-xl shadow-primary-500/10 backdrop-blur-xl">
         <div className="h-1 bg-linear-to-r from-primary-600 via-primary-500 to-primary-600" />
 
@@ -36,61 +186,63 @@ const BaseTemplate = ({ children }: BaseTemplateProps) => {
             <Logo />
           </div>
 
-          <div className="mx-8 hidden max-w-2xl flex-1 md:block">
-            <Controller
-              name="search_text"
-              control={control}
-              render={() => (
-                <div className="group relative">
-                  <div className="absolute inset-0 rounded-xl bg-linear-to-r from-primary-500/10 to-primary-600/10 opacity-0 blur transition-all duration-300 group-hover:opacity-100" />
-                  <LuSearch className="absolute top-1/2 left-4 z-10 -translate-y-1/2 text-lg text-primary-600" />
-                  <input
-                    id="search_text"
-                    placeholder="Search anything..."
-                    type="search"
-                    className="relative w-full rounded-xl border-2 border-primary-200 bg-primary-50/50 py-3 pr-4 pl-12 text-sm text-slate-700 shadow-sm transition-all outline-none placeholder:text-slate-400 focus:border-primary-500 focus:bg-white focus:ring-4 focus:ring-primary-500/20"
-                  />
-                </div>
-              )}
-            />
-          </div>
-
           <div className="flex items-center gap-3">
-            <button type="button" className="group relative hidden h-11 w-11 items-center justify-center rounded-xl bg-linear-to-br from-primary-500 to-primary-600 shadow-lg shadow-primary-500/30 transition-all hover:scale-105 hover:shadow-xl hover:shadow-primary-500/40 md:flex">
+            {/* Notifications */}
+            <button
+              type="button"
+              className="group relative hidden h-11 w-11 items-center justify-center rounded-xl bg-linear-to-br from-primary-500 to-primary-600 shadow-lg shadow-primary-500/30 transition-all hover:scale-105 hover:shadow-xl hover:shadow-primary-500/40 md:flex"
+            >
               <FaBell className="text-lg text-white transition-transform group-hover:scale-110" />
               <span className="absolute top-2 right-2 h-2 w-2 animate-pulse rounded-full border-2 border-primary-500 bg-white shadow-lg" />
             </button>
 
-            <div className="relative hidden md:block">
-              <button
-                ref={triggerRef}
-                type="button"
-                onClick={() => setIsDropDownOpen(!isDropDownOpen)}
-                className="flex items-center gap-3 rounded-xl border-2 border-primary-200 bg-primary-50/50 px-4 py-2.5 transition-all hover:border-primary-300 hover:bg-primary-100/50"
+            {/* User dropdown — desktop only */}
+            <div className="hidden md:block">
+              <Dropdown
+                align="end"
+                trigger={(
+                  <button
+                    type="button"
+                    className="flex items-center gap-3 rounded-xl border-2 border-primary-200 bg-primary-50/50 px-4 py-2.5 transition-all hover:border-primary-300 hover:bg-primary-100/50"
+                  >
+                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-linear-to-br from-primary-500 to-primary-700 text-xs font-bold text-white ring-2 ring-primary-200">
+                      {initials}
+                    </div>
+                    <span className="max-w-[120px] truncate text-sm font-semibold text-primary-700">
+                      {fullName}
+                    </span>
+                    <LuChevronsUpDown className="h-4 w-4 shrink-0 text-primary-600" />
+                  </button>
+                )}
               >
-                <div className="relative">
-                  <div className="absolute inset-0 rounded-full bg-linear-to-br from-primary-400 to-primary-600 opacity-30 blur-sm" />
-                  <Image
-                    className="relative h-8 w-8 rounded-full object-cover ring-2 ring-primary-200"
-                    src="/assets/placeholder.jpg"
-                    alt="user avatar"
-                    width={32}
-                    height={32}
-                  />
+                {/* User info header */}
+                <div className="px-3 py-2.5">
+                  <p className="text-sm font-semibold text-slate-800">{fullName}</p>
+                  {user?.email && (
+                    <p className="truncate text-xs text-slate-500">{user.email}</p>
+                  )}
                 </div>
-                <span className="text-sm font-semibold text-primary-700">Myai Sells</span>
-                <LuChevronsUpDown className="text-primary-600" />
-              </button>
-              <DropdownMenu
-                options={BusinessDropDownOptions}
-                logoutAction={logout}
-                isOpen={isDropDownOpen}
-                closeAction={() => setIsDropDownOpen(false)}
-                triggerRef={triggerRef}
-              />
 
+                <DropdownSeparator />
+
+                <DropdownItem className="gap-2 text-slate-600">
+                  <FiUser className="h-4 w-4" />
+                  My profile
+                </DropdownItem>
+
+                <DropdownSeparator />
+
+                <DropdownItem
+                  onSelect={() => setShowLogoutDialog(true)}
+                  className="text-red-600 focus:bg-red-50 focus:text-red-700"
+                >
+                  <FiLogOut className="h-4 w-4" />
+                  Sign out
+                </DropdownItem>
+              </Dropdown>
             </div>
 
+            {/* Mobile menu toggle */}
             <button
               type="button"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
@@ -100,34 +252,16 @@ const BaseTemplate = ({ children }: BaseTemplateProps) => {
             </button>
           </div>
         </div>
-
-        {/* <div className="px-4 pb-3 md:hidden">
-          <div className="relative">
-            <LuSearch className="absolute top-1/2 left-3 -translate-y-1/2 text-lg text-primary-600" />
-            <input
-              placeholder="Search..."
-              type="search"
-              className="w-full rounded-xl border-2 border-primary-200 bg-primary-50/50 py-3 pr-4 pl-10 text-sm text-slate-700 transition-all outline-none placeholder:text-slate-400 focus:border-primary-500 focus:bg-white focus:ring-4 focus:ring-primary-500/20"
-            />
-          </div>
-        </div> */}
       </header>
 
       <div className="flex pt-16">
-        <aside className="fixed top-16 left-0 hidden h-[calc(100vh-4rem)] w-64 overflow-y-auto border-r-2 border-primary-200/50 bg-linear-to-b from-white via-primary-50/50 to-primary-100/30 shadow-xl shadow-primary-500/5 md:block">
-          <div className="h-1 bg-linear-to-r from-primary-600 to-primary-500" />
-          <nav className="relative space-y-2 p-4">
-            <Tab name="Dashboard" link="/home" inactiveIcon="dashboard.svg" activeIcon="dashboard_active.png" />
-            <Tab name="Upload" link="/upload" inactiveIcon="dashboard.svg" activeIcon="dashboard_active.png" />
-            <Tab name="Subscription" link="/subscription" inactiveIcon="dashboard.svg" activeIcon="dashboard_active.png" />
-            <Tab name="Appointments" link="/appointments" inactiveIcon="dashboard.svg" activeIcon="dashboard_active.png" />
-            <Tab name="Users Management" link="/users-management" inactiveIcon="dashboard.svg" activeIcon="dashboard_active.png" />
-            <Tab name="Payment History" link="/payment-history" inactiveIcon="dashboard.svg" activeIcon="dashboard_active.png" />
-            <Tab name="Campaign Analytics" link="/campaign-analytics" inactiveIcon="dashboard.svg" activeIcon="dashboard_active.png" />
-            <Tab name="Partners" link="/partners" inactiveIcon="dashboard.svg" activeIcon="dashboard_active.png" />
-          </nav>
+        {/* Desktop sidebar */}
+        <aside className="fixed top-16 left-0 hidden h-[calc(100vh-4rem)] w-64 overflow-hidden border-r border-slate-200 bg-white shadow-sm md:block">
+          <div className="h-px bg-slate-200" />
+          <SidebarContent />
         </aside>
 
+        {/* Mobile sidebar overlay */}
         {isMobileMenuOpen && (
           <div
             role="presentation"
@@ -136,27 +270,11 @@ const BaseTemplate = ({ children }: BaseTemplateProps) => {
           >
             <aside
               role="presentation"
-              className="absolute top-0 left-0 h-full w-64 overflow-y-auto border-r-2 border-primary-200 bg-linear-to-b from-white via-primary-50/50 to-primary-100/30 shadow-2xl"
+              className="absolute top-0 left-0 h-full w-64 overflow-hidden border-r border-slate-200 bg-white shadow-2xl"
               onClick={e => e.stopPropagation()}
             >
-              <div className="h-1 bg-linear-to-r from-primary-600 to-primary-500" />
-              <nav className="relative space-y-2 p-4">
-                <Tab name="Dashboard" link="/" inactiveIcon="dashboard.svg" activeIcon="dashboard_active.png" />
-                <Tab name="Upload" link="/upload" inactiveIcon="dashboard.svg" activeIcon="dashboard_active.png" />
-                <Tab name="Partners" link="/partners" inactiveIcon="dashboard.svg" activeIcon="dashboard_active.png" />
-              </nav>
-              <div className="relative mt-4 border-t-2 border-primary-200 p-4">
-                <button
-                  type="button"
-                  onClick={logout}
-                  className="flex w-full items-center gap-3 rounded-xl border-2 border-transparent px-4 py-3 text-sm font-semibold text-error transition-all hover:border-error/20 hover:bg-error-light"
-                >
-                  <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                  </svg>
-                  <span>Logout</span>
-                </button>
-              </div>
+              <div className="h-px bg-slate-200" />
+              <SidebarContent onLinkClick={() => setIsMobileMenuOpen(false)} />
             </aside>
           </div>
         )}
@@ -167,6 +285,13 @@ const BaseTemplate = ({ children }: BaseTemplateProps) => {
           </div>
         </main>
       </div>
+
+      <LogoutConfirmDialog
+        open={showLogoutDialog}
+        onCancel={() => setShowLogoutDialog(false)}
+        onConfirm={handleLogout}
+        isLoggingOut={isLoggingOut}
+      />
     </div>
   );
 };

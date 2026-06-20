@@ -1,13 +1,12 @@
 'use client';
 
-import { getCsrfToken, signIn } from 'next-auth/react';
+import { signIn } from 'next-auth/react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'react-toastify';
 import { Button, Input } from '@/components/ui';
-import { getBaseUrl } from '@/utils/Helpers';
 
 type SignInData = {
   email: string;
@@ -30,39 +29,21 @@ export default function SignInPage() {
     setLoading(true);
 
     try {
-      const baseUrl = getBaseUrl();
-
-      const res = await fetch(`${baseUrl}/auth/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: data.email, password: data.password }),
-      });
-
-      const json = await res.json();
-
-      if (!res.ok) {
-        const msg = json.message || `Login failed (${res.status})`;
-        setErrorMsg(msg);
-        toast.error(msg);
-        return;
-      }
-
-      await getCsrfToken();
-
       const authResult = await signIn('credentials', {
         redirect: false,
         email: data.email,
         password: data.password,
       });
 
-      if (authResult?.error) {
-        const msg = 'Could not start your session. Check your account status or try again.';
+      if (!authResult || authResult.error || authResult.ok === false) {
+        const msg = 'Invalid credentials. Check your email/password and try again.';
         setErrorMsg(msg);
         toast.error(msg);
         return;
       }
 
       toast.success('Signed in successfully!');
+      router.refresh();
       router.push('/');
     } catch (err: any) {
       const msg = err.message || 'Network error. Please try again.';
@@ -83,16 +64,13 @@ export default function SignInPage() {
         <div className="absolute inset-0 rounded-3xl bg-white/30 blur-xl" />
         <div className="relative rounded-3xl border-2 border-white/50 bg-white/95 p-8 shadow-2xl shadow-primary-900/30 backdrop-blur-2xl md:p-10">
           <div className="mb-8 flex justify-center">
-            <div className="relative rounded-2xl bg-linear-to-br from-primary-500 to-primary-700 p-4 shadow-lg shadow-primary-500/50">
-              <Image
-                src="/assets/logo.svg"
-                alt="Logo"
-                width={120}
-                height={32}
-                priority
-                className="relative brightness-0 invert"
-              />
-            </div>
+            <Image
+              src="/assets/logo.svg"
+              alt="Logo"
+              width={140}
+              height={36}
+              priority
+            />
           </div>
 
           <div className="mb-8 text-center">
