@@ -1,506 +1,152 @@
 'use client';
 
-import type {
-  GetAppointmentMetricsResponse,
-  GetCampaignConversationMetricsResponse,
-  GetCampaignsMetricsResponse,
-  GetSubscriptionMetricResponse,
-  GetUpgradeOrDowngradeMetricsResponse,
-  GetUserCountMetricsResponse,
-  GetUsersByCountryResponse,
-} from '@/types';
-import { AgCharts } from 'ag-charts-react';
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import { toast } from 'react-toastify';
-import { MetricCard } from '@/components/global/metric-card';
-import { Loader, Select } from '@/components/ui';
 import {
-  useLazyGetAppointmentMetricsQuery,
-  useLazyGetCampaignConversationMetricsQuery,
-  useLazyGetCampaignsMetricsQuery,
-  useLazyGetSubscriptionsMetricsQuery,
-  useLazyGetUpgradeOrDowngradeMetricsQuery,
-  useLazyGetUserCountMetricsQuery,
-  useLazyGetUsersByCountryQuery,
-} from '@/services';
+  FiActivity,
+  FiBarChart2,
+  FiBriefcase,
+  FiCalendar,
+  FiCreditCard,
+  FiGlobe,
+  FiUser,
+  FiUserCheck,
+  FiUsers,
+  FiZap,
+} from 'react-icons/fi';
+import { StatCardSkeleton } from '@/components/ui';
+import { useGetDashboardOverviewQuery } from '@/services';
 
-type MetricKey
-  = | 'Number of Registered Users'
-    | 'Number of Users by Country'
-    | 'Number of Verified / Active users'
-    | 'Number of Users by Plan'
-    | 'Number of Different Campaign Types Created'
-    | 'Number of Upgrades / Downgrades'
-    | 'Number of Appointments Booked'
-    | 'Number of Conversations';
-
-type MetricToResponse = {
-  'Number of Registered Users': GetUserCountMetricsResponse;
-  'Number of Users by Country': GetUsersByCountryResponse;
-  'Number of Verified / Active users': GetUserCountMetricsResponse;
-  'Number of Users by Plan': GetSubscriptionMetricResponse;
-  'Number of Different Campaign Types Created': GetCampaignsMetricsResponse;
-  'Number of Upgrades / Downgrades': GetUpgradeOrDowngradeMetricsResponse;
-  'Number of Appointments Booked': GetAppointmentMetricsResponse;
-  'Number of Conversations': GetCampaignConversationMetricsResponse;
+type StatCardProps = {
+  label: string;
+  value: number;
+  icon: React.ReactElement;
+  color: 'blue' | 'green' | 'amber' | 'purple' | 'rose' | 'cyan' | 'indigo' | 'teal';
+  sub?: string;
 };
 
-type MetricDataFor<K extends MetricKey>
-  = MetricToResponse[K] extends { data: infer D } ? D : never;
+const COLOR_MAP: Record<StatCardProps['color'], { bg: string; ring: string; icon: string; text: string; bar: string }> = {
+  blue: { bg: 'from-blue-500 to-blue-700', ring: 'ring-blue-200', icon: 'text-blue-600', text: 'text-blue-700', bar: 'from-blue-600 via-blue-500 to-blue-600' },
+  green: { bg: 'from-emerald-500 to-emerald-700', ring: 'ring-emerald-200', icon: 'text-emerald-600', text: 'text-emerald-700', bar: 'from-emerald-600 via-emerald-500 to-emerald-600' },
+  amber: { bg: 'from-amber-500 to-amber-600', ring: 'ring-amber-200', icon: 'text-amber-600', text: 'text-amber-700', bar: 'from-amber-500 via-amber-400 to-amber-500' },
+  purple: { bg: 'from-purple-500 to-purple-700', ring: 'ring-purple-200', icon: 'text-purple-600', text: 'text-purple-700', bar: 'from-purple-600 via-purple-500 to-purple-600' },
+  rose: { bg: 'from-rose-500 to-rose-700', ring: 'ring-rose-200', icon: 'text-rose-600', text: 'text-rose-700', bar: 'from-rose-600 via-rose-500 to-rose-600' },
+  cyan: { bg: 'from-cyan-500 to-cyan-700', ring: 'ring-cyan-200', icon: 'text-cyan-600', text: 'text-cyan-700', bar: 'from-cyan-600 via-cyan-500 to-cyan-600' },
+  indigo: { bg: 'from-indigo-500 to-indigo-700', ring: 'ring-indigo-200', icon: 'text-indigo-600', text: 'text-indigo-700', bar: 'from-indigo-600 via-indigo-500 to-indigo-600' },
+  teal: { bg: 'from-teal-500 to-teal-700', ring: 'ring-teal-200', icon: 'text-teal-600', text: 'text-teal-700', bar: 'from-teal-600 via-teal-500 to-teal-600' },
+};
 
-type ChartOptions = Record<string, unknown>;
-
-const baseLegend = {
-  enabled: true,
-  position: 'bottom',
-} as const;
-
-const chartConfigFactory = (): Record<MetricKey, ChartOptions> => ({
-  'Number of Verified / Active users': {
-    data: [],
-    series: [
-      {
-        type: 'line',
-        xKey: 'date',
-        yKey: 'unverified',
-        legendItemName: 'Unverified',
-        stroke: '#ef4444',
-        marker: { fill: '#ef4444', stroke: '#ef4444' },
-      },
-      {
-        type: 'line',
-        xKey: 'date',
-        yKey: 'verified',
-        legendItemName: 'Verified',
-        stroke: '#3b82f6',
-        marker: { fill: '#3b82f6', stroke: '#3b82f6' },
-      },
-    ],
-    legend: baseLegend,
-    axes: [
-      { type: 'category', position: 'bottom' },
-      { type: 'number', position: 'left' },
-    ],
-  },
-  'Number of Registered Users': {
-    type: 'card',
-    data: [],
-  },
-  'Number of Users by Country': {
-    data: [],
-    series: [{
-      type: 'pie',
-      angleKey: 'count',
-      labelKey: 'country',
-      fills: ['#3b82f6', '#6366f1', '#8b5cf6', '#a855f7', '#c026d3'],
-    }],
-    legend: baseLegend,
-  },
-  'Number of Users by Plan': {
-    data: [],
-    series: [
-      {
-        type: 'bar',
-        xKey: 'plan',
-        yKey: 'count',
-        legendItemName: 'Users',
-        fill: '#3b82f6',
-      },
-    ],
-    axes: [
-      { type: 'category', position: 'bottom' },
-      { type: 'number', position: 'left' },
-    ],
-    legend: baseLegend,
-  },
-  'Number of Different Campaign Types Created': {
-    data: [],
-    series: [
-      {
-        type: 'bar',
-        xKey: 'date',
-        yKey: 'outreach',
-        legendItemName: 'Outreach',
-        fill: '#3b82f6',
-      },
-      {
-        type: 'bar',
-        xKey: 'date',
-        yKey: 'sales',
-        legendItemName: 'Sales',
-        fill: '#6366f1',
-      },
-    ],
-    axes: [
-      { type: 'category', position: 'bottom' },
-      { type: 'number', position: 'left' },
-    ],
-    legend: baseLegend,
-  },
-  'Number of Upgrades / Downgrades': {
-    data: [],
-    series: [
-      {
-        type: 'line',
-        xKey: 'month',
-        yKey: 'upgraded',
-        legendItemName: 'Upgrades',
-        stroke: '#10b981',
-        marker: { fill: '#10b981', stroke: '#10b981' },
-      },
-      {
-        type: 'line',
-        xKey: 'month',
-        yKey: 'downgraded',
-        legendItemName: 'Downgrades',
-        stroke: '#ef4444',
-        marker: { fill: '#ef4444', stroke: '#ef4444' },
-      },
-    ],
-    axes: [
-      { type: 'category', position: 'bottom' },
-      { type: 'number', position: 'left' },
-    ],
-    legend: baseLegend,
-  },
-  'Number of Appointments Booked': {
-    data: [],
-    series: [
-      {
-        type: 'line',
-        xKey: 'date',
-        yKey: 'count',
-        legendItemName: 'Appointments',
-        stroke: '#3b82f6',
-        marker: { fill: '#3b82f6', stroke: '#3b82f6' },
-      },
-    ],
-    axes: [
-      { type: 'category', position: 'bottom' },
-      { type: 'number', position: 'left' },
-    ],
-    legend: baseLegend,
-  },
-  'Number of Conversations': {
-    data: [],
-    series: [
-      {
-        type: 'line',
-        xKey: 'date',
-        yKey: 'web_agents',
-        legendItemName: 'Web Agents',
-        stroke: '#3b82f6',
-        marker: { fill: '#3b82f6', stroke: '#3b82f6' },
-      },
-      {
-        type: 'line',
-        xKey: 'date',
-        yKey: 'web_agent_chat',
-        legendItemName: 'Agent Chat',
-        stroke: '#6366f1',
-        marker: { fill: '#6366f1', stroke: '#6366f1' },
-      },
-      {
-        type: 'line',
-        xKey: 'date',
-        yKey: 'outreach',
-        legendItemName: 'Outreach',
-        stroke: '#8b5cf6',
-        marker: { fill: '#8b5cf6', stroke: '#8b5cf6' },
-      },
-      {
-        type: 'line',
-        xKey: 'date',
-        yKey: 'sales',
-        legendItemName: 'Sales',
-        stroke: '#a855f7',
-        marker: { fill: '#a855f7', stroke: '#a855f7' },
-      },
-    ],
-    axes: [
-      { type: 'category', position: 'bottom' },
-      { type: 'number', position: 'left' },
-    ],
-    legend: baseLegend,
-  },
-});
-
-function extractDataForMetric<K extends MetricKey>(
-  metric: K,
-  data: MetricDataFor<K>,
-) {
-  switch (metric) {
-    case 'Number of Registered Users':
-      return (data as unknown as { totalUsers?: number }).totalUsers ?? 0;
-    case 'Number of Users by Country':
-      return data as MetricDataFor<'Number of Users by Country'>;
-    case 'Number of Users by Plan':
-      return data as MetricDataFor<'Number of Users by Plan'>;
-    case 'Number of Verified / Active users':
-      return (data as unknown as { dailyCounts?: unknown }).dailyCounts ?? [];
-    case 'Number of Different Campaign Types Created':
-      return (data as unknown as { dailyCounts?: unknown }).dailyCounts ?? [];
-    case 'Number of Upgrades / Downgrades':
-      return data as MetricDataFor<'Number of Upgrades / Downgrades'>;
-    case 'Number of Appointments Booked':
-      return (
-        (data as unknown as { dailyAppointments?: unknown }).dailyAppointments
-        ?? []
-      );
-    case 'Number of Conversations':
-      return (data as unknown as { dailyCounts?: unknown }).dailyCounts ?? [];
-    default:
-      return [];
-  }
+function StatCard({ label, value, icon, color, sub }: StatCardProps) {
+  const c = COLOR_MAP[color];
+  return (
+    <div className="group relative overflow-hidden rounded-2xl border border-slate-200/60 bg-white shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md">
+      <div className={`absolute top-0 right-0 left-0 h-0.5 bg-linear-to-r ${c.bar}`} />
+      <div className="p-5">
+        <div className="mb-4 flex items-start justify-between">
+          <div className={`flex h-11 w-11 items-center justify-center rounded-xl bg-linear-to-br ${c.bg} shadow-md`}>
+            <span className="text-lg text-white">{icon}</span>
+          </div>
+          {sub && (
+            <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-slate-500">{sub}</span>
+          )}
+        </div>
+        <p className="mb-0.5 text-sm font-medium text-slate-500">{label}</p>
+        <p className={`text-3xl font-bold ${c.text}`}>
+          {value.toLocaleString()}
+        </p>
+      </div>
+    </div>
+  );
 }
 
 export default function MetricsDashboard() {
-  const [loading, setLoading] = useState(false);
-  const [metric, setMetric] = useState<MetricKey>(
-    'Number of Verified / Active users',
-  );
-  const [options, setOptions] = useState(() => chartConfigFactory());
+  const { data, isLoading } = useGetDashboardOverviewQuery();
+  const overview = data?.data;
 
-  const [rawTriggerGetUserCount] = useLazyGetUserCountMetricsQuery();
-  const [rawTriggerGetUsersByCountry] = useLazyGetUsersByCountryQuery();
-  const [rawTriggerGetSubscriptions] = useLazyGetSubscriptionsMetricsQuery();
-  const [rawTriggerGetCampaigns] = useLazyGetCampaignsMetricsQuery();
-  const [rawTriggerGetConversationMetrics]
-    = useLazyGetCampaignConversationMetricsQuery();
-  const [rawTriggerGetAppointments] = useLazyGetAppointmentMetricsQuery();
-  const [rawTriggerGetUpgradesDowngrades]
-    = useLazyGetUpgradeOrDowngradeMetricsQuery();
-
-  const triggerGetUserCount = useCallback(
-    async (...args: unknown[]) => {
-      const res = await (
-        rawTriggerGetUserCount as (...a: unknown[]) => Promise<unknown>
-      )(...args);
-      if (res && typeof res === 'object' && 'data' in (res as object)) {
-        return (res as { data: MetricDataFor<'Number of Registered Users'> })
-          .data;
-      }
-      return res as MetricDataFor<'Number of Registered Users'>;
-    },
-    [rawTriggerGetUserCount],
-  );
-
-  const triggerGetUsersByCountry = useCallback(
-    async (...args: unknown[]) => {
-      const res = await (
-        rawTriggerGetUsersByCountry as (...a: unknown[]) => Promise<unknown>
-      )(...args);
-      if (res && typeof res === 'object' && 'data' in (res as object)) {
-        return (res as { data: MetricDataFor<'Number of Users by Country'> })
-          .data;
-      }
-      return res as MetricDataFor<'Number of Users by Country'>;
-    },
-    [rawTriggerGetUsersByCountry],
-  );
-
-  const triggerGetSubscriptions = useCallback(
-    async (...args: unknown[]) => {
-      const res = await (
-        rawTriggerGetSubscriptions as (...a: unknown[]) => Promise<unknown>
-      )(...args);
-      if (res && typeof res === 'object' && 'data' in (res as object)) {
-        return (res as { data: MetricDataFor<'Number of Users by Plan'> }).data;
-      }
-      return res as MetricDataFor<'Number of Users by Plan'>;
-    },
-    [rawTriggerGetSubscriptions],
-  );
-
-  const triggerGetCampaigns = useCallback(
-    async (...args: unknown[]) => {
-      const res = await (
-        rawTriggerGetCampaigns as (...a: unknown[]) => Promise<unknown>
-      )(...args);
-      if (res && typeof res === 'object' && 'data' in (res as object)) {
-        return (res as {
-          data: MetricDataFor<'Number of Different Campaign Types Created'>;
-        }).data;
-      }
-      return res as MetricDataFor<'Number of Different Campaign Types Created'>;
-    },
-    [rawTriggerGetCampaigns],
-  );
-
-  const triggerGetConversationMetrics = useCallback(
-    async (...args: unknown[]) => {
-      const res = await (
-        rawTriggerGetConversationMetrics as (
-          ...a: unknown[]
-        ) => Promise<unknown>
-      )(...args);
-      if (res && typeof res === 'object' && 'data' in (res as object)) {
-        return (res as { data: MetricDataFor<'Number of Conversations'> }).data;
-      }
-      return res as MetricDataFor<'Number of Conversations'>;
-    },
-    [rawTriggerGetConversationMetrics],
-  );
-
-  const triggerGetAppointments = useCallback(
-    async (...args: unknown[]) => {
-      const res = await (
-        rawTriggerGetAppointments as (...a: unknown[]) => Promise<unknown>
-      )(...args);
-      if (res && typeof res === 'object' && 'data' in (res as object)) {
-        return (res as { data: MetricDataFor<'Number of Appointments Booked'> })
-          .data;
-      }
-      return res as MetricDataFor<'Number of Appointments Booked'>;
-    },
-    [rawTriggerGetAppointments],
-  );
-
-  const triggerGetUpgradesDowngrades = useCallback(
-    async (...args: unknown[]) => {
-      const res = await (
-        rawTriggerGetUpgradesDowngrades as (
-          ...a: unknown[]
-        ) => Promise<unknown>
-      )(...args);
-      if (res && typeof res === 'object' && 'data' in (res as object)) {
-        return (res as { data: MetricDataFor<'Number of Upgrades / Downgrades'> })
-          .data;
-      }
-      return res as MetricDataFor<'Number of Upgrades / Downgrades'>;
-    },
-    [rawTriggerGetUpgradesDowngrades],
-  );
-
-  const triggerMap = useMemo(
-    () => ({
-      'Number of Registered Users': triggerGetUserCount,
-      'Number of Users by Country': triggerGetUsersByCountry,
-      'Number of Verified / Active users': triggerGetUserCount,
-      'Number of Users by Plan': triggerGetSubscriptions,
-      'Number of Different Campaign Types Created': triggerGetCampaigns,
-      'Number of Upgrades / Downgrades': triggerGetUpgradesDowngrades,
-      'Number of Appointments Booked': triggerGetAppointments,
-      'Number of Conversations': triggerGetConversationMetrics,
-    }),
-    [
-      triggerGetUserCount,
-      triggerGetUsersByCountry,
-      triggerGetSubscriptions,
-      triggerGetCampaigns,
-      triggerGetUpgradesDowngrades,
-      triggerGetAppointments,
-      triggerGetConversationMetrics,
-    ],
-  );
-
-  const selected = options[metric];
-  const chartType = selected?.type as string | undefined;
-
-  useEffect(() => {
-    let mounted = true;
-    const load = async () => {
-      setLoading(true);
-      try {
-        const typedTrigger = triggerMap[
-          metric
-        ] as () => Promise<MetricDataFor<typeof metric>>;
-        const data = await typedTrigger();
-
-        if (!mounted) {
-          return;
-        }
-
-        const extracted = extractDataForMetric(
-          metric as MetricKey,
-          data as MetricDataFor<typeof metric>,
-        );
-
-        setOptions(prev => ({
-          ...prev,
-          [metric]: {
-            ...(prev[metric] as ChartOptions),
-            data: extracted,
-          },
-        }));
-      } catch (err) {
-        console.error(err);
-        toast.error('Error fetching chart data');
-      } finally {
-        if (mounted) {
-          setLoading(false);
-        }
-      }
-    };
-
-    load();
-
-    return () => {
-      mounted = false;
-    };
-  }, [metric, triggerMap]);
+  const stats: StatCardProps[] = overview
+    ? [
+        { label: 'Total Users', value: overview.totalUsers, icon: <FiUsers />, color: 'blue' },
+        { label: 'Active Users', value: overview.activeUsers, icon: <FiUserCheck />, color: 'green' },
+        { label: 'Inactive Users', value: overview.inactiveUsers, icon: <FiUser />, color: 'rose' },
+        { label: 'Partner Users', value: overview.partnerUsers, icon: <FiGlobe />, color: 'purple' },
+        { label: 'Total Partners', value: overview.totalPartners, icon: <FiBriefcase />, color: 'indigo' },
+        { label: 'Total Campaigns', value: overview.totalCampaigns, icon: <FiActivity />, color: 'cyan' },
+        { label: 'Appointments', value: overview.totalAppointments, icon: <FiCalendar />, color: 'teal' },
+        { label: 'Subscriptions', value: overview.totalSubscriptions, icon: <FiCreditCard />, color: 'amber' },
+        { label: 'Sales Agents', value: overview.totalSalesAgents, icon: <FiZap />, color: 'blue' },
+      ]
+    : [];
 
   return (
-    <div className="h-full space-y-6 p-4 md:p-6">
-      <div className="relative">
-        <div className="absolute inset-0 rounded-2xl bg-linear-to-r from-blue-500/5 to-indigo-500/5 blur-xl" />
-        <div className="relative max-w-md rounded-xl border border-blue-100/50 bg-white/50 p-5 shadow-lg shadow-blue-500/5 backdrop-blur-sm">
-          <label htmlFor="metrics" className="mb-3 block text-sm font-semibold text-slate-700">
-            📊 Select Metric to Visualize
-          </label>
-          <Select
-            onValueChangeAction={v => setMetric(v as MetricKey)}
-            defaultValue={metric}
-            options={Object.keys(options).map(key => ({
-              label: key,
-              value: key,
-            }))}
-          />
-        </div>
-      </div>
-
-      {loading
+    <div className="flex h-full w-full flex-col space-y-6 overflow-x-hidden overflow-y-auto">
+      {/* Stats Grid */}
+      {isLoading
         ? (
-            <div className="flex h-96 w-full items-center justify-center">
-              <div className="relative">
-                <div className="absolute inset-0 animate-pulse rounded-full bg-linear-to-r from-blue-500 to-indigo-500 opacity-50 blur-xl" />
-                <Loader />
+            <>
+              <div>
+                <h2 className="mb-3 text-xs font-bold tracking-widest text-slate-400 uppercase">Key Metrics</h2>
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                  {Array.from({ length: 4 }, (_, i) => `skel-${i}`).map(key => <StatCardSkeleton key={key} />)}
+                </div>
               </div>
-            </div>
+              <div>
+                <h2 className="mb-3 text-xs font-bold tracking-widest text-slate-400 uppercase">Platform Activity</h2>
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                  {Array.from({ length: 5 }, (_, i) => `skel-${i}`).map(key => <StatCardSkeleton key={key} />)}
+                </div>
+              </div>
+            </>
           )
-        : chartType === 'card'
+        : !overview
           ? (
-              <MetricCard
-                title={metric}
-                value={Number(
-                  ((selected as ChartOptions) as { data?: unknown }).data ?? 0,
-                )}
-                icon="/assets/total_sales.svg"
-                background_color="#f0f9ff"
-              />
+              <div className="flex h-64 flex-col items-center justify-center gap-3 rounded-2xl border border-slate-200/60 bg-white">
+                <FiBarChart2 className="h-12 w-12 text-slate-300" />
+                <p className="text-sm font-medium text-slate-500">Could not load dashboard data</p>
+                <p className="text-xs text-slate-400">Check your connection and try refreshing</p>
+              </div>
             )
           : (
-              selected && (
-                <div className="relative space-y-4">
-                  <div className="flex items-center gap-3 px-2">
-                    <div className="h-1 w-12 rounded-full bg-linear-to-r from-blue-500 to-indigo-500" />
-                    <h2 className="bg-linear-to-r from-slate-800 to-blue-900 bg-clip-text font-inter text-xl font-bold text-transparent md:text-2xl">
-                      Analytics Overview
-                    </h2>
-                  </div>
-
-                  <div className="relative">
-                    <div className="absolute inset-0 rounded-2xl bg-linear-to-br from-blue-50/30 to-indigo-50/20 blur-xl" />
-                    <div className="relative rounded-2xl border border-blue-100/50 bg-white/80 p-6 shadow-xl shadow-blue-500/5 backdrop-blur-sm">
-                      <AgCharts
-                        options={selected}
-                        className="bg-transparent!"
-                        style={{ width: '100%', height: '700px' }}
-                      />
-                    </div>
+              <>
+                <div>
+                  <h2 className="mb-3 text-xs font-bold tracking-widest text-slate-400 uppercase">Key Metrics</h2>
+                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                    {stats.slice(0, 4).map(s => (
+                      <StatCard key={s.label} {...s} />
+                    ))}
                   </div>
                 </div>
-              )
+
+                <div>
+                  <h2 className="mb-3 text-xs font-bold tracking-widest text-slate-400 uppercase">Platform Activity</h2>
+                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                    {stats.slice(4).map(s => (
+                      <StatCard key={s.label} {...s} />
+                    ))}
+                  </div>
+                </div>
+
+                {/* Quick Actions */}
+                <div>
+                  <h2 className="mb-3 text-xs font-bold tracking-widest text-slate-400 uppercase">Quick Actions</h2>
+                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                    {[
+                      { label: 'Onboard Partner', href: '/partners', icon: <FiGlobe />, color: 'bg-blue-600' },
+                      { label: 'Add Business', href: '/businesses', icon: <FiBriefcase />, color: 'bg-indigo-600' },
+                      { label: 'View Audit Logs', href: '/audit-logs', icon: <FiBarChart2 />, color: 'bg-purple-600' },
+                      { label: 'Manage Roles', href: '/roles-permissions', icon: <FiUserCheck />, color: 'bg-emerald-600' },
+                    ].map(action => (
+                      <a
+                        key={action.label}
+                        href={action.href}
+                        className="flex items-center gap-3 rounded-xl border border-slate-200/60 bg-white p-4 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md"
+                      >
+                        <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${action.color} text-white shadow-sm`}>
+                          <span className="text-base">{action.icon}</span>
+                        </div>
+                        <span className="text-sm font-semibold text-slate-700">{action.label}</span>
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              </>
             )}
     </div>
   );

@@ -3,7 +3,8 @@
 import { AgCharts } from 'ag-charts-react';
 import { useMemo } from 'react';
 import { PiChartBar, PiCrown, PiTrendUp } from 'react-icons/pi';
-import { Loader } from '@/components/ui';
+import { PageHeader } from '@/components/global/page-header';
+import { StatCardSkeleton, TableRowSkeleton } from '@/components/ui';
 import {
   useGetSubscriptionsMetricsQuery,
   useGetUpgradeOrDowngradeMetricsQuery,
@@ -30,21 +31,10 @@ export default function Subscription() {
       },
     ],
     axes: [
-      {
-        type: 'category',
-        position: 'bottom',
-        title: { text: 'Plan Type' },
-      },
-      {
-        type: 'number',
-        position: 'left',
-        title: { text: 'Number of Users' },
-      },
+      { type: 'category', position: 'bottom', title: { text: 'Plan Type' } },
+      { type: 'number', position: 'left', title: { text: 'Number of Users' } },
     ],
-    legend: {
-      enabled: true,
-      position: 'bottom',
-    },
+    legend: { enabled: true, position: 'bottom' },
   }), [subscriptions]);
 
   const upgradesChartOptions: ChartOptions = useMemo(() => ({
@@ -75,21 +65,10 @@ export default function Subscription() {
       },
     ],
     axes: [
-      {
-        type: 'category',
-        position: 'bottom',
-        title: { text: 'Month' },
-      },
-      {
-        type: 'number',
-        position: 'left',
-        title: { text: 'Number of Users' },
-      },
+      { type: 'category', position: 'bottom', title: { text: 'Month' } },
+      { type: 'number', position: 'left', title: { text: 'Number of Users' } },
     ],
-    legend: {
-      enabled: true,
-      position: 'bottom',
-    },
+    legend: { enabled: true, position: 'bottom' },
   }), [upgrades]);
 
   const totalUsers = useMemo(() => {
@@ -117,167 +96,128 @@ export default function Subscription() {
 
   return (
     <div className="flex h-full w-full flex-col overflow-x-hidden overflow-y-auto">
-      {/* Header Section */}
-      <div className="relative mb-6 overflow-hidden rounded-2xl">
-        <div className="absolute inset-0 bg-linear-to-r from-primary-600 via-primary-500 to-primary-600" />
-        <div className="absolute inset-0 bg-linear-to-br from-primary-400/30 to-transparent" />
-        <div className="absolute top-0 right-0 h-96 w-96 rounded-full bg-primary-300/20 blur-3xl" />
-
-        <div className="relative flex flex-col justify-between space-y-4 px-6 py-8 md:px-8 lg:flex-row lg:items-center lg:space-y-0">
-          <div className="flex flex-col space-y-2">
-            <h1 className="text-3xl font-bold text-white drop-shadow-lg md:text-4xl">
-              Subscription Analytics 💎
-            </h1>
-            <p className="text-base font-medium text-white/90 md:text-lg">
-              Monitor user subscriptions and plan changes
-            </p>
+      <PageHeader
+        title="Subscription Analytics"
+        subtitle="Monitor user subscriptions and plan changes"
+        icon={<PiCrown />}
+        actions={(
+          <div className="flex items-center gap-2 rounded-xl border border-white/30 bg-white/20 px-4 py-2 text-sm font-bold text-white backdrop-blur-sm">
+            <PiCrown className="h-4 w-4" />
+            {totalUsers}
+            {' '}
+            Subscribers
           </div>
+        )}
+      />
 
-          <div className="flex items-center gap-2">
-            <div className="flex items-center gap-3 rounded-xl border-2 border-white/30 bg-white/20 px-5 py-3 shadow-lg backdrop-blur-sm">
-              <PiCrown className="h-5 w-5 text-white" />
-              <span className="text-sm font-bold text-white">
-                {totalUsers}
-                {' '}
-                Subscribers
-              </span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Main Content */}
-      <div className="relative flex-1 space-y-6 px-4 md:px-6">
+      <div className="flex-1 space-y-4">
         {isLoading
           ? (
-              <div className="flex h-96 items-center justify-center">
-                <Loader />
+              <div className="space-y-4">
+                <div className="grid gap-4 md:grid-cols-3">
+                  {Array.from({ length: 3 }, (_, i) => `skel-${i}`).map(key => <StatCardSkeleton key={key} />)}
+                </div>
+                <div className="overflow-hidden rounded-2xl border border-slate-200/60 bg-white shadow-sm">
+                  <table className="w-full text-sm">
+                    <tbody>
+                      <TableRowSkeleton cols={3} rows={6} />
+                    </tbody>
+                  </table>
+                </div>
               </div>
             )
           : (
               <>
                 {/* Stats Cards */}
                 <div className="grid gap-4 md:grid-cols-3">
-                  <div className="relative">
-                    <div className="absolute inset-0 rounded-xl bg-linear-to-br from-blue-50/30 to-indigo-50/20 blur-xl" />
-                    <div className="relative rounded-xl border border-blue-100/50 bg-white/80 p-6 shadow-xl shadow-blue-500/5 backdrop-blur-sm">
-                      <div className="flex items-center gap-4">
-                        <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-linear-to-br from-blue-500 to-indigo-600">
-                          <PiCrown className="h-6 w-6 text-white" />
-                        </div>
-                        <div>
-                          <p className="text-sm font-medium text-slate-600">Total Subscribers</p>
-                          <p className="text-2xl font-bold text-slate-800">{totalUsers}</p>
-                        </div>
+                  <div className="rounded-xl border border-slate-200/60 bg-white p-6 shadow-sm">
+                    <div className="flex items-center gap-4">
+                      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary-50 text-primary-600">
+                        <PiCrown className="h-6 w-6" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-slate-500">Total Subscribers</p>
+                        <p className="text-2xl font-bold text-slate-800">{totalUsers}</p>
                       </div>
                     </div>
                   </div>
 
-                  <div className="relative">
-                    <div className="absolute inset-0 rounded-xl bg-linear-to-br from-green-50/30 to-emerald-50/20 blur-xl" />
-                    <div className="relative rounded-xl border border-green-100/50 bg-white/80 p-6 shadow-xl shadow-green-500/5 backdrop-blur-sm">
-                      <div className="flex items-center gap-4">
-                        <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-linear-to-br from-green-500 to-emerald-600">
-                          <PiTrendUp className="h-6 w-6 text-white" />
-                        </div>
-                        <div>
-                          <p className="text-sm font-medium text-slate-600">Total Upgrades</p>
-                          <p className="text-2xl font-bold text-slate-800">{totalUpgrades}</p>
-                        </div>
+                  <div className="rounded-xl border border-slate-200/60 bg-white p-6 shadow-sm">
+                    <div className="flex items-center gap-4">
+                      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
+                        <PiTrendUp className="h-6 w-6" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-slate-500">Total Upgrades</p>
+                        <p className="text-2xl font-bold text-slate-800">{totalUpgrades}</p>
                       </div>
                     </div>
                   </div>
 
-                  <div className="relative">
-                    <div className="absolute inset-0 rounded-xl bg-linear-to-br from-red-50/30 to-rose-50/20 blur-xl" />
-                    <div className="relative rounded-xl border border-red-100/50 bg-white/80 p-6 shadow-xl shadow-red-500/5 backdrop-blur-sm">
-                      <div className="flex items-center gap-4">
-                        <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-linear-to-br from-red-500 to-rose-600">
-                          <PiChartBar className="h-6 w-6 text-white" />
-                        </div>
-                        <div>
-                          <p className="text-sm font-medium text-slate-600">Total Downgrades</p>
-                          <p className="text-2xl font-bold text-slate-800">{totalDowngrades}</p>
-                        </div>
+                  <div className="rounded-xl border border-slate-200/60 bg-white p-6 shadow-sm">
+                    <div className="flex items-center gap-4">
+                      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-red-50 text-red-600">
+                        <PiChartBar className="h-6 w-6" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-slate-500">Total Downgrades</p>
+                        <p className="text-2xl font-bold text-slate-800">{totalDowngrades}</p>
                       </div>
                     </div>
                   </div>
                 </div>
 
                 {/* Subscription Plans Distribution */}
-                <div className="relative">
-                  <div className="absolute inset-0 rounded-2xl bg-linear-to-br from-blue-50/30 to-indigo-50/20 blur-xl" />
-                  <div className="relative rounded-2xl border border-blue-100/50 bg-white/80 p-6 shadow-xl shadow-blue-500/5 backdrop-blur-sm">
-                    <div className="mb-4 flex items-center gap-3">
-                      <div className="h-1 w-12 rounded-full bg-linear-to-r from-blue-500 to-indigo-500" />
-                      <h2 className="bg-linear-to-r from-slate-800 to-blue-900 bg-clip-text font-inter text-xl font-bold text-transparent">
-                        Users by Subscription Plan
-                      </h2>
-                    </div>
-                    <AgCharts
-                      options={subscriptionChartOptions}
-                      style={{ width: '100%', height: '400px' }}
-                    />
-                  </div>
+                <div className="rounded-2xl border border-slate-200/60 bg-white p-6 shadow-sm">
+                  <h2 className="mb-4 text-base font-semibold text-slate-800">
+                    Users by Subscription Plan
+                  </h2>
+                  <AgCharts options={subscriptionChartOptions} style={{ width: '100%', height: '400px' }} />
                 </div>
 
                 {/* Upgrades vs Downgrades Trend */}
-                <div className="relative">
-                  <div className="absolute inset-0 rounded-2xl bg-linear-to-br from-blue-50/30 to-indigo-50/20 blur-xl" />
-                  <div className="relative rounded-2xl border border-blue-100/50 bg-white/80 p-6 shadow-xl shadow-blue-500/5 backdrop-blur-sm">
-                    <div className="mb-4 flex items-center gap-3">
-                      <div className="h-1 w-12 rounded-full bg-linear-to-r from-blue-500 to-indigo-500" />
-                      <h2 className="bg-linear-to-r from-slate-800 to-blue-900 bg-clip-text font-inter text-xl font-bold text-transparent">
-                        Upgrades vs Downgrades Over Time
-                      </h2>
-                    </div>
-                    <AgCharts
-                      options={upgradesChartOptions}
-                      style={{ width: '100%', height: '500px' }}
-                    />
-                  </div>
+                <div className="rounded-2xl border border-slate-200/60 bg-white p-6 shadow-sm">
+                  <h2 className="mb-4 text-base font-semibold text-slate-800">
+                    Upgrades vs Downgrades Over Time
+                  </h2>
+                  <AgCharts options={upgradesChartOptions} style={{ width: '100%', height: '400px' }} />
                 </div>
 
                 {/* Plan Breakdown Table */}
-                <div className="relative">
-                  <div className="absolute inset-0 rounded-2xl bg-linear-to-br from-blue-50/30 to-indigo-50/20 blur-xl" />
-                  <div className="relative rounded-2xl border border-blue-100/50 bg-white/80 shadow-xl shadow-blue-500/5 backdrop-blur-sm">
-                    <div className="overflow-x-auto">
-                      <table className="w-full">
-                        <thead className="border-b border-blue-100 bg-blue-50/50">
-                          <tr>
-                            <th className="px-6 py-4 text-left text-sm font-semibold text-slate-700">Plan</th>
-                            <th className="px-6 py-4 text-left text-sm font-semibold text-slate-700">Users</th>
-                            <th className="px-6 py-4 text-left text-sm font-semibold text-slate-700">Percentage</th>
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y divide-slate-100">
-                          {Array.isArray(subscriptions) && subscriptions.map(plan => (
-                            <tr key={plan.plan} className="transition-colors hover:bg-blue-50/30">
-                              <td className="px-6 py-4">
-                                <span className="font-semibold text-slate-800">{plan.plan}</span>
-                              </td>
-                              <td className="px-6 py-4 text-slate-600">{plan.count}</td>
-                              <td className="px-6 py-4">
-                                <div className="flex items-center gap-3">
-                                  <div className="h-2 w-32 overflow-hidden rounded-full bg-slate-200">
-                                    <div
-                                      className="h-full bg-linear-to-r from-blue-500 to-indigo-600"
-                                      style={{ width: `${(plan.count / totalUsers) * 100}%` }}
-                                    />
-                                  </div>
-                                  <span className="text-sm font-semibold text-slate-700">
-                                    {((plan.count / totalUsers) * 100).toFixed(1)}
-                                    %
-                                  </span>
-                                </div>
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
+                <div className="overflow-hidden rounded-2xl border border-slate-200/60 bg-white shadow-sm">
+                  <table className="w-full">
+                    <thead className="border-b border-slate-100 bg-slate-50/70">
+                      <tr>
+                        <th className="px-6 py-3 text-left text-xs font-semibold tracking-wider text-slate-500 uppercase">Plan</th>
+                        <th className="px-6 py-3 text-left text-xs font-semibold tracking-wider text-slate-500 uppercase">Users</th>
+                        <th className="px-6 py-3 text-left text-xs font-semibold tracking-wider text-slate-500 uppercase">Share</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100">
+                      {Array.isArray(subscriptions) && subscriptions.map(plan => (
+                        <tr key={plan.plan} className="transition-colors hover:bg-slate-50/70">
+                          <td className="px-6 py-4">
+                            <span className="font-semibold text-slate-800">{plan.plan}</span>
+                          </td>
+                          <td className="px-6 py-4 text-slate-600">{plan.count}</td>
+                          <td className="px-6 py-4">
+                            <div className="flex items-center gap-3">
+                              <div className="h-2 w-32 overflow-hidden rounded-full bg-slate-200">
+                                <div
+                                  className="h-full bg-primary-500"
+                                  style={{ width: `${totalUsers ? (plan.count / totalUsers) * 100 : 0}%` }}
+                                />
+                              </div>
+                              <span className="text-sm font-semibold text-slate-700">
+                                {totalUsers ? ((plan.count / totalUsers) * 100).toFixed(1) : 0}
+                                %
+                              </span>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
                 </div>
               </>
             )}
