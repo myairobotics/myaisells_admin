@@ -129,6 +129,48 @@
   --font-inter: var(--font-inter);
 }
 
+/* Cursor semantics — Tailwind preflight resets button cursor to default */
+button,
+[role="button"],
+[type="button"],
+[type="submit"],
+[type="reset"],
+summary,
+label[for],
+select {
+  cursor: pointer;
+}
+
+button:disabled,
+[role="button"][aria-disabled="true"],
+[disabled],
+[aria-disabled="true"] {
+  cursor: not-allowed;
+}
+
+input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]):not([type="color"]),
+textarea {
+  cursor: text;
+}
+
+input[type="checkbox"],
+input[type="radio"] {
+  cursor: pointer;
+}
+
+input[type="range"] {
+  cursor: ew-resize;
+}
+
+input[type="file"] {
+  cursor: pointer;
+}
+
+/* Links always pointer, even when styled as plain text */
+a {
+  cursor: pointer;
+}
+
 /* Typography */
 h1,
 h2,

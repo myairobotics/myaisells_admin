@@ -52,7 +52,7 @@ export const MetricCard: FC<MetricCardProps> = ({
               {title}
             </h1>
 
-            <div className="flex items-center gap-1 rounded-lg border-2 border-primary-300 bg-linear-to-br from-primary-100 to-primary-200 px-3 py-1.5">
+            <div className="flex items-center gap-1 rounded-lg border-2 border-primary-300 bg-linear-to-br from-primary-100 to-primary-200 px-3.5 py-2">
               {isPositive
                 ? (
                     <IoIosArrowRoundUp className="text-xl text-success" />

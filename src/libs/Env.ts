@@ -34,6 +34,7 @@ export const Env = createEnv({
     // Auth
     NEXTAUTH_URL: z.string().url().optional().default('http://localhost:3000'),
     NEXTAUTH_SECRET: z.string().min(8).optional().default('defaultsecret123'),
+    AUTH_SECRET: z.string().min(8).optional().default('defaultsecret123'),
     AUTH_TRUST_HOST: z.preprocess(val => val === 'true', z.boolean()).default(false),
   },
 
@@ -96,6 +97,7 @@ export const Env = createEnv({
     // Auth
     NEXTAUTH_URL: process.env.NEXTAUTH_URL,
     NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET,
+    AUTH_SECRET: process.env.AUTH_SECRET,
     AUTH_TRUST_HOST: process.env.AUTH_TRUST_HOST,
 
     // Client

@@ -17,7 +17,7 @@ export const getAppUrl = () => {
   return Env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
 };
 
-const defaultApiVersionPath = '/api/v1';
+const defaultApiVersionPath = '/api';
 export const getBaseUrl = (API_VERSION_PATH: string = defaultApiVersionPath) => {
   if (Env.NEXT_PUBLIC_ENVIRONMENT === 'production') {
     const baseUrl = Env.NEXT_PUBLIC_PROD_URL || `https://${Env.VERCEL_PROJECT_PRODUCTION_URL || 'prod.myairesource.us'}`;

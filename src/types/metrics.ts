@@ -146,7 +146,7 @@ export type GetUserCountMetricsResponse
   = ApiAdminResponse<GetUserCountMetrics>;
 
 export type GetSubscriptionMetricResponse
-  = ApiAdminResponse<SubscriptionMetrics>;
+  = ApiAdminResponse<SubscriptionMetrics[]>;
 
 export type GetViewUsersResponse
   = ApiAdminResponse<ViewUsersMetrics>;
@@ -170,4 +170,4 @@ export type GetAppointmentMetricsResponse
   = ApiAdminResponse<AppointmentMetrics>;
 
 export type GetUpgradeOrDowngradeMetricsResponse
-  = ApiAdminResponse<UpgradeOrDowngradeMetrics>;
+  = ApiAdminResponse<UpgradeOrDowngradeMetrics[]>;

@@ -1,7 +1,7 @@
 'use client';
 
 import { FiArrowLeft, FiClock, FiMail, FiShield, FiUser } from 'react-icons/fi';
-import { Loader } from '@/components/ui';
+import { Skeleton } from '@/components/ui';
 import { useGetOnePartnerQuery } from '@/services';
 
 type PartnerDetailProps = {
@@ -15,8 +15,28 @@ export default function PartnerDetail({ partnerId, onBackAction }: PartnerDetail
 
   if (isLoading) {
     return (
-      <div className="flex h-96 items-center justify-center">
-        <Loader />
+      <div className="flex h-full w-full flex-col overflow-x-hidden overflow-y-auto">
+        <div className="mb-6 px-4 md:px-6">
+          <Skeleton width={130} height={18} borderRadius={6} />
+        </div>
+        <div className="mx-4 mb-6 overflow-hidden rounded-2xl border border-slate-200/60 bg-white shadow-xl md:mx-6">
+          <div className="flex items-center gap-5 bg-linear-to-r from-primary-600 via-primary-500 to-primary-400 px-6 py-6 md:px-8">
+            <Skeleton width={64} height={64} borderRadius={16} />
+            <Skeleton width={180} height={24} borderRadius={6} />
+          </div>
+        </div>
+        <div className="mx-4 rounded-2xl border border-slate-200/60 bg-white shadow-sm md:mx-6">
+          <div className="border-b border-slate-100 px-6 py-4 md:px-8">
+            <Skeleton width={160} height={14} borderRadius={6} />
+          </div>
+          {Array.from({ length: 4 }, (_, i) => `skel-${i}`).map(key => (
+            <div key={key} className="flex items-center gap-4 border-b border-slate-100 px-6 py-4 last:border-0 md:px-8">
+              <Skeleton width={16} height={16} borderRadius={4} />
+              <Skeleton width={112} height={14} borderRadius={6} />
+              <Skeleton width={200} height={14} borderRadius={6} />
+            </div>
+          ))}
+        </div>
       </div>
     );
   }
@@ -82,7 +102,7 @@ export default function PartnerDetail({ partnerId, onBackAction }: PartnerDetail
           </div>
           <div className="flex flex-1 items-center justify-between gap-4">
             <h1 className="truncate text-xl font-bold text-white md:text-2xl">{fullName}</h1>
-            <span className={`inline-flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-bold ${
+            <span className={`inline-flex shrink-0 items-center gap-1.5 rounded-full px-3.5 py-2 text-xs font-bold ${
               isActive
                 ? 'bg-green-100 text-green-700'
                 : 'bg-amber-100 text-amber-700'

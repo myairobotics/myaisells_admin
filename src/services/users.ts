@@ -61,7 +61,7 @@ export const metrics = baseApi.injectEndpoints({
       }),
     }),
 
-    getViewUsers: builder.query<GetViewUsersResponse, string>({
+    getViewUsers: builder.query<GetViewUsersResponse, void>({
       query: () => ({
         url: `${baseUrl}/users`,
       }),
@@ -78,7 +78,7 @@ export const metrics = baseApi.injectEndpoints({
       }),
     }),
 
-    getPaymentsHistory: builder.query<GetPaymentsHistoryResponse, string>({
+    getPaymentsHistory: builder.query<GetPaymentsHistoryResponse, void>({
       query: () => ({
         url: `${baseUrl}/payment`,
       }),
