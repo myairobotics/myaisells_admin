@@ -79,7 +79,7 @@ export const Tab = ({
             : null}
       </div>
 
-      <span className="relative z-10 flex-1 text-sm">{name}</span>
+      <span className="relative z-10 flex-1 text-left text-sm">{name}</span>
 
       {badge !== undefined && badge > 0 && (
         <span className={`relative z-10 ml-auto flex h-5 min-w-5 items-center justify-center rounded-full px-1 text-[10px] font-bold ${isActive ? 'bg-white/30 text-white' : 'bg-primary-100 text-primary-700'}`}>

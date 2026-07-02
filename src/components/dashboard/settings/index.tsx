@@ -18,6 +18,7 @@ import {
   FiZap,
 } from 'react-icons/fi';
 import { PageHeader } from '@/components/global/page-header';
+import { Badge } from '@/components/ui';
 import { useGetPlatformConfigQuery, useGetSubscriptionPlansQuery } from '@/services';
 
 /* ─── Tab types ───────────────────────────────────────────────────── */
@@ -66,27 +67,24 @@ function PlanCard({ plan }: { plan: SubscriptionPlan }) {
 
       {/* Limits */}
       <div className="mb-4 flex flex-wrap gap-2">
-        <span className="inline-flex items-center gap-1 rounded-md bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-600">
-          <FiZap className="h-3 w-3" />
+        <Badge variant="rounded" className="bg-slate-100 text-slate-600" icon={<FiZap className="h-3 w-3" />}>
           {plan.token_allowance.toLocaleString()}
           {' '}
           tokens
-        </span>
+        </Badge>
         {plan.max_users && (
-          <span className="inline-flex items-center gap-1 rounded-md bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-600">
-            <FiUsers className="h-3 w-3" />
+          <Badge variant="rounded" className="bg-slate-100 text-slate-600" icon={<FiUsers className="h-3 w-3" />}>
             {plan.max_users}
             {' '}
             users
-          </span>
+          </Badge>
         )}
         {plan.max_campaigns && (
-          <span className="inline-flex items-center gap-1 rounded-md bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-600">
-            <FiCheckCircle className="h-3 w-3" />
+          <Badge variant="rounded" className="bg-slate-100 text-slate-600" icon={<FiCheckCircle className="h-3 w-3" />}>
             {plan.max_campaigns}
             {' '}
             campaigns
-          </span>
+          </Badge>
         )}
       </div>
 
@@ -112,10 +110,12 @@ function PlanCard({ plan }: { plan: SubscriptionPlan }) {
 function ConfigRow({ icon, label, value, mono = false }: { icon: React.ReactNode; label: string; value: string | number | boolean; mono?: boolean }) {
   const display = typeof value === 'boolean'
     ? (
-        <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-semibold ${value ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-500'}`}>
-          {value ? <FiToggleRight className="h-3.5 w-3.5" /> : <FiToggleLeft className="h-3.5 w-3.5" />}
+        <Badge
+          className={value ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-500'}
+          icon={value ? <FiToggleRight className="h-3.5 w-3.5" /> : <FiToggleLeft className="h-3.5 w-3.5" />}
+        >
           {value ? 'Enabled' : 'Disabled'}
-        </span>
+        </Badge>
       )
     : <span className={`text-sm font-medium text-slate-800 ${mono ? 'font-mono' : ''}`}>{String(value)}</span>;
 

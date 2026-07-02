@@ -4,8 +4,6 @@ import type { HowToItem } from '@/types';
 import { useState } from 'react';
 import {
   FiBookOpen,
-  FiChevronLeft,
-  FiChevronRight,
   FiClock,
   FiFilm,
   FiPlay,
@@ -14,6 +12,7 @@ import {
   FiX,
 } from 'react-icons/fi';
 import { PageHeader } from '@/components/global/page-header';
+import { EmptyState, Pagination } from '@/components/ui';
 import { useGetAllHowTosQuery } from '@/services';
 
 /* ─── Video card ──────────────────────────────────────────────────── */
@@ -216,15 +215,11 @@ export default function HelpCenter() {
           )
         : filtered.length === 0
           ? (
-              <div className="flex h-64 flex-col items-center justify-center gap-3 rounded-xl border border-slate-200/60 bg-white">
-                <FiFilm className="h-12 w-12 text-slate-300" />
-                <p className="text-slate-500">{search ? 'No videos match your search' : 'No tutorials yet'}</p>
-                {search && (
-                  <button type="button" onClick={() => setSearch('')} className="text-sm font-medium text-rose-600 hover:underline">
-                    Clear search
-                  </button>
-                )}
-              </div>
+              <EmptyState
+                icon={<FiFilm />}
+                message={search ? 'No videos match your search' : 'No tutorials yet'}
+                onClear={search ? () => setSearch('') : undefined}
+              />
             )
           : (
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
@@ -236,25 +231,13 @@ export default function HelpCenter() {
 
       {/* Pagination */}
       {totalPages > 1 && !search && (
-        <div className="flex items-center justify-center gap-3">
-          <button
-            type="button"
-            onClick={() => setPage(p => Math.max(1, p - 1))}
-            disabled={page <= 1}
-            className="flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200 bg-white shadow-sm hover:bg-slate-50 disabled:opacity-40"
-          >
-            <FiChevronLeft className="h-4 w-4" />
-          </button>
-          <span className="text-sm text-slate-600">Page {page} of {totalPages}</span>
-          <button
-            type="button"
-            onClick={() => setPage(p => Math.min(totalPages, p + 1))}
-            disabled={page >= totalPages}
-            className="flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200 bg-white shadow-sm hover:bg-slate-50 disabled:opacity-40"
-          >
-            <FiChevronRight className="h-4 w-4" />
-          </button>
-        </div>
+        <Pagination
+          page={page}
+          totalPages={totalPages}
+          total={meta?.total}
+          itemLabel="video"
+          onPageChange={setPage}
+        />
       )}
 
       {/* Video player modal */}

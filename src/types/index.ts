@@ -1,3 +1,4 @@
+export * from './adminManagement';
 export * from './analytics';
 export * from './api';
 export * from './audit';
@@ -12,8 +13,8 @@ export * from './partners';
 export * from './platformSettings';
 export * from './rbac';
 export * from './referral';
-export * from './search';
 export * from './salesAgent';
+export * from './search';
 export * from './support';
 export * from './token';
 export * from './upload';

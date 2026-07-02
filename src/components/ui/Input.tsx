@@ -60,7 +60,7 @@ const Input: React.FC<InputProps> = ({
         <input
           type={showInput ? '' : Type}
           {...inputProps}
-          className={`${className} relative rounded-lg border-primary-700/30! px-3 py-2 placeholder:text-sm`}
+          className={`${className} relative rounded-xl border-primary-700/30! px-3 py-2 placeholder:text-sm`}
           style={{
             width: '100%',
             border: `1.5px solid ${statusColor}`,

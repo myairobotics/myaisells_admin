@@ -18,13 +18,14 @@ import {
 } from 'react-icons/fi';
 import { toast } from 'react-toastify';
 import { PageHeader } from '@/components/global/page-header';
-import { Skeleton } from '@/components/ui';
+import { Badge, FormField, Skeleton } from '@/components/ui';
 import {
   useAddPermissionsToRoleMutation,
   useCreatePermissionMutation,
   useFlushPermissionCacheMutation,
   useGetPermissionsQuery,
   useGetRolesQuery,
+  useRemovePermissionFromRoleMutation,
 } from '@/services';
 
 type CreatePermissionForm = {
@@ -46,9 +47,9 @@ const GROUP_COLORS: Record<string, string> = {
 
 function GroupBadge({ group }: { group: string }) {
   return (
-    <span className={`inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-semibold tracking-wide uppercase ${GROUP_COLORS[group.toLowerCase()] || 'bg-slate-100 text-slate-600'}`}>
+    <Badge variant="rounded" className={`text-[11px] tracking-wide uppercase ${GROUP_COLORS[group.toLowerCase()] ?? 'bg-slate-100 text-slate-600'}`}>
       {group}
-    </span>
+    </Badge>
   );
 }
 
@@ -69,6 +70,7 @@ function RoleCard({
 }) {
   const [expanded, setExpanded] = useState(false);
   const [addPermissions, { isLoading: isAdding }] = useAddPermissionsToRoleMutation();
+  const [removePermission, { isLoading: isRemoving }] = useRemovePermissionFromRoleMutation();
 
   const assignedIds = new Set(role.permissions.map(p => p.id));
   const unassigned = allPermissions.filter(p => !assignedIds.has(p.id));
@@ -88,6 +90,15 @@ function RoleCard({
       setSelected([]);
     } catch {
       toast.error('Failed to add permissions');
+    }
+  };
+
+  const handleRemove = async (permissionId: string, permissionName: string) => {
+    try {
+      await removePermission({ roleId: role.id, permissionId }).unwrap();
+      toast.success(`"${permissionName}" removed from ${role.label}`);
+    } catch {
+      toast.error('Failed to remove permission');
     }
   };
 
@@ -149,11 +160,22 @@ function RoleCard({
                       {role.permissions.map(p => (
                         <div
                           key={p.id}
-                          className="flex items-center gap-1.5 rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1.5"
+                          className="group flex items-center gap-1.5 rounded-lg border border-slate-200 bg-slate-50 py-1.5 pl-2.5 pr-1.5"
                         >
-                          <FiCheck className="h-3 w-3 text-emerald-500" />
+                          <FiCheck className="h-3 w-3 shrink-0 text-emerald-500" />
                           <span className="text-xs font-medium text-slate-700">{p.name}</span>
                           <PermissionKey permKey={p.permKey} />
+                          {role.isEditable && (
+                            <button
+                              type="button"
+                              onClick={() => handleRemove(p.id, p.name)}
+                              disabled={isRemoving}
+                              title={`Remove "${p.name}"`}
+                              className="ml-0.5 rounded p-0.5 text-slate-300 transition-all hover:bg-red-100 hover:text-red-500 disabled:opacity-40"
+                            >
+                              <FiX className="h-3 w-3" />
+                            </button>
+                          )}
                         </div>
                       ))}
                     </div>
@@ -340,57 +362,40 @@ export default function RolesPermissions() {
             <div className="rounded-xl border border-primary-200 bg-primary-50/40 p-5">
               <h3 className="mb-4 text-sm font-bold text-slate-800">Create Custom Permission</h3>
               <form onSubmit={handleSubmit(onCreatePermission)} className="grid gap-3 sm:grid-cols-2">
-                <div>
-                  <label htmlFor="perm-key" className="mb-1 block text-xs font-medium text-slate-600">
-                    Key
-                    {' '}
-                    <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    id="perm-key"
-                    {...register('key', { required: 'Required' })}
-                    placeholder="e.g. report:export"
-                    className="input"
-                  />
-                  {errors.key && <p className="mt-1 text-xs text-red-500">{errors.key.message}</p>}
-                </div>
-                <div>
-                  <label htmlFor="perm-name" className="mb-1 block text-xs font-medium text-slate-600">
-                    Name
-                    {' '}
-                    <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    id="perm-name"
-                    {...register('name', { required: 'Required' })}
-                    placeholder="e.g. Export Reports"
-                    className="input"
-                  />
-                  {errors.name && <p className="mt-1 text-xs text-red-500">{errors.name.message}</p>}
-                </div>
-                <div>
-                  <label htmlFor="perm-group" className="mb-1 block text-xs font-medium text-slate-600">
-                    Group
-                    {' '}
-                    <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    id="perm-group"
-                    {...register('group', { required: 'Required' })}
-                    placeholder="e.g. reports"
-                    className="input"
-                  />
-                  {errors.group && <p className="mt-1 text-xs text-red-500">{errors.group.message}</p>}
-                </div>
-                <div>
-                  <label htmlFor="perm-description" className="mb-1 block text-xs font-medium text-slate-600">Description</label>
-                  <input
-                    id="perm-description"
-                    {...register('description')}
-                    placeholder="What does this permission allow?"
-                    className="input"
-                  />
-                </div>
+                <FormField
+                  label="Key"
+                  id="perm-key"
+                  required
+                  placeholder="e.g. report:export"
+                  error={errors.key?.message}
+                  labelClassName="mb-1 block text-xs font-medium text-slate-600"
+                  {...register('key', { required: 'Required' })}
+                />
+                <FormField
+                  label="Name"
+                  id="perm-name"
+                  required
+                  placeholder="e.g. Export Reports"
+                  error={errors.name?.message}
+                  labelClassName="mb-1 block text-xs font-medium text-slate-600"
+                  {...register('name', { required: 'Required' })}
+                />
+                <FormField
+                  label="Group"
+                  id="perm-group"
+                  required
+                  placeholder="e.g. reports"
+                  error={errors.group?.message}
+                  labelClassName="mb-1 block text-xs font-medium text-slate-600"
+                  {...register('group', { required: 'Required' })}
+                />
+                <FormField
+                  label="Description"
+                  id="perm-description"
+                  placeholder="What does this permission allow?"
+                  labelClassName="mb-1 block text-xs font-medium text-slate-600"
+                  {...register('description')}
+                />
                 <div className="sm:col-span-2">
                   <button
                     type="submit"

@@ -27,10 +27,26 @@ import { Select } from './Select';
 import { AuditStatSkeleton, Skeleton, StatCardSkeleton, TableRowSkeleton } from './skeleton';
 import { Tab } from './Tab';
 import { VisuallyHidden } from './visually-hidden';
+import { Avatar } from './avatar';
+import { Badge } from './badge';
+import { Card } from './card';
+import { EmptyState } from './empty-state';
+import { FilterPills } from './filter-pills';
+import { FormField } from './form-field';
+import { InfoField } from './info-field';
+import { Pagination } from './pagination';
+import { ProgressBar } from './progress-bar';
+import { SearchFilterBar } from './search-filter-bar';
+import { SectionDivider } from './section-divider';
+import { SidePanel } from './side-panel';
+import { StatCard } from './stat-card';
 
 export {
   AuditStatSkeleton,
+  Avatar,
+  Badge,
   Button,
+  Card,
   DialogClose,
   DialogContent,
   DialogOverlay,
@@ -57,14 +73,24 @@ export {
   DropdownSubContent,
   DropdownSubTrigger,
   DropdownTrigger,
+  EmptyState,
+  FilterPills,
+  FormField,
+  InfoField,
   Input,
   Loader,
   Logo,
   Meta,
   Modal,
+  Pagination,
+  ProgressBar,
+  SearchFilterBar,
   SearchInput,
+  SectionDivider,
   Select,
+  SidePanel,
   Skeleton,
+  StatCard,
   StatCardSkeleton,
   Tab,
   TableRowSkeleton,

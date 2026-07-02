@@ -1,39 +1,35 @@
 'use client';
 
-import { FiArrowLeft, FiClock, FiMail, FiShield, FiUser } from 'react-icons/fi';
-import { Skeleton } from '@/components/ui';
+import { FiClock, FiMail, FiMapPin, FiTag, FiUser } from 'react-icons/fi';
+import { Badge, InfoField, SectionDivider, Skeleton } from '@/components/ui';
 import { useGetOnePartnerQuery } from '@/services';
 
 type PartnerDetailProps = {
   partnerId: string;
-  onBackAction: () => void;
 };
 
-export default function PartnerDetail({ partnerId, onBackAction }: PartnerDetailProps) {
+export default function PartnerDetail({ partnerId }: PartnerDetailProps) {
   const { data, isLoading } = useGetOnePartnerQuery(partnerId);
   const partner = data?.data;
 
   if (isLoading) {
     return (
-      <div className="flex h-full w-full flex-col overflow-x-hidden overflow-y-auto">
-        <div className="mb-6 px-4 md:px-6">
-          <Skeleton width={130} height={18} borderRadius={6} />
-        </div>
-        <div className="mx-4 mb-6 overflow-hidden rounded-2xl border border-slate-200/60 bg-white shadow-xl md:mx-6">
-          <div className="flex items-center gap-5 bg-linear-to-r from-primary-600 via-primary-500 to-primary-400 px-6 py-6 md:px-8">
-            <Skeleton width={64} height={64} borderRadius={16} />
-            <Skeleton width={180} height={24} borderRadius={6} />
+      <div className="space-y-5">
+        <div className="flex flex-col items-center gap-3 pt-2 pb-4">
+          <Skeleton width={80} height={80} borderRadius={9999} />
+          <div className="flex flex-col items-center gap-1.5">
+            <Skeleton width={160} height={20} borderRadius={6} />
+            <Skeleton width={100} height={14} borderRadius={6} />
           </div>
         </div>
-        <div className="mx-4 rounded-2xl border border-slate-200/60 bg-white shadow-sm md:mx-6">
-          <div className="border-b border-slate-100 px-6 py-4 md:px-8">
-            <Skeleton width={160} height={14} borderRadius={6} />
-          </div>
-          {Array.from({ length: 4 }, (_, i) => `skel-${i}`).map(key => (
-            <div key={key} className="flex items-center gap-4 border-b border-slate-100 px-6 py-4 last:border-0 md:px-8">
-              <Skeleton width={16} height={16} borderRadius={4} />
-              <Skeleton width={112} height={14} borderRadius={6} />
-              <Skeleton width={200} height={14} borderRadius={6} />
+        <div className="space-y-3">
+          {Array.from({ length: 4 }, (_, i) => `skel-${i}`).map(k => (
+            <div key={k} className="flex items-center gap-3 rounded-xl bg-slate-50 px-4 py-3.5">
+              <Skeleton width={28} height={28} borderRadius={8} />
+              <div className="flex-1 space-y-1.5">
+                <Skeleton width={64} height={11} borderRadius={4} />
+                <Skeleton width="80%" height={14} borderRadius={4} />
+              </div>
             </div>
           ))}
         </div>
@@ -43,94 +39,59 @@ export default function PartnerDetail({ partnerId, onBackAction }: PartnerDetail
 
   if (!partner) {
     return (
-      <div className="flex h-96 flex-col items-center justify-center">
-        <FiUser className="mb-4 h-16 w-16 text-slate-300" />
-        <h3 className="mb-2 text-xl font-bold text-slate-700">Partner not found</h3>
-        <button
-          type="button"
-          onClick={onBackAction}
-          className="mt-4 cursor-pointer text-sm font-semibold text-primary-600 hover:underline"
-        >
-          Go back
-        </button>
+      <div className="flex h-48 flex-col items-center justify-center gap-3">
+        <div className="flex h-14 w-14 items-center justify-center rounded-full bg-slate-100">
+          <FiUser className="h-6 w-6 text-slate-400" />
+        </div>
+        <p className="text-sm font-medium text-slate-500">Partner not found</p>
       </div>
     );
   }
 
-  const initials = `${partner.first_name.charAt(0)}${partner.last_name.charAt(0)}`;
+  const initials = `${partner.first_name.charAt(0)}${partner.last_name.charAt(0)}`.toUpperCase();
   const fullName = `${partner.first_name} ${partner.last_name}`;
   const isActive = partner.status === 'active';
 
-  const details = [
-    { icon: <FiUser className="h-4 w-4 text-slate-400" />, label: 'Full Name', value: fullName },
-    { icon: <FiMail className="h-4 w-4 text-slate-400" />, label: 'Email', value: partner.email },
-    { icon: <FiShield className="h-4 w-4 text-slate-400" />, label: 'Status', value: partner.status.charAt(0).toUpperCase() + partner.status.slice(1) },
+  const fields: { icon: React.ComponentType<{ className?: string }>; label: string; value: string }[] = [
+    { icon: FiMail, label: 'Email', value: partner.email },
+    { icon: FiTag, label: 'Tag', value: (partner as any).tag || '—' },
+    { icon: FiMapPin, label: 'Region', value: (partner as any).region || '—' },
     {
-      icon: <FiClock className="h-4 w-4 text-slate-400" />,
+      icon: FiClock,
       label: 'Last Login',
       value: partner.last_login_at
-        ? new Date(partner.last_login_at).toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'short',
-            day: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit',
-          })
+        ? new Date(partner.last_login_at).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })
         : 'Never',
     },
   ];
 
   return (
-    <div className="flex h-full w-full flex-col overflow-x-hidden overflow-y-auto">
-      {/* Back link */}
-      <div className="mb-6 px-4 md:px-6">
-        <button
-          type="button"
-          onClick={onBackAction}
-          className="flex cursor-pointer items-center gap-2 text-sm font-semibold text-slate-500 transition-colors hover:text-primary-600"
-        >
-          <FiArrowLeft className="h-4 w-4" />
-          Back to Partners
-        </button>
-      </div>
-
-      {/* Profile header */}
-      <div className="mx-4 mb-6 overflow-hidden rounded-2xl border border-slate-200/60 bg-white shadow-xl md:mx-6">
-        <div className="flex items-center gap-5 bg-linear-to-r from-primary-600 via-primary-500 to-primary-400 px-6 py-6 md:px-8">
-          <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-white/20 text-2xl font-bold text-white backdrop-blur-sm ring-2 ring-white/30">
+    <div className="space-y-5">
+      {/* Avatar + identity */}
+      <div className="flex flex-col items-center gap-3 pt-2 pb-1">
+        <div className="relative">
+          <div className="flex h-20 w-20 items-center justify-center rounded-full bg-linear-to-br from-primary-500 to-primary-700 text-2xl font-bold text-white shadow-lg ring-4 ring-primary-100">
             {initials}
           </div>
-          <div className="flex flex-1 items-center justify-between gap-4">
-            <h1 className="truncate text-xl font-bold text-white md:text-2xl">{fullName}</h1>
-            <span className={`inline-flex shrink-0 items-center gap-1.5 rounded-full px-3.5 py-2 text-xs font-bold ${
-              isActive
-                ? 'bg-green-100 text-green-700'
-                : 'bg-amber-100 text-amber-700'
-            }`}
-            >
-              <span className={`h-1.5 w-1.5 rounded-full ${isActive ? 'bg-green-600' : 'bg-amber-600'}`} />
-              {partner.status.charAt(0).toUpperCase() + partner.status.slice(1)}
-            </span>
-          </div>
+          <span className={`absolute right-0.5 bottom-0.5 flex h-4 w-4 items-center justify-center rounded-full ring-2 ring-white ${isActive ? 'bg-emerald-500' : 'bg-amber-400'}`} />
+        </div>
+        <div className="text-center">
+          <h3 className="text-lg font-bold text-slate-900">{fullName}</h3>
+          <Badge
+            className={`mt-1 ${isActive ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}`}
+            dot={isActive ? 'bg-emerald-500' : 'bg-amber-500'}
+          >
+            {isActive ? 'Active' : 'Pending'}
+          </Badge>
         </div>
       </div>
 
-      {/* Details section */}
-      <div className="mx-4 rounded-2xl border border-slate-200/60 bg-white shadow-sm md:mx-6">
-        <div className="border-b border-slate-100 px-6 py-4 md:px-8">
-          <h2 className="text-sm font-bold tracking-wide text-slate-800 uppercase">Partner Information</h2>
-        </div>
-        <div className="divide-y divide-slate-100">
-          {details.map(item => (
-            <div key={item.label} className="flex items-center gap-4 px-6 py-4 md:px-8">
-              {item.icon}
-              <span className="w-28 shrink-0 text-sm font-medium text-slate-400">{item.label}</span>
-              <span className="min-w-0 truncate text-sm font-semibold text-slate-800">
-                {item.value}
-              </span>
-            </div>
-          ))}
-        </div>
+      <SectionDivider label="Partner Details" />
+
+      <div className="space-y-2">
+        {fields.map(f => (
+          <InfoField key={f.label} icon={f.icon} label={f.label} value={f.value} />
+        ))}
       </div>
     </div>
   );
