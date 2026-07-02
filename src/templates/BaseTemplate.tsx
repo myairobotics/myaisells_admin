@@ -1,5 +1,6 @@
 'use client';
 
+import { signOut, useSession } from 'next-auth/react';
 import { useState } from 'react';
 import { FaBell } from 'react-icons/fa';
 import {
@@ -20,12 +21,12 @@ import {
   FiShield,
   FiUser,
   FiUserCheck,
+  FiUserPlus,
   FiUsers,
   FiZap,
 } from 'react-icons/fi';
 import { HiOutlineMenuAlt1 } from 'react-icons/hi';
 import { LuChevronsUpDown } from 'react-icons/lu';
-import { signOut, useSession } from 'next-auth/react';
 import {
   DialogContent,
   DialogRoot,
@@ -75,6 +76,7 @@ const NAV_SECTIONS = [
   {
     label: 'Access & Security',
     items: [
+      { name: 'Admin Management', link: '/admin-management', icon: <FiUserPlus /> },
       { name: 'Support Access', link: '/support-access', icon: <FiShield /> },
       { name: 'Roles & Permissions', link: '/roles-permissions', icon: <FiLock /> },
       { name: 'Audit Logs', link: '/audit-logs', icon: <FiActivity /> },
@@ -102,7 +104,14 @@ function LogoutConfirmDialog({
   isLoggingOut: boolean;
 }) {
   return (
-    <DialogRoot open={open} onOpenChange={open => { if (!open) onCancel(); }}>
+    <DialogRoot
+      open={open}
+      onOpenChange={(open) => {
+        if (!open) {
+          onCancel();
+        }
+      }}
+    >
       <DialogContent hideClose title="Sign out" className="max-w-sm">
         <div className="flex flex-col items-center gap-4 py-2 text-center">
           <div className="flex h-14 w-14 items-center justify-center rounded-full bg-red-100">
@@ -141,14 +150,14 @@ const SidebarContent = ({ onLinkClick }: { onLinkClick?: () => void }) => (
     <div className="flex-1 overflow-y-auto p-3">
       {NAV_SECTIONS.map(section => (
         <div key={section.label} className="mb-4">
-          <p className="mb-1 px-3 text-[10px] font-bold uppercase tracking-widest text-slate-400">
+          <p className="mb-1 px-3 text-[10px] font-bold tracking-widest text-slate-400 uppercase">
             {section.label}
           </p>
-          <div className="space-y-0.5">
+          <div className="w-full space-y-0.5">
             {section.items.map(item => (
-              <div key={item.link} onClick={onLinkClick}>
+              <button type="button" key={item.link} onClick={onLinkClick} className="w-full">
                 <Tab name={item.name} link={item.link} icon={item.icon} />
-              </div>
+              </button>
             ))}
           </div>
         </div>
@@ -162,6 +171,21 @@ const BaseTemplate = ({ children }: BaseTemplateProps) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [showLogoutDialog, setShowLogoutDialog] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+
+  // const signingOut = useRef(false);
+  // const sessionError = (session as any)?.error;
+  // useEffect(() => {
+  //   console.log('[BaseTemplate] session update', {
+  //     status: session ? 'loaded' : 'null',
+  //     error: sessionError ?? 'none',
+  //     accessToken: (session as any)?.accessToken?.slice(-10) ?? 'none',
+  //   });
+  //   if (sessionError === 'TokenExpired' && !signingOut.current) {
+  //     console.log('[BaseTemplate] TokenExpired detected — calling signOut');
+  //     signingOut.current = true;
+  //     signOut({ callbackUrl: '/auth/signin' });
+  //   }
+  // }, [sessionError, session]);
 
   const user = session?.user;
   const fullName = user?.first_name
@@ -178,9 +202,7 @@ const BaseTemplate = ({ children }: BaseTemplateProps) => {
 
   return (
     <div className="min-h-screen bg-slate-50">
-      <header className="fixed top-0 right-0 left-0 z-50 border-b-2 border-primary-200/50 bg-white/90 shadow-xl shadow-primary-500/10 backdrop-blur-xl">
-        <div className="h-1 bg-linear-to-r from-primary-600 via-primary-500 to-primary-600" />
-
+      <header className="fixed top-0 right-0 left-0 z-50 border-b border-primary-200/50 bg-white/90 backdrop-blur-xl">
         <div className="container mx-auto flex h-16 items-center justify-between px-4 md:px-6">
           <div className="flex items-center">
             <Logo />
@@ -256,7 +278,7 @@ const BaseTemplate = ({ children }: BaseTemplateProps) => {
 
       <div className="flex pt-16">
         {/* Desktop sidebar */}
-        <aside className="fixed top-16 left-0 hidden h-[calc(100vh-4rem)] w-64 overflow-hidden border-r border-slate-200 bg-white shadow-sm md:block">
+        <aside className="fixed top-16 left-0 hidden h-[calc(100vh-4rem)] w-64 overflow-hidden border-r border-primary-200/50 bg-white shadow-sm md:block">
           <div className="h-px bg-slate-200" />
           <SidebarContent />
         </aside>
@@ -270,7 +292,7 @@ const BaseTemplate = ({ children }: BaseTemplateProps) => {
           >
             <aside
               role="presentation"
-              className="absolute top-0 left-0 h-full w-64 overflow-hidden border-r border-slate-200 bg-white shadow-2xl"
+              className="absolute top-0 left-0 h-full w-64 overflow-hidden border-r border-primary-200/50 bg-white shadow-2xl"
               onClick={e => e.stopPropagation()}
             >
               <div className="h-px bg-slate-200" />

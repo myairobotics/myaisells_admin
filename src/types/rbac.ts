@@ -41,9 +41,15 @@ export interface AddPermissionsToRoleRequest {
   permissionIds: string[];
 }
 
+export interface RemovePermissionFromRoleRequest {
+  roleId: string;
+  permissionId: string;
+}
+
 export type GetPermissionsResponse = ApiAdminResponse<Permission[]>;
 export type GetOnePermissionResponse = ApiAdminResponse<Permission>;
 export type CreatePermissionResponse = ApiAdminResponse<Permission>;
 export type GetRolesResponse = ApiAdminResponse<Role[]>;
 export type AddPermissionsToRoleResponse = ApiAdminResponse<unknown>;
+export type RemovePermissionFromRoleResponse = ApiAdminResponse<unknown>;
 export type FlushPermissionCacheResponse = { success: boolean; message: string };

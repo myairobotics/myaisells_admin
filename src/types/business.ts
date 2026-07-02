@@ -37,12 +37,18 @@ export interface AdminBusiness {
   phone?: string;
   website?: string;
   country?: string;
+  region?: string;
+  state?: string;
+  address?: string;
   industry?: string;
+  contact_person?: string;
   status: BusinessStatus;
   subscription_plan?: string;
   token_balance?: number;
   partner_id?: string;
+  partner_name?: string;
   sales_agent_id?: string;
+  sales_agent_name?: string;
   referral_code?: string;
   created_by?: string;
   setup_completion?: number;
@@ -62,4 +68,37 @@ export interface AdminBusinessListData {
   meta: AdminBusinessMeta;
 }
 
+export interface BusinessStats {
+  total: number;
+  active: number;
+  pending_setup: number;
+  suspended: number;
+  cancelled: number;
+}
+
+export interface CreateBusinessRequest {
+  name: string;
+  email: string;
+  phone?: string;
+  website?: string;
+  country?: string;
+  region?: string;
+  state?: string;
+  address?: string;
+  industry?: string;
+  contact_person?: string;
+  subscription_plan?: string;
+  partner_id?: string;
+  sales_agent_id?: string;
+  referral_code?: string;
+}
+
+export interface BusinessActionResponse {
+  success: boolean;
+  message: string;
+}
+
 export type GetAdminBusinessesResponse = ApiAdminResponse<AdminBusinessListData>;
+export type GetAdminBusinessResponse = ApiAdminResponse<AdminBusiness>;
+export type GetBusinessStatsResponse = ApiAdminResponse<BusinessStats>;
+export type CreateBusinessResponse = ApiAdminResponse<AdminBusiness>;

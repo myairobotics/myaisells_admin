@@ -1,32 +1,79 @@
 import type { ApiAdminResponse } from './api';
 
-export type ReferralCodeStatus = 'active' | 'inactive' | 'expired';
-export type ReferralCodeOwnerType = 'partner' | 'sales_agent' | 'admin';
+export type AttributionSource = 'partner' | 'partner_team_member' | 'admin' | 'direct';
 
-export interface ReferralCode {
-  id: string;
-  code: string;
-  owner_type: ReferralCodeOwnerType;
-  owner_id: string;
-  owner_name: string;
-  total_uses: number;
-  successful_conversions: number;
-  commission_earned?: number;
-  status: ReferralCodeStatus;
-  expires_at?: string | null;
-  created_at: string;
+export interface ReferralBySource {
+  source: AttributionSource;
+  count: number;
+  percentage: number;
 }
 
-export interface ReferralMeta {
+export interface ReferralTopPartner {
+  partnerId: string;
+  partnerName: string;
+  referredCount: number;
+}
+
+export interface ReferralTopSalesAgent {
+  agentId: string;
+  agentName: string;
+  referredCount: number;
+}
+
+export interface ReferralMetrics {
+  totalUsers: number;
+  totalReferred: number;
+  totalDirect: number;
+  referredPercentage: number;
+  bySource: ReferralBySource[];
+  topPartners: ReferralTopPartner[];
+  topPartnerSalesAgents: ReferralTopSalesAgent[];
+  topGlobalSalesAgents: ReferralTopSalesAgent[];
+}
+
+export interface ReferredUser {
+  appUserId: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  dateJoined: string;
+  referralCode: string;
+  attributionSource: AttributionSource;
+  partnerId: string | null;
+  partnerName: string | null;
+  partnerTeamMemberId: string | null;
+  partnerTeamMemberName: string | null;
+  adminId: string | null;
+  adminName: string | null;
+}
+
+export interface ReferredUsersListData {
+  rows: ReferredUser[];
   total: number;
   page: number;
-  limit: number;
-  pages: number;
+  pageSize: number;
 }
 
-export interface ReferralListData {
-  data: ReferralCode[];
-  meta: ReferralMeta;
+export interface ReassignReferralCodeRequest {
+  referralCode: string;
+  reason: string;
 }
 
-export type GetReferralCodesResponse = ApiAdminResponse<ReferralListData>;
+export interface ReferralAttribution {
+  appUserId: string;
+  referralCodeId: string;
+  referralCode: string;
+  ownerType: string;
+  partnerId: string | null;
+  partnerTeamMemberId: string | null;
+  adminId: string | null;
+  attributionSource: AttributionSource;
+}
+
+export interface ReassignReferralCodeData {
+  attribution: ReferralAttribution;
+}
+
+export type GetReferralMetricsResponse = ApiAdminResponse<ReferralMetrics>;
+export type GetReferredUsersResponse = ApiAdminResponse<ReferredUsersListData>;
+export type ReassignReferralCodeResponse = ApiAdminResponse<ReassignReferralCodeData>;

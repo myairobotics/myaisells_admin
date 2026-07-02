@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { FiCheckCircle, FiDollarSign, FiXCircle } from 'react-icons/fi';
 import { PiCreditCard, PiCurrencyDollar } from 'react-icons/pi';
 import { PageHeader } from '@/components/global/page-header';
-import { SearchInput, TableRowSkeleton } from '@/components/ui';
+import { Badge, EmptyState, SearchFilterBar, TableRowSkeleton } from '@/components/ui';
 import { useGetPaymentsHistoryQuery } from '@/services';
 
 export default function PaymentsHistory() {
@@ -133,13 +133,11 @@ export default function PaymentsHistory() {
         </div>
 
         {/* Filters */}
-        <div className="flex flex-wrap items-center gap-3 rounded-xl border border-slate-200/60 bg-white p-3 shadow-sm">
-          <SearchInput
-            value={searchTerm}
-            onChange={setSearchTerm}
-            placeholder="Search by customer, email, or transaction ID..."
-            className="min-w-48 flex-1"
-          />
+        <SearchFilterBar
+          search={searchTerm}
+          onSearch={setSearchTerm}
+          placeholder="Search by customer, email, or transaction ID..."
+        >
           <div className="flex gap-1 rounded-lg border border-slate-200 bg-slate-50 p-1">
             {(['all', 'paid', 'unpaid'] as const).map(filter => (
               <button
@@ -156,7 +154,7 @@ export default function PaymentsHistory() {
               </button>
             ))}
           </div>
-        </div>
+        </SearchFilterBar>
 
         {/* Payments Table */}
         <div className="overflow-hidden rounded-2xl border border-slate-200/60 bg-white shadow-sm">
@@ -172,10 +170,7 @@ export default function PaymentsHistory() {
               )
             : filteredPayments.length === 0
               ? (
-                  <div className="flex h-64 flex-col items-center justify-center gap-3">
-                    <PiCreditCard className="h-12 w-12 text-slate-300" />
-                    <p className="text-slate-500">No payments found</p>
-                  </div>
+                  <EmptyState icon={<PiCreditCard />} message="No payments found" />
                 )
               : (
                   <div className="overflow-x-auto">
@@ -215,21 +210,12 @@ export default function PaymentsHistory() {
                               {formatDate(payment.created)}
                             </td>
                             <td className="px-6 py-4">
-                              <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold ${getStatusColor(payment.status, payment.paid)}`}>
-                                {payment.paid
-                                  ? (
-                                      <>
-                                        <FiCheckCircle className="h-3.5 w-3.5" />
-                                        Paid
-                                      </>
-                                    )
-                                  : (
-                                      <>
-                                        <FiXCircle className="h-3.5 w-3.5" />
-                                        {payment.status}
-                                      </>
-                                    )}
-                              </span>
+                              <Badge
+                                className={getStatusColor(payment.status, payment.paid)}
+                                icon={payment.paid ? <FiCheckCircle className="h-3.5 w-3.5" /> : <FiXCircle className="h-3.5 w-3.5" />}
+                              >
+                                {payment.paid ? 'Paid' : payment.status}
+                              </Badge>
                             </td>
                           </tr>
                         ))}

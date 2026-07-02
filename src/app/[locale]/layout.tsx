@@ -1,12 +1,12 @@
 import type { Metadata } from 'next';
 import { hasLocale, NextIntlClientProvider } from 'next-intl';
 import { setRequestLocale } from 'next-intl/server';
-import { Inter, Raleway, Rubik } from 'next/font/google';
+import { DM_Sans, Inter, Raleway, Rubik, Work_Sans } from 'next/font/google';
 import { notFound } from 'next/navigation';
-import { Env } from '@/libs/Env';
-import { routing } from '@/libs/I18nRouting';
-
 import { NavigationProgress } from '@/components/global/navigation-progress';
+import { Env } from '@/libs/Env';
+
+import { routing } from '@/libs/I18nRouting';
 import Provider from '@/libs/providers';
 import '@/styles/global.css';
 
@@ -24,6 +24,18 @@ const raleway = Raleway({
 
 const inter = Inter({
   variable: '--font-inter',
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
+});
+
+const workSans = Work_Sans({
+  variable: '--font-work-sans',
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
+});
+
+const dmSans = DM_Sans({
+  variable: '--font-dm-sans',
   subsets: ['latin'],
   weight: ['400', '500', '600', '700'],
 });
@@ -90,7 +102,7 @@ export default async function RootLayout(props: {
   return (
     <html lang={locale}>
       <body
-        className={`${rubik.variable} ${raleway.variable} ${inter.variable} antialiased`}
+        className={`${rubik.variable} ${raleway.variable} ${inter.variable} ${workSans.variable} ${dmSans.variable} antialiased`}
       >
         <NextIntlClientProvider locale={locale}>
           <Provider>

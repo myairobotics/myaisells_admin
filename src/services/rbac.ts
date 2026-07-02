@@ -7,6 +7,7 @@ import type {
   GetOnePermissionResponse,
   GetPermissionsResponse,
   GetRolesResponse,
+  RemovePermissionFromRoleResponse,
 } from '@/types';
 import { baseApi } from '@/store/api/baseApi';
 import { getBaseUrl } from '@/utils/Helpers';
@@ -57,6 +58,17 @@ export const rbacApi = baseApi.injectEndpoints({
       invalidatesTags: ['Role'],
     }),
 
+    removePermissionFromRole: builder.mutation<
+      RemovePermissionFromRoleResponse,
+      { roleId: string; permissionId: string }
+    >({
+      query: ({ roleId, permissionId }) => ({
+        url: `${baseUrl}/roles/${roleId}/permissions/${permissionId}`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: ['Role'],
+    }),
+
     flushPermissionCache: builder.mutation<FlushPermissionCacheResponse, void>({
       query: () => ({
         url: `${baseUrl}/cache/flush`,
@@ -80,6 +92,7 @@ export const {
   useLazyGetRolesQuery,
 
   useAddPermissionsToRoleMutation,
+  useRemovePermissionFromRoleMutation,
 
   useFlushPermissionCacheMutation,
 } = rbacApi;

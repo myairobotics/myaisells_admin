@@ -1,12 +1,12 @@
 'use client';
 
 import { signIn } from 'next-auth/react';
-import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { FiAlertCircle } from 'react-icons/fi';
 import { toast } from 'react-toastify';
-import { Button, Input } from '@/components/ui';
+import { Button, FormField } from '@/components/ui';
 
 type SignInData = {
   email: string;
@@ -36,7 +36,7 @@ export default function SignInPage() {
       });
 
       if (!authResult || authResult.error || authResult.ok === false) {
-        const msg = 'Invalid credentials. Check your email/password and try again.';
+        const msg = 'Invalid credentials. Check your email and password and try again.';
         setErrorMsg(msg);
         toast.error(msg);
         return;
@@ -55,97 +55,84 @@ export default function SignInPage() {
   };
 
   return (
-    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-linear-to-br from-primary-500 via-primary-600 to-primary-700">
-      <div className="absolute top-0 left-0 h-96 w-96 animate-pulse rounded-full bg-linear-to-br from-primary-400/40 to-primary-600/40 blur-3xl" />
-      <div className="absolute right-0 bottom-0 h-96 w-96 animate-pulse rounded-full bg-linear-to-br from-primary-300/30 to-primary-500/30 blur-3xl" style={{ animationDelay: '1s' }} />
-      <div className="absolute top-1/2 left-1/2 h-96 w-96 -translate-x-1/2 -translate-y-1/2 animate-pulse rounded-full bg-primary-400/20 blur-3xl" style={{ animationDelay: '2s' }} />
+    <div className="w-full max-w-[420px]">
 
-      <div className="relative mx-4 w-full max-w-md">
-        <div className="absolute inset-0 rounded-3xl bg-white/30 blur-xl" />
-        <div className="relative rounded-3xl border-2 border-white/50 bg-white/95 p-8 shadow-2xl shadow-primary-900/30 backdrop-blur-2xl md:p-10">
-          <div className="mb-8 flex justify-center">
-            <Image
-              src="/assets/logo.svg"
-              alt="Logo"
-              width={140}
-              height={36}
-              priority
-            />
-          </div>
-
-          <div className="mb-8 text-center">
-            <h1 className="mb-2 bg-linear-to-r from-primary-600 via-primary-500 to-primary-600 bg-clip-text text-3xl font-bold text-transparent md:text-4xl">
-              Welcome Back.
-            </h1>
-            <p className="text-sm text-slate-600">Sign in to continue to your dashboard</p>
-          </div>
-
-          {errorMsg && (
-            <div className="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
-              {errorMsg}
-            </div>
-          )}
-
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-            <div className="space-y-2">
-              <label htmlFor="email" className="block text-sm font-bold text-primary-700">
-                Email Address
-              </label>
-              <div className="group relative">
-                <Input
-                  type="email"
-                  placeholder="you@example.com"
-                  {...register('email', {
-                    required: 'Email is required',
-                    pattern: {
-                      value: /^[\w.%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                      message: 'Invalid email address',
-                    },
-                  })}
-                  validationError={errors.email?.message}
-                  isValid={!!errors.email}
-                  status={errors.email ? 'error' : undefined}
-                  className="relative border-2 border-primary-200 focus:border-primary-500 focus:ring-primary-500/20"
-                />
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <label htmlFor="password" className="block text-sm font-bold text-primary-700">
-                Password
-              </label>
-              <div className="group relative">
-                <Input
-                  type="password"
-                  placeholder="Enter your password"
-                  {...register('password', {
-                    required: 'Password is required',
-                    minLength: {
-                      value: 6,
-                      message: 'Password must be at least 6 characters',
-                    },
-                  })}
-                  validationError={errors.password?.message}
-                  isValid={!!errors.password}
-                  status={errors.password ? 'error' : undefined}
-                  className="relative border-2 border-primary-200 focus:border-primary-500 focus:ring-primary-500/20"
-                />
-              </div>
-            </div>
-
-            <div className="pt-2">
-              <Button
-                type="submit"
-                loading={loading}
-                variant="primary"
-                className="w-full rounded-xl bg-linear-to-r from-primary-600 via-primary-500 to-primary-600 py-4 text-base font-bold text-white shadow-xl shadow-primary-500/50 transition-all duration-300 hover:scale-[1.02] hover:from-primary-700 hover:via-primary-600 hover:to-primary-700 hover:shadow-2xl hover:shadow-primary-600/60 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100"
-              >
-                {loading ? 'Signing in...' : 'Sign In'}
-              </Button>
-            </div>
-          </form>
-        </div>
+      {/* Heading */}
+      <div className="mb-8">
+        <h1 className="text-[2rem] leading-tight font-bold text-slate-900">
+          Welcome back
+        </h1>
+        <p className="mt-2 text-sm text-slate-500">
+          Sign in to your admin account to continue
+        </p>
       </div>
+
+      {/* Error banner */}
+      {errorMsg && (
+        <div className="mb-6 flex items-start gap-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3.5">
+          <FiAlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-red-500" />
+          <p className="text-sm font-medium text-red-700">{errorMsg}</p>
+        </div>
+      )}
+
+      {/* Form card */}
+      <div className="rounded-3xl border border-slate-200/80 bg-white p-8 shadow-[0_4px_24px_-4px_rgba(0,0,0,0.08)]">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+
+          <FormField
+            label="Email address"
+            id="email"
+            type="email"
+            placeholder="you@company.com"
+            error={errors.email?.message}
+            {...register('email', {
+              required: 'Email is required',
+              pattern: {
+                value: /^[\w.%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                message: 'Invalid email address',
+              },
+            })}
+          />
+
+          <FormField
+            label="Password"
+            id="password"
+            type="password"
+            placeholder="Enter your password"
+            error={errors.password?.message}
+            {...register('password', {
+              required: 'Password is required',
+              minLength: {
+                value: 6,
+                message: 'Password must be at least 6 characters',
+              },
+            })}
+          />
+
+          {/* Submit */}
+          <div className="pt-1">
+            <Button
+              type="submit"
+              loading={loading}
+              variant="primary"
+              className="w-full py-3 text-sm font-bold"
+            >
+              {loading ? 'Signing in…' : 'Sign in to dashboard'}
+            </Button>
+          </div>
+
+        </form>
+      </div>
+
+      {/* Support link */}
+      <p className="mt-6 text-center text-xs text-slate-400">
+        Having trouble signing in?
+        {' '}
+        <a href="mailto:support@myaisells.com" className="font-medium text-primary-600 hover:underline">
+          Contact support
+        </a>
+      </p>
+
     </div>
   );
 }

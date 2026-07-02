@@ -4,15 +4,23 @@ import type { PartnerListItem } from '@/types';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import {
-  FiChevronLeft,
-  FiChevronRight,
   FiGlobe,
   FiUserPlus,
 } from 'react-icons/fi';
 import { PiEye, PiEyeSlash, PiUser } from 'react-icons/pi';
 import { toast } from 'react-toastify';
 import { PageHeader } from '@/components/global/page-header';
-import { Modal, SearchInput, TableRowSkeleton } from '@/components/ui';
+import {
+  Avatar,
+  Badge,
+  EmptyState,
+  FilterPills,
+  FormField,
+  Modal,
+  Pagination,
+  SearchFilterBar,
+  TableRowSkeleton,
+} from '@/components/ui';
 import {
   useCreatePartnerMutation,
   useGetAllPartnersQuery,
@@ -74,15 +82,6 @@ export default function Partners() {
     }
   };
 
-  if (selectedPartnerId) {
-    return (
-      <PartnerDetail
-        partnerId={selectedPartnerId}
-        onBackAction={() => setSelectedPartnerId(null)}
-      />
-    );
-  }
-
   return (
     <div className="flex h-full w-full flex-col overflow-x-hidden overflow-y-auto">
       <PageHeader
@@ -113,70 +112,54 @@ export default function Partners() {
         className="max-w-2xl"
       >
         <form onSubmit={handleSubmit(onSubmit)} className="mt-4 grid gap-4 sm:grid-cols-2">
-          <div>
-            <label htmlFor="first_name" className="mb-1 block text-sm font-medium text-slate-700">First Name</label>
-            <input
-              id="first_name"
-              {...register('first_name', { required: 'First name is required' })}
-              className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm text-slate-700 transition-all outline-none focus:border-primary-400 focus:bg-white focus:ring-2 focus:ring-primary-500/20"
-              placeholder="Segun"
-            />
-            {errors.first_name && <p className="mt-1 text-xs text-red-500">{errors.first_name.message}</p>}
-          </div>
+          <FormField
+            label="First Name"
+            id="first_name"
+            placeholder="Segun"
+            error={errors.first_name?.message}
+            {...register('first_name', { required: 'First name is required' })}
+          />
 
-          <div>
-            <label htmlFor="last_name" className="mb-1 block text-sm font-medium text-slate-700">Last Name</label>
-            <input
-              id="last_name"
-              {...register('last_name', { required: 'Last name is required' })}
-              className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm text-slate-700 transition-all outline-none focus:border-primary-400 focus:bg-white focus:ring-2 focus:ring-primary-500/20"
-              placeholder="Afolabi"
-            />
-            {errors.last_name && <p className="mt-1 text-xs text-red-500">{errors.last_name.message}</p>}
-          </div>
+          <FormField
+            label="Last Name"
+            id="last_name"
+            placeholder="Afolabi"
+            error={errors.last_name?.message}
+            {...register('last_name', { required: 'Last name is required' })}
+          />
 
-          <div>
-            <label htmlFor="email" className="mb-1 block text-sm font-medium text-slate-700">Email</label>
-            <input
-              id="email"
-              type="email"
-              {...register('email', { required: 'Email is required' })}
-              className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm text-slate-700 transition-all outline-none focus:border-primary-400 focus:bg-white focus:ring-2 focus:ring-primary-500/20"
-              placeholder="segun@afolabi.com"
-            />
-            {errors.email && <p className="mt-1 text-xs text-red-500">{errors.email.message}</p>}
-          </div>
+          <FormField
+            label="Email"
+            id="email"
+            type="email"
+            placeholder="segun@afolabi.com"
+            error={errors.email?.message}
+            {...register('email', { required: 'Email is required' })}
+          />
 
-          <div>
-            <label htmlFor="region" className="mb-1 block text-sm font-medium text-slate-700">Region</label>
-            <input
-              id="region"
-              {...register('region', { required: 'Region is required' })}
-              className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm text-slate-700 transition-all outline-none focus:border-primary-400 focus:bg-white focus:ring-2 focus:ring-primary-500/20"
-              placeholder="US"
-            />
-            {errors.region && <p className="mt-1 text-xs text-red-500">{errors.region.message}</p>}
-          </div>
+          <FormField
+            label="Region"
+            id="region"
+            placeholder="US"
+            error={errors.region?.message}
+            {...register('region', { required: 'Region is required' })}
+          />
 
-          <div>
-            <label htmlFor="tag" className="mb-1 block text-sm font-medium text-slate-700">Tag</label>
-            <input
-              id="tag"
-              {...register('tag', { required: 'Tag is required' })}
-              className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm text-slate-700 transition-all outline-none focus:border-primary-400 focus:bg-white focus:ring-2 focus:ring-primary-500/20"
-              placeholder="RUFUS"
-            />
-            {errors.tag && <p className="mt-1 text-xs text-red-500">{errors.tag.message}</p>}
-          </div>
+          <FormField
+            label="Tag"
+            id="tag"
+            placeholder="RUFUS"
+            error={errors.tag?.message}
+            {...register('tag', { required: 'Tag is required' })}
+          />
 
-          <div>
-            <label htmlFor="password" className="mb-1 block text-sm font-medium text-slate-700">Password</label>
+          <FormField label="Password" id="password" error={errors.password?.message}>
             <div className="relative">
               <input
                 id="password"
                 type={showPassword ? 'text' : 'password'}
                 {...register('password', { required: 'Password is required', minLength: { value: 8, message: 'Min 8 characters' } })}
-                className="w-full rounded-lg border border-slate-200 bg-slate-50 py-2.5 pr-11 pl-3.5 text-sm text-slate-700 transition-all outline-none focus:border-primary-400 focus:bg-white focus:ring-2 focus:ring-primary-500/20"
+                className="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 pr-11 pl-3.5 text-sm text-slate-700 transition-all outline-none focus:border-primary-400 focus:bg-white focus:ring-2 focus:ring-primary-500/20"
                 placeholder="••••••••"
               />
               <button
@@ -187,8 +170,7 @@ export default function Partners() {
                 {showPassword ? <PiEyeSlash className="h-5 w-5" /> : <PiEye className="h-5 w-5" />}
               </button>
             </div>
-            {errors.password && <p className="mt-1 text-xs text-red-500">{errors.password.message}</p>}
-          </div>
+          </FormField>
 
           <div className="flex items-center justify-end gap-3 sm:col-span-2">
             <button
@@ -211,37 +193,21 @@ export default function Partners() {
 
       <div className="relative flex-1 space-y-4">
         {/* Search + filter bar */}
-        <div className="flex flex-wrap items-center gap-3 rounded-xl border border-slate-200/60 bg-white p-3 shadow-sm">
-          <SearchInput
-            value={searchTerm}
-            onChange={(v) => {
-              setSearchTerm(v);
-              setPage(1);
-            }}
-            placeholder="Search by name..."
-            className="min-w-48 flex-1"
+        <SearchFilterBar
+          search={searchTerm}
+          onSearch={(v) => { setSearchTerm(v); setPage(1); }}
+          placeholder="Search by name..."
+        >
+          <FilterPills
+            options={[
+              { value: 'all', label: 'All' },
+              { value: 'pending', label: 'Pending' },
+              { value: 'active', label: 'Active' },
+            ]}
+            value={statusFilter}
+            onChange={(f) => { setStatusFilter(f); setPage(1); }}
           />
-
-          <div className="flex gap-1 rounded-lg border border-slate-200 bg-slate-50 p-1">
-            {(['all', 'pending', 'active'] as const).map(filter => (
-              <button
-                type="button"
-                key={filter}
-                onClick={() => {
-                  setStatusFilter(filter);
-                  setPage(1);
-                }}
-                className={`rounded-md px-3.5 py-2 text-xs font-semibold capitalize transition-all ${
-                  statusFilter === filter
-                    ? 'bg-white text-slate-800 shadow-sm'
-                    : 'text-slate-500 hover:text-slate-700'
-                }`}
-              >
-                {filter}
-              </button>
-            ))}
-          </div>
-        </div>
+        </SearchFilterBar>
 
         {/* Partners Table */}
         <div className="overflow-hidden rounded-xl border border-slate-200/60 bg-white shadow-sm">
@@ -257,22 +223,11 @@ export default function Partners() {
               )
             : filteredPartners.length === 0
               ? (
-                  <div className="flex h-64 flex-col items-center justify-center gap-3">
-                    <PiUser className="h-12 w-12 text-slate-300" />
-                    <p className="text-slate-500">No partners found</p>
-                    {(searchTerm || statusFilter !== 'all') && (
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setSearchTerm('');
-                          setStatusFilter('all');
-                        }}
-                        className="text-sm font-medium text-primary-600 hover:underline"
-                      >
-                        Clear filters
-                      </button>
-                    )}
-                  </div>
+                  <EmptyState
+                    icon={<PiUser />}
+                    message="No partners found"
+                    onClear={searchTerm || statusFilter !== 'all' ? () => { setSearchTerm(''); setStatusFilter('all'); } : undefined}
+                  />
                 )
               : (
                   <div className="overflow-x-auto">
@@ -289,27 +244,19 @@ export default function Partners() {
                           <tr key={partner.id} className="transition-colors hover:bg-slate-50/70">
                             <td className="px-5 py-3.5">
                               <div className="flex items-center gap-3">
-                                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-linear-to-br from-primary-500 to-primary-700 text-sm font-bold text-white">
-                                  {partner.first_name.charAt(0)}
-                                  {partner.last_name.charAt(0)}
-                                </div>
+                                <Avatar name={`${partner.first_name} ${partner.last_name}`} size="md" />
                                 <span className="font-semibold text-slate-800">
-                                  {partner.first_name}
-                                  {' '}
-                                  {partner.last_name}
+                                  {partner.first_name} {partner.last_name}
                                 </span>
                               </div>
                             </td>
                             <td className="px-5 py-3.5">
-                              <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold ${
-                                partner.status === 'active'
-                                  ? 'bg-emerald-100 text-emerald-700'
-                                  : 'bg-amber-100 text-amber-700'
-                              }`}
+                              <Badge
+                                className={partner.status === 'active' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}
+                                dot={partner.status === 'active' ? 'bg-emerald-500' : 'bg-amber-500'}
                               >
-                                <span className={`h-1.5 w-1.5 rounded-full ${partner.status === 'active' ? 'bg-emerald-500' : 'bg-amber-500'}`} />
                                 {partner.status.charAt(0).toUpperCase() + partner.status.slice(1)}
-                              </span>
+                              </Badge>
                             </td>
                             <td className="px-5 py-3.5 text-right">
                               <button
@@ -328,45 +275,19 @@ export default function Partners() {
                   </div>
                 )}
 
-          {/* Pagination */}
-          {meta && meta.pages > 1 && (
-            <div className="flex items-center justify-between border-t border-slate-100 px-5 py-3.5">
-              <p className="text-sm text-slate-500">
-                Page
-                {' '}
-                {meta.page}
-                {' '}
-                of
-                {' '}
-                {meta.pages}
-                {' '}
-                (
-                {meta.total}
-                {' '}
-                total)
-              </p>
-              <div className="flex items-center gap-1.5">
-                <button
-                  type="button"
-                  onClick={() => setPage(p => Math.max(1, p - 1))}
-                  disabled={page <= 1}
-                  className="flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 transition-all hover:bg-slate-50 disabled:opacity-40"
-                >
-                  <FiChevronLeft className="h-4 w-4" />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setPage(p => Math.min(meta.pages, p + 1))}
-                  disabled={page >= meta.pages}
-                  className="flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 transition-all hover:bg-slate-50 disabled:opacity-40"
-                >
-                  <FiChevronRight className="h-4 w-4" />
-                </button>
-              </div>
-            </div>
-          )}
+          <Pagination page={page} totalPages={meta?.pages ?? 1} total={meta?.total} itemLabel="partner" onPageChange={setPage} />
         </div>
       </div>
+
+      {/* Partner detail modal */}
+      <Modal
+        open={selectedPartnerId !== null}
+        onOpenChange={open => { if (!open) setSelectedPartnerId(null); }}
+        title="Partner Details"
+        className="max-w-lg"
+      >
+        {selectedPartnerId && <PartnerDetail partnerId={selectedPartnerId} />}
+      </Modal>
     </div>
   );
 }

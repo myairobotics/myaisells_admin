@@ -7,8 +7,6 @@ import {
   FiAlertCircle,
   FiCheckCircle,
   FiChevronDown,
-  FiChevronLeft,
-  FiChevronRight,
   FiClock,
   FiFilter,
   FiList,
@@ -17,7 +15,7 @@ import {
   FiX,
 } from 'react-icons/fi';
 import { PageHeader } from '@/components/global/page-header';
-import { Loader, SearchInput, TableRowSkeleton } from '@/components/ui';
+import { Badge, EmptyState, FormField, Loader, Pagination, SearchInput, SidePanel, TableRowSkeleton } from '@/components/ui';
 import {
   useGetAuditLogsQuery,
   useGetAuditLogStatsQuery,
@@ -29,19 +27,9 @@ const STATUS_OPTIONS = ['', 'success', 'failed'] as const;
 
 function StatusBadge({ status }: { status: string }) {
   if (status === 'success') {
-    return (
-      <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-semibold text-emerald-700">
-        <FiCheckCircle className="h-3 w-3" />
-        Success
-      </span>
-    );
+    return <Badge className="bg-emerald-100 text-emerald-700" icon={<FiCheckCircle className="h-3 w-3" />}>Success</Badge>;
   }
-  return (
-    <span className="inline-flex items-center gap-1 rounded-full bg-red-100 px-2.5 py-0.5 text-xs font-semibold text-red-700">
-      <FiAlertCircle className="h-3 w-3" />
-      {status.charAt(0).toUpperCase() + status.slice(1)}
-    </span>
-  );
+  return <Badge className="bg-red-100 text-red-700" icon={<FiAlertCircle className="h-3 w-3" />}>{status.charAt(0).toUpperCase() + status.slice(1)}</Badge>;
 }
 
 function PoolBadge({ pool }: { pool: string }) {
@@ -51,9 +39,9 @@ function PoolBadge({ pool }: { pool: string }) {
     partner_team: 'bg-indigo-100 text-indigo-700',
   };
   return (
-    <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold capitalize ${colorMap[pool] || 'bg-slate-100 text-slate-600'}`}>
+    <Badge className={`capitalize ${colorMap[pool] ?? 'bg-slate-100 text-slate-600'}`}>
       {pool.replace('_', ' ')}
-    </span>
+    </Badge>
   );
 }
 
@@ -62,129 +50,108 @@ function LogDetailPanel({ logId, onClose }: { logId: string; onClose: () => void
   const log = data?.data;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-end">
-      <button
-        type="button"
-        className="absolute inset-0 cursor-default bg-slate-900/40 backdrop-blur-sm"
-        onClick={onClose}
-        aria-label="Close panel"
-      />
-      <div
-        role="dialog"
-        aria-modal="true"
-        className="relative flex h-full w-full max-w-lg flex-col bg-white shadow-2xl"
-      >
-        <div className="flex items-center justify-between border-b border-slate-200 px-6 py-4">
-          <h3 className="text-base font-bold text-slate-800">Log Detail</h3>
-          <button type="button" onClick={onClose} className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-600">
-            <FiX className="h-5 w-5" />
-          </button>
-        </div>
+    <SidePanel open={true} onClose={onClose} title="Log Detail" maxWidth="max-w-lg">
+      {isLoading
+        ? <div className="flex h-32 items-center justify-center"><Loader /></div>
+        : !log
+            ? <p className="text-slate-500">Log not found.</p>
+            : (
+                <div className="space-y-5">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <p className="mb-1 text-xs font-semibold tracking-wider text-slate-400 uppercase">Action</p>
+                      <p className="font-semibold text-slate-800 capitalize">{log.action}</p>
+                    </div>
+                    <div>
+                      <p className="mb-1 text-xs font-semibold tracking-wider text-slate-400 uppercase">Module</p>
+                      <p className="font-semibold text-slate-800 capitalize">{log.module}</p>
+                    </div>
+                    <div>
+                      <p className="mb-1 text-xs font-semibold tracking-wider text-slate-400 uppercase">Status</p>
+                      <StatusBadge status={log.status} />
+                    </div>
+                    <div>
+                      <p className="mb-1 text-xs font-semibold tracking-wider text-slate-400 uppercase">Pool</p>
+                      <PoolBadge pool={log.actorPool} />
+                    </div>
+                  </div>
 
-        <div className="flex-1 overflow-y-auto p-6">
-          {isLoading
-            ? <div className="flex h-32 items-center justify-center"><Loader /></div>
-            : !log
-                ? <p className="text-slate-500">Log not found.</p>
-                : (
-                    <div className="space-y-5">
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <p className="mb-1 text-xs font-semibold tracking-wider text-slate-400 uppercase">Action</p>
-                          <p className="font-semibold text-slate-800 capitalize">{log.action}</p>
-                        </div>
-                        <div>
-                          <p className="mb-1 text-xs font-semibold tracking-wider text-slate-400 uppercase">Module</p>
-                          <p className="font-semibold text-slate-800 capitalize">{log.module}</p>
-                        </div>
-                        <div>
-                          <p className="mb-1 text-xs font-semibold tracking-wider text-slate-400 uppercase">Status</p>
-                          <StatusBadge status={log.status} />
-                        </div>
-                        <div>
-                          <p className="mb-1 text-xs font-semibold tracking-wider text-slate-400 uppercase">Pool</p>
-                          <PoolBadge pool={log.actorPool} />
-                        </div>
+                  <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+                    <p className="mb-2 text-xs font-semibold tracking-wider text-slate-400 uppercase">Actor</p>
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-linear-to-br from-primary-500 to-primary-700 text-sm font-bold text-white">
+                        {log.actor.firstName.charAt(0)}
+                        {log.actor.lastName.charAt(0)}
                       </div>
-
-                      <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
-                        <p className="mb-2 text-xs font-semibold tracking-wider text-slate-400 uppercase">Actor</p>
-                        <div className="flex items-center gap-3">
-                          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-linear-to-br from-primary-500 to-primary-700 text-sm font-bold text-white">
-                            {log.actor.firstName.charAt(0)}
-                            {log.actor.lastName.charAt(0)}
-                          </div>
-                          <div>
-                            <p className="font-semibold text-slate-800">
-                              {log.actor.firstName}
-                              {' '}
-                              {log.actor.lastName}
-                            </p>
-                            <p className="text-xs text-slate-500">{log.actor.email}</p>
-                            <p className="text-xs text-slate-400 capitalize">{log.actor.role.replace('_', ' ')}</p>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="space-y-3">
-                        <div>
-                          <p className="mb-1 text-xs font-semibold tracking-wider text-slate-400 uppercase">Timestamp</p>
-                          <div className="flex items-center gap-1.5 text-sm text-slate-700">
-                            <FiClock className="h-3.5 w-3.5 text-slate-400" />
-                            {new Date(log.created_at).toLocaleString()}
-                          </div>
-                        </div>
-                        <div>
-                          <p className="mb-1 text-xs font-semibold tracking-wider text-slate-400 uppercase">IP Address</p>
-                          <div className="flex items-center gap-1.5 text-sm text-slate-700">
-                            <FiMonitor className="h-3.5 w-3.5 text-slate-400" />
-                            {log.ipAddress}
-                          </div>
-                        </div>
-                        {log.deviceInfo?.userAgent && (
-                          <div>
-                            <p className="mb-1 text-xs font-semibold tracking-wider text-slate-400 uppercase">User Agent</p>
-                            <p className="text-sm break-all text-slate-600">{log.deviceInfo.userAgent}</p>
-                          </div>
-                        )}
-                      </div>
-
-                      {(log.oldValue !== null || log.newValue !== null) && (
-                        <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
-                          <p className="mb-3 text-xs font-semibold tracking-wider text-slate-400 uppercase">Changes</p>
-                          <div className="grid grid-cols-2 gap-3">
-                            <div>
-                              <p className="mb-1 text-xs font-medium text-slate-500">Before</p>
-                              <pre className="overflow-auto rounded-lg bg-red-50 p-2 text-xs text-red-700">
-                                {JSON.stringify(log.oldValue, null, 2) || 'null'}
-                              </pre>
-                            </div>
-                            <div>
-                              <p className="mb-1 text-xs font-medium text-slate-500">After</p>
-                              <pre className="overflow-auto rounded-lg bg-emerald-50 p-2 text-xs text-emerald-700">
-                                {JSON.stringify(log.newValue, null, 2) || 'null'}
-                              </pre>
-                            </div>
-                          </div>
-                        </div>
-                      )}
-
-                      {log.reason && (
-                        <div>
-                          <p className="mb-1 text-xs font-semibold tracking-wider text-slate-400 uppercase">Reason</p>
-                          <p className="text-sm text-slate-700">{log.reason}</p>
-                        </div>
-                      )}
-
                       <div>
-                        <p className="mb-1 text-xs font-semibold tracking-wider text-slate-400 uppercase">Log ID</p>
-                        <p className="font-mono text-xs break-all text-slate-500">{log.id}</p>
+                        <p className="font-semibold text-slate-800">
+                          {log.actor.firstName}
+                          {' '}
+                          {log.actor.lastName}
+                        </p>
+                        <p className="text-xs text-slate-500">{log.actor.email}</p>
+                        <p className="text-xs text-slate-400 capitalize">{log.actor.role.replace('_', ' ')}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-3">
+                    <div>
+                      <p className="mb-1 text-xs font-semibold tracking-wider text-slate-400 uppercase">Timestamp</p>
+                      <div className="flex items-center gap-1.5 text-sm text-slate-700">
+                        <FiClock className="h-3.5 w-3.5 text-slate-400" />
+                        {new Date(log.created_at).toLocaleString()}
+                      </div>
+                    </div>
+                    <div>
+                      <p className="mb-1 text-xs font-semibold tracking-wider text-slate-400 uppercase">IP Address</p>
+                      <div className="flex items-center gap-1.5 text-sm text-slate-700">
+                        <FiMonitor className="h-3.5 w-3.5 text-slate-400" />
+                        {log.ipAddress}
+                      </div>
+                    </div>
+                    {log.deviceInfo?.userAgent && (
+                      <div>
+                        <p className="mb-1 text-xs font-semibold tracking-wider text-slate-400 uppercase">User Agent</p>
+                        <p className="text-sm break-all text-slate-600">{log.deviceInfo.userAgent}</p>
+                      </div>
+                    )}
+                  </div>
+
+                  {(log.oldValue !== null || log.newValue !== null) && (
+                    <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+                      <p className="mb-3 text-xs font-semibold tracking-wider text-slate-400 uppercase">Changes</p>
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <p className="mb-1 text-xs font-medium text-slate-500">Before</p>
+                          <pre className="overflow-auto rounded-lg bg-red-50 p-2 text-xs text-red-700">
+                            {JSON.stringify(log.oldValue, null, 2) || 'null'}
+                          </pre>
+                        </div>
+                        <div>
+                          <p className="mb-1 text-xs font-medium text-slate-500">After</p>
+                          <pre className="overflow-auto rounded-lg bg-emerald-50 p-2 text-xs text-emerald-700">
+                            {JSON.stringify(log.newValue, null, 2) || 'null'}
+                          </pre>
+                        </div>
                       </div>
                     </div>
                   )}
-        </div>
-      </div>
-    </div>
+
+                  {log.reason && (
+                    <div>
+                      <p className="mb-1 text-xs font-semibold tracking-wider text-slate-400 uppercase">Reason</p>
+                      <p className="text-sm text-slate-700">{log.reason}</p>
+                    </div>
+                  )}
+
+                  <div>
+                    <p className="mb-1 text-xs font-semibold tracking-wider text-slate-400 uppercase">Log ID</p>
+                    <p className="font-mono text-xs break-all text-slate-500">{log.id}</p>
+                  </div>
+                </div>
+              )}
+    </SidePanel>
   );
 }
 
@@ -294,8 +261,7 @@ export default function AuditLogs() {
 
         {showFilters && (
           <div className="mt-4 grid grid-cols-2 gap-3 border-t border-slate-100 pt-4 sm:grid-cols-3 lg:grid-cols-5">
-            <div>
-              <label htmlFor="filter-pool" className="mb-1 block text-xs font-medium text-slate-500">Pool</label>
+            <FormField label="Pool" id="filter-pool" labelClassName="mb-1 block text-xs font-medium text-slate-500">
               <select
                 id="filter-pool"
                 value={filters.pool || ''}
@@ -306,10 +272,9 @@ export default function AuditLogs() {
                   <option key={o} value={o}>{o || 'All Pools'}</option>
                 ))}
               </select>
-            </div>
+            </FormField>
 
-            <div>
-              <label htmlFor="filter-status" className="mb-1 block text-xs font-medium text-slate-500">Status</label>
+            <FormField label="Status" id="filter-status" labelClassName="mb-1 block text-xs font-medium text-slate-500">
               <select
                 id="filter-status"
                 value={filters.status || ''}
@@ -320,10 +285,9 @@ export default function AuditLogs() {
                   <option key={o} value={o}>{o || 'All Statuses'}</option>
                 ))}
               </select>
-            </div>
+            </FormField>
 
-            <div>
-              <label htmlFor="filter-action" className="mb-1 block text-xs font-medium text-slate-500">Action</label>
+            <FormField label="Action" id="filter-action" labelClassName="mb-1 block text-xs font-medium text-slate-500">
               <input
                 id="filter-action"
                 type="text"
@@ -332,10 +296,9 @@ export default function AuditLogs() {
                 onChange={e => handleFilterChange('action', e.target.value)}
                 className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700 outline-none focus:border-primary-400 focus:ring-2 focus:ring-primary-500/20"
               />
-            </div>
+            </FormField>
 
-            <div>
-              <label htmlFor="filter-from" className="mb-1 block text-xs font-medium text-slate-500">From</label>
+            <FormField label="From" id="filter-from" labelClassName="mb-1 block text-xs font-medium text-slate-500">
               <input
                 id="filter-from"
                 type="date"
@@ -343,10 +306,9 @@ export default function AuditLogs() {
                 onChange={e => handleFilterChange('from', e.target.value)}
                 className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700 outline-none focus:border-primary-400 focus:ring-2 focus:ring-primary-500/20"
               />
-            </div>
+            </FormField>
 
-            <div>
-              <label htmlFor="filter-to" className="mb-1 block text-xs font-medium text-slate-500">To</label>
+            <FormField label="To" id="filter-to" labelClassName="mb-1 block text-xs font-medium text-slate-500">
               <input
                 id="filter-to"
                 type="date"
@@ -354,7 +316,7 @@ export default function AuditLogs() {
                 onChange={e => handleFilterChange('to', e.target.value)}
                 className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700 outline-none focus:border-primary-400 focus:ring-2 focus:ring-primary-500/20"
               />
-            </div>
+            </FormField>
           </div>
         )}
       </div>
@@ -373,15 +335,11 @@ export default function AuditLogs() {
             )
           : logs.length === 0
             ? (
-                <div className="flex h-64 flex-col items-center justify-center gap-3">
-                  <FiList className="h-12 w-12 text-slate-300" />
-                  <p className="text-slate-500">No audit logs found</p>
-                  {activeFilterCount > 0 && (
-                    <button type="button" onClick={clearFilters} className="text-sm font-medium text-primary-600 hover:underline">
-                      Clear filters
-                    </button>
-                  )}
-                </div>
+                <EmptyState
+                  icon={<FiList />}
+                  message="No audit logs found"
+                  onClear={activeFilterCount > 0 ? clearFilters : undefined}
+                />
               )
             : (
                 <div className="overflow-x-auto">
@@ -439,43 +397,14 @@ export default function AuditLogs() {
                 </div>
               )}
 
-        {/* Pagination */}
-        {meta && meta.pages > 1 && (
-          <div className="flex items-center justify-between border-t border-slate-100 px-5 py-3.5">
-            <p className="text-sm text-slate-500">
-              Page
-              {' '}
-              {meta.page}
-              {' '}
-              of
-              {' '}
-              {meta.pages}
-              {' '}
-              ·
-              {' '}
-              {meta.total.toLocaleString()}
-              {' '}
-              total
-            </p>
-            <div className="flex gap-1.5">
-              <button
-                type="button"
-                onClick={() => setFilters(p => ({ ...p, page: Math.max(1, (p.page || 1) - 1) }))}
-                disabled={(filters.page || 1) <= 1}
-                className="flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 transition-all hover:bg-slate-50 disabled:opacity-40"
-              >
-                <FiChevronLeft className="h-4 w-4" />
-              </button>
-              <button
-                type="button"
-                onClick={() => setFilters(p => ({ ...p, page: Math.min(meta.pages, (p.page || 1) + 1) }))}
-                disabled={(filters.page || 1) >= meta.pages}
-                className="flex h-8 w-8 items-center justify-center rounded-lg border border-slate-200 transition-all hover:bg-slate-50 disabled:opacity-40"
-              >
-                <FiChevronRight className="h-4 w-4" />
-              </button>
-            </div>
-          </div>
+        {meta && (
+          <Pagination
+            page={filters.page || 1}
+            totalPages={meta.pages}
+            total={meta.total}
+            itemLabel="log"
+            onPageChange={p => setFilters(prev => ({ ...prev, page: p }))}
+          />
         )}
       </div>
 
