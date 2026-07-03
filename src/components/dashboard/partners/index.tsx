@@ -25,6 +25,7 @@ import {
 import {
   useCreatePartnerMutation,
   useGetAllPartnersQuery,
+  useGetRolesQuery,
 } from '@/services';
 
 type OnboardFormValues = {
@@ -34,6 +35,7 @@ type OnboardFormValues = {
   region: string;
   tag: string;
   password: string;
+  roleId: string;
 };
 
 const STATUS_BADGE: Record<PartnerStatus, { badge: string; dot: string }> = {
@@ -53,6 +55,8 @@ export default function Partners() {
   const limit = 10;
   const { data, isLoading } = useGetAllPartnersQuery({ page, limit, search: searchTerm || undefined });
   const [createPartner, { isLoading: isCreating }] = useCreatePartnerMutation();
+  const { data: rolesData } = useGetRolesQuery();
+  const partnerRoles = (rolesData?.data ?? []).filter(role => role.pool === 'partner');
 
   const partners = data?.data?.data || [];
   const meta = data?.data?.meta;
@@ -152,6 +156,19 @@ export default function Partners() {
             error={errors.tag?.message}
             {...register('tag', { required: 'Tag is required' })}
           />
+
+          <FormField label="Role" id="roleId" error={errors.roleId?.message}>
+            <select
+              id="roleId"
+              className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-800 transition-all outline-none focus:border-primary-400 focus:bg-white focus:ring-2 focus:ring-primary-500/20"
+              {...register('roleId', { required: 'Role is required' })}
+            >
+              <option value="">Select a role</option>
+              {partnerRoles.map(role => (
+                <option key={role.id} value={role.id}>{role.label || role.name}</option>
+              ))}
+            </select>
+          </FormField>
 
           <FormField label="Password" id="password" error={errors.password?.message}>
             <div className="relative">
