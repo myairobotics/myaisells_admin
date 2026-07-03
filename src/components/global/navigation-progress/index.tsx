@@ -1,7 +1,7 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
 import { usePathname } from 'next/navigation';
+import { useEffect, useRef, useState } from 'react';
 
 export function NavigationProgress() {
   const pathname = usePathname();
@@ -13,13 +13,17 @@ export function NavigationProgress() {
   const hideTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const startProgress = () => {
-    if (intervalRef.current) clearInterval(intervalRef.current);
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+    }
     setWidth(10);
     setVisible(true);
     intervalRef.current = setInterval(() => {
-      setWidth(prev => {
+      setWidth((prev) => {
         if (prev >= 85) {
-          if (intervalRef.current) clearInterval(intervalRef.current);
+          if (intervalRef.current) {
+            clearInterval(intervalRef.current);
+          }
           return 85;
         }
         const increment = (85 - prev) * 0.08;
@@ -29,7 +33,10 @@ export function NavigationProgress() {
   };
 
   const completeProgress = () => {
-    if (intervalRef.current) clearInterval(intervalRef.current);
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+    }
+    // eslint-disable-next-line react-hooks-extra/no-direct-set-state-in-use-effect -- synchronizes progress bar to router-driven pathname changes, not derivable from render
     setWidth(100);
     completeTimeoutRef.current = setTimeout(() => {
       setVisible(false);
@@ -40,8 +47,12 @@ export function NavigationProgress() {
   useEffect(() => {
     const handleClick = (e: MouseEvent) => {
       const anchor = (e.target as HTMLElement).closest('a');
-      if (!anchor || !anchor.href) return;
-      if (anchor.target === '_blank' || anchor.rel?.includes('external')) return;
+      if (!anchor || !anchor.href) {
+        return;
+      }
+      if (anchor.target === '_blank' || anchor.rel?.includes('external')) {
+        return;
+      }
 
       let href: URL;
       try {
@@ -50,8 +61,12 @@ export function NavigationProgress() {
         return;
       }
 
-      if (href.origin !== window.location.origin) return;
-      if (href.pathname === window.location.pathname && href.search === window.location.search) return;
+      if (href.origin !== window.location.origin) {
+        return;
+      }
+      if (href.pathname === window.location.pathname && href.search === window.location.search) {
+        return;
+      }
 
       startProgress();
     };
@@ -63,12 +78,17 @@ export function NavigationProgress() {
   useEffect(() => {
     if (pathname !== prevPathRef.current) {
       prevPathRef.current = pathname;
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- synchronizes progress bar to router-driven pathname changes, not derivable from render
       completeProgress();
     }
 
     return () => {
-      if (completeTimeoutRef.current) clearTimeout(completeTimeoutRef.current);
-      if (hideTimeoutRef.current) clearTimeout(hideTimeoutRef.current);
+      if (completeTimeoutRef.current) {
+        clearTimeout(completeTimeoutRef.current);
+      }
+      if (hideTimeoutRef.current) {
+        clearTimeout(hideTimeoutRef.current);
+      }
     };
   }, [pathname]);
 

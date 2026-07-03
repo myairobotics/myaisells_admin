@@ -1,6 +1,5 @@
-import type { ChromaticConfig } from '@chromatic-com/playwright';
 import { defineConfig, devices } from '@playwright/test';
-import { Env } from '@/libs/Env';
+import { Env } from './src/libs/Env';
 
 // Use Env.PORT by default and fallback to port 3000
 const PORT = Env.PORT || 3000;
@@ -11,11 +10,10 @@ const baseURL = `http://localhost:${PORT}`;
 /**
  * See https://playwright.dev/docs/test-configuration.
  */
-export default defineConfig<ChromaticConfig>({
+export default defineConfig({
   testDir: './tests',
   // Look for files with the .spec.js or .e2e.js extension
   testMatch: '*.@(spec|e2e).?(c|m)[jt]s?(x)',
-  // Timeout per test, test running locally are slower due to database connections with PGLite
   timeout: Env.CI ? 30 * 1000 : 60 * 1000,
   // Fail the build on CI if you accidentally left test.only in the source code.
   forbidOnly: !!Env.CI,
@@ -30,7 +28,7 @@ export default defineConfig<ChromaticConfig>({
   // Run your local dev server before starting the tests:
   // https://playwright.dev/docs/test-advanced#launching-a-development-web-server-during-the-tests
   webServer: {
-    command: Env.CI ? 'npx run-p db-server:memory start' : 'npx run-p db-server:memory dev:next',
+    command: Env.CI ? 'npm run start' : 'npm run dev',
     url: baseURL,
     timeout: 2 * 60 * 1000,
     reuseExistingServer: !Env.CI,
@@ -50,9 +48,6 @@ export default defineConfig<ChromaticConfig>({
 
     // Record videos when retrying the failed test.
     video: Env.CI ? 'retain-on-failure' : undefined,
-
-    // Disable automatic screenshots at test completion when using Chromatic test fixture.
-    disableAutoSnapshot: true,
   },
 
   projects: [

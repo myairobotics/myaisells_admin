@@ -21,15 +21,9 @@ export const Env = createEnv({
     // Arcjet
     ARCJET_KEY: z.string().startsWith('ajkey_').optional().default(''),
 
-    // Checkly
-    CHECKLY_LOGICAL_ID: z.string().min(3).optional().default(''),
-    CHECKLY_PROJECT_NAME: z.string().min(2).optional().default(''),
-    CHECKLY_EMAIL_ADDRESS: z.string().email().optional().default(''),
-
     // Vercel
     VERCEL_URL: z.string().url().optional().default(''),
     VERCEL_PROJECT_PRODUCTION_URL: z.string().url().optional().default(''),
-    VERCEL_BYPASS_TOKEN: z.string().optional().default(''),
 
     // Auth
     NEXTAUTH_URL: z.string().url().optional().default('http://localhost:3000'),
@@ -84,15 +78,9 @@ export const Env = createEnv({
     // Arcjet
     ARCJET_KEY: process.env.ARCJET_KEY,
 
-    // Checkly
-    CHECKLY_LOGICAL_ID: process.env.CHECKLY_LOGICAL_ID,
-    CHECKLY_PROJECT_NAME: process.env.CHECKLY_PROJECT_NAME,
-    CHECKLY_EMAIL_ADDRESS: process.env.CHECKLY_EMAIL_ADDRESS,
-
     // Vercel
     VERCEL_URL: process.env.VERCEL_URL,
     VERCEL_PROJECT_PRODUCTION_URL: process.env.VERCEL_PROJECT_PRODUCTION_URL,
-    VERCEL_BYPASS_TOKEN: process.env.VERCEL_BYPASS_TOKEN,
 
     // Auth
     NEXTAUTH_URL: process.env.NEXTAUTH_URL,

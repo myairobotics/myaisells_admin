@@ -18,19 +18,29 @@ import { useGetTokenAllocationsQuery, useGetTokenTransactionsQuery } from '@/ser
 /* ─── Helpers ─────────────────────────────────────────────────────── */
 
 function formatTokens(n: number) {
-  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
-  if (n >= 1_000) return `${(n / 1_000).toFixed(1)}K`;
+  if (n >= 1_000_000) {
+    return `${(n / 1_000_000).toFixed(1)}M`;
+  }
+  if (n >= 1_000) {
+    return `${(n / 1_000).toFixed(1)}K`;
+  }
   return n.toLocaleString();
 }
 
 function consumptionPct(consumed: number, allocated: number) {
-  if (!allocated) return 0;
+  if (!allocated) {
+    return 0;
+  }
   return Math.min(100, Math.round((consumed / allocated) * 100));
 }
 
 function pctColor(pct: number) {
-  if (pct >= 90) return { bar: 'bg-red-500', text: 'text-red-600' };
-  if (pct >= 70) return { bar: 'bg-amber-500', text: 'text-amber-600' };
+  if (pct >= 90) {
+    return { bar: 'bg-red-500', text: 'text-red-600' };
+  }
+  if (pct >= 70) {
+    return { bar: 'bg-amber-500', text: 'text-amber-600' };
+  }
   return { bar: 'bg-indigo-500', text: 'text-indigo-600' };
 }
 
@@ -54,7 +64,10 @@ function UsageBar({ consumed, allocated }: { consumed: number; allocated: number
       <div className="h-1.5 w-20 overflow-hidden rounded-full bg-slate-200">
         <div className={`h-full rounded-full transition-all ${bar}`} style={{ width: `${pct}%` }} />
       </div>
-      <span className={`text-xs font-medium ${text}`}>{pct}%</span>
+      <span className={`text-xs font-medium ${text}`}>
+        {pct}
+        %
+      </span>
     </div>
   );
 }
@@ -108,7 +121,10 @@ function TransactionPanel({
       <div className="-mx-6 mb-4 border-b border-slate-100 px-6 py-3">
         <div className="flex items-center justify-between text-xs text-slate-500">
           <span>Usage</span>
-          <span className="font-medium">{pct}%</span>
+          <span className="font-medium">
+            {pct}
+            %
+          </span>
         </div>
         <div className="mt-1.5 h-2 overflow-hidden rounded-full bg-slate-200">
           <div className={`h-full rounded-full ${bar}`} style={{ width: `${pct}%` }} />
@@ -116,7 +132,7 @@ function TransactionPanel({
       </div>
 
       {/* Transactions list */}
-      <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-slate-400">Transactions</p>
+      <p className="mb-3 text-xs font-semibold tracking-wider text-slate-400 uppercase">Transactions</p>
       {isLoading
         ? <div className="space-y-2">{Array.from({ length: 6 }, (_, i) => `skel-${i}`).map(key => <div key={key} className="h-12 animate-pulse rounded-lg bg-slate-100" />)}</div>
         : transactions.length === 0
@@ -127,7 +143,7 @@ function TransactionPanel({
             )
           : (
               <div className="space-y-2">
-                {transactions.map(tx => {
+                {transactions.map((tx) => {
                   const cfg = TX_CONFIG[tx.type] ?? TX_CONFIG.deduct;
                   const isCredit = tx.type === 'topup' || tx.type === 'allocation' || tx.type === 'refund';
                   return (
@@ -135,7 +151,7 @@ function TransactionPanel({
                       <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-sm ${cfg.badge}`}>
                         {cfg.icon}
                       </span>
-                      <div className="flex-1 min-w-0">
+                      <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2">
                           <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${cfg.badge}`}>{cfg.label}</span>
                           {tx.performed_by && (
@@ -149,12 +165,15 @@ function TransactionPanel({
                           {new Date(tx.created_at).toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
                         </p>
                       </div>
-                      <div className="text-right shrink-0">
+                      <div className="shrink-0 text-right">
                         <p className={`text-sm font-bold ${isCredit ? 'text-emerald-600' : 'text-red-500'}`}>
                           {cfg.sign}
                           {formatTokens(tx.amount)}
                         </p>
-                        <p className="text-xs text-slate-400">bal: {formatTokens(tx.balance_after)}</p>
+                        <p className="text-xs text-slate-400">
+                          bal:
+                          {formatTokens(tx.balance_after)}
+                        </p>
                       </div>
                     </div>
                   );
@@ -247,15 +266,15 @@ export default function TokenManagement() {
                   <table className="w-full text-sm">
                     <thead className="border-b border-slate-100 bg-slate-50/70">
                       <tr>
-                        <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Business</th>
-                        <th className="hidden px-5 py-3 text-right text-xs font-semibold uppercase tracking-wider text-slate-500 sm:table-cell">Allocated</th>
-                        <th className="hidden px-5 py-3 text-right text-xs font-semibold uppercase tracking-wider text-slate-500 md:table-cell">Consumed</th>
-                        <th className="hidden px-5 py-3 text-right text-xs font-semibold uppercase tracking-wider text-slate-500 lg:table-cell">Remaining</th>
-                        <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Usage</th>
+                        <th className="px-5 py-3 text-left text-xs font-semibold tracking-wider text-slate-500 uppercase">Business</th>
+                        <th className="hidden px-5 py-3 text-right text-xs font-semibold tracking-wider text-slate-500 uppercase sm:table-cell">Allocated</th>
+                        <th className="hidden px-5 py-3 text-right text-xs font-semibold tracking-wider text-slate-500 uppercase md:table-cell">Consumed</th>
+                        <th className="hidden px-5 py-3 text-right text-xs font-semibold tracking-wider text-slate-500 uppercase lg:table-cell">Remaining</th>
+                        <th className="px-5 py-3 text-left text-xs font-semibold tracking-wider text-slate-500 uppercase">Usage</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100">
-                      {allocations.map(a => {
+                      {allocations.map((a) => {
                         const pct = consumptionPct(a.consumed_tokens, a.allocated_tokens);
                         return (
                           <tr

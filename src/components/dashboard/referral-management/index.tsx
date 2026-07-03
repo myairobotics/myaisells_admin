@@ -41,13 +41,14 @@ function ReassignForm({ user, onClose }: { user: ReferredUser; onClose: () => vo
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!referralCode.trim() || !reason.trim()) return;
+    if (!referralCode.trim() || !reason.trim()) {
+      return;
+    }
     try {
       await reassign({ userId: user.appUserId, referralCode: referralCode.trim(), reason: reason.trim() }).unwrap();
       toast.success('Referral code reassigned successfully');
       onClose();
-    }
-    catch {
+    } catch {
       toast.error('Failed to reassign referral code');
     }
   };
@@ -77,7 +78,7 @@ function ReassignForm({ user, onClose }: { user: ReferredUser; onClose: () => vo
             value={referralCode}
             onChange={e => setReferralCode(e.target.value)}
             placeholder="e.g. AGT-202F3F6F9B"
-            className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-800 outline-none transition-all focus:border-emerald-400 focus:bg-white focus:ring-2 focus:ring-emerald-500/20"
+            className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-800 transition-all outline-none focus:border-emerald-400 focus:bg-white focus:ring-2 focus:ring-emerald-500/20"
             required
           />
         </FormField>
@@ -89,7 +90,7 @@ function ReassignForm({ user, onClose }: { user: ReferredUser; onClose: () => vo
             onChange={e => setReason(e.target.value)}
             placeholder="Explain why the referral code is being reassigned…"
             rows={3}
-            className="w-full resize-none rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-800 outline-none transition-all focus:border-emerald-400 focus:bg-white focus:ring-2 focus:ring-emerald-500/20"
+            className="w-full resize-none rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-800 transition-all outline-none focus:border-emerald-400 focus:bg-white focus:ring-2 focus:ring-emerald-500/20"
             required
           />
         </FormField>
@@ -241,12 +242,12 @@ export default function ReferralManagement() {
                   <table className="w-full text-sm">
                     <thead className="border-b border-slate-100 bg-slate-50/70">
                       <tr>
-                        <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">User</th>
-                        <th className="hidden px-5 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500 md:table-cell">Referral Code</th>
-                        <th className="hidden px-5 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500 lg:table-cell">Source</th>
-                        <th className="hidden px-5 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500 xl:table-cell">Partner / Agent</th>
-                        <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Joined</th>
-                        <th className="px-5 py-3 text-right text-xs font-semibold uppercase tracking-wider text-slate-500">Action</th>
+                        <th className="px-5 py-3 text-left text-xs font-semibold tracking-wider text-slate-500 uppercase">User</th>
+                        <th className="hidden px-5 py-3 text-left text-xs font-semibold tracking-wider text-slate-500 uppercase md:table-cell">Referral Code</th>
+                        <th className="hidden px-5 py-3 text-left text-xs font-semibold tracking-wider text-slate-500 uppercase lg:table-cell">Source</th>
+                        <th className="hidden px-5 py-3 text-left text-xs font-semibold tracking-wider text-slate-500 uppercase xl:table-cell">Partner / Agent</th>
+                        <th className="px-5 py-3 text-left text-xs font-semibold tracking-wider text-slate-500 uppercase">Joined</th>
+                        <th className="px-5 py-3 text-right text-xs font-semibold tracking-wider text-slate-500 uppercase">Action</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100">
@@ -293,13 +294,21 @@ export default function ReferralManagement() {
           totalPages={totalPages}
           total={total}
           itemLabel="user"
-          onPageChange={p => { if (!isFetching) setPage(p); }}
+          onPageChange={(p) => {
+            if (!isFetching) {
+              setPage(p);
+            }
+          }}
         />
       </div>
 
       <Modal
         open={reassignTarget !== null}
-        onOpenChange={open => { if (!open) setReassignTarget(null); }}
+        onOpenChange={(open) => {
+          if (!open) {
+            setReassignTarget(null);
+          }
+        }}
         title="Reassign Referral Code"
         className="max-w-md"
       >

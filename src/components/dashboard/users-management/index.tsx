@@ -8,12 +8,13 @@ import {
   FiMail,
   FiRefreshCw,
   FiShield,
+  FiToggleLeft,
+  FiToggleRight,
   FiUser,
   FiUserCheck,
-  FiUserX,
   FiUsers,
+  FiUserX,
 } from 'react-icons/fi';
-import { FiToggleLeft, FiToggleRight } from 'react-icons/fi';
 import { toast } from 'react-toastify';
 import { PageHeader } from '@/components/global/page-header';
 import {
@@ -78,8 +79,15 @@ function UserDetailPanel({
         <div className="flex items-center gap-4">
           <Avatar name={`${user.first_name} ${user.last_name}`} size="lg" />
           <div>
-            <h2 className="text-xl font-bold text-slate-800">{user.first_name} {user.last_name}</h2>
-            <p className="text-sm text-slate-500">@{user.username}</p>
+            <h2 className="text-xl font-bold text-slate-800">
+              {user.first_name}
+              {' '}
+              {user.last_name}
+            </h2>
+            <p className="text-sm text-slate-500">
+              @
+              {user.username}
+            </p>
             <div className="mt-1.5">
               <StatusBadge active={user.is_active} />
             </div>
@@ -97,14 +105,14 @@ function UserDetailPanel({
               <span className="mt-0.5 shrink-0 text-slate-400">{row.icon}</span>
               <div className="min-w-0 flex-1">
                 <p className="text-xs font-medium text-slate-400">{row.label}</p>
-                <p className={`mt-0.5 break-all text-sm text-slate-700 ${'mono' in row && row.mono ? 'font-mono' : 'font-medium'}`}>{row.value}</p>
+                <p className={`mt-0.5 text-sm break-all text-slate-700 ${'mono' in row && row.mono ? 'font-mono' : 'font-medium'}`}>{row.value}</p>
               </div>
             </div>
           ))}
         </div>
 
         <div>
-          <h4 className="mb-3 flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-400">
+          <h4 className="mb-3 flex items-center gap-2 text-xs font-bold tracking-wider text-slate-400 uppercase">
             <FiActivity className="h-3.5 w-3.5" />
             Recent Activity
           </h4>
@@ -153,7 +161,9 @@ export default function UsersManagement() {
       await updateUserStatus({ userId: Number(user.id), status: !user.is_active }).unwrap();
       toast.success(`${user.first_name} ${user.is_active ? 'deactivated' : 'activated'} successfully`);
       refetch();
-      if (selectedUser?.id === user.id) setSelectedUser({ ...user, is_active: !user.is_active });
+      if (selectedUser?.id === user.id) {
+        setSelectedUser({ ...user, is_active: !user.is_active });
+      }
     } catch {
       toast.error('Failed to update user status');
     }
@@ -186,10 +196,20 @@ export default function UsersManagement() {
 
       <SearchFilterBar
         search={search}
-        onSearch={(v) => { setSearch(v); setPage(1); }}
+        onSearch={(v) => {
+          setSearch(v);
+          setPage(1);
+        }}
         placeholder="Search by name, email or username…"
       >
-        <FilterPills options={STATUS_FILTERS} value={statusFilter} onChange={(f) => { setStatusFilter(f); setPage(1); }} />
+        <FilterPills
+          options={STATUS_FILTERS}
+          value={statusFilter}
+          onChange={(f) => {
+            setStatusFilter(f);
+            setPage(1);
+          }}
+        />
       </SearchFilterBar>
 
       <div className="overflow-hidden rounded-xl border border-slate-200/60 bg-white shadow-sm">
@@ -206,7 +226,12 @@ export default function UsersManagement() {
                 <EmptyState
                   icon={<FiUser />}
                   message="No users match your search"
-                  onClear={search || statusFilter !== 'all' ? () => { setSearch(''); setStatusFilter('all'); } : undefined}
+                  onClear={search || statusFilter !== 'all'
+                    ? () => {
+                        setSearch('');
+                        setStatusFilter('all');
+                      }
+                    : undefined}
                 />
               )
             : (
@@ -214,12 +239,12 @@ export default function UsersManagement() {
                   <table className="w-full text-sm">
                     <thead className="border-b border-slate-100 bg-slate-50/70">
                       <tr>
-                        <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">User</th>
-                        <th className="hidden px-5 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500 sm:table-cell">Email</th>
-                        <th className="hidden px-5 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500 md:table-cell">Username</th>
-                        <th className="hidden px-5 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500 lg:table-cell">Joined</th>
-                        <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Status</th>
-                        <th className="px-5 py-3 text-right text-xs font-semibold uppercase tracking-wider text-slate-500">Action</th>
+                        <th className="px-5 py-3 text-left text-xs font-semibold tracking-wider text-slate-500 uppercase">User</th>
+                        <th className="hidden px-5 py-3 text-left text-xs font-semibold tracking-wider text-slate-500 uppercase sm:table-cell">Email</th>
+                        <th className="hidden px-5 py-3 text-left text-xs font-semibold tracking-wider text-slate-500 uppercase md:table-cell">Username</th>
+                        <th className="hidden px-5 py-3 text-left text-xs font-semibold tracking-wider text-slate-500 uppercase lg:table-cell">Joined</th>
+                        <th className="px-5 py-3 text-left text-xs font-semibold tracking-wider text-slate-500 uppercase">Status</th>
+                        <th className="px-5 py-3 text-right text-xs font-semibold tracking-wider text-slate-500 uppercase">Action</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100">
@@ -228,19 +253,29 @@ export default function UsersManagement() {
                           <td className="px-5 py-3.5">
                             <div className="flex items-center gap-3">
                               <Avatar name={`${user.first_name} ${user.last_name}`} size="sm" />
-                              <span className="font-semibold text-slate-800">{user.first_name} {user.last_name}</span>
+                              <span className="font-semibold text-slate-800">
+                                {user.first_name}
+                                {' '}
+                                {user.last_name}
+                              </span>
                             </div>
                           </td>
                           <td className="hidden px-5 py-3.5 text-slate-500 sm:table-cell">{user.email}</td>
-                          <td className="hidden px-5 py-3.5 text-slate-400 md:table-cell">@{user.username}</td>
-                          <td className="hidden whitespace-nowrap px-5 py-3.5 text-slate-400 lg:table-cell">
+                          <td className="hidden px-5 py-3.5 text-slate-400 md:table-cell">
+                            @
+                            {user.username}
+                          </td>
+                          <td className="hidden px-5 py-3.5 whitespace-nowrap text-slate-400 lg:table-cell">
                             {new Date(user.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
                           </td>
                           <td className="px-5 py-3.5"><StatusBadge active={user.is_active} /></td>
                           <td className="px-5 py-3.5 text-right">
                             <button
                               type="button"
-                              onClick={(e) => { e.stopPropagation(); handleToggle(user); }}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleToggle(user);
+                              }}
                               disabled={isToggling}
                               className={`inline-flex items-center gap-1.5 rounded-lg px-3.5 py-2 text-xs font-semibold transition-all disabled:opacity-50 ${user.is_active ? 'text-red-600 hover:bg-red-50' : 'text-emerald-600 hover:bg-emerald-50'}`}
                             >

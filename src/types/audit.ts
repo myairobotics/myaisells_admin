@@ -75,7 +75,7 @@ export interface AuditLogsFilters {
 }
 
 export interface AuditLogsData {
-  data: AuditLog[];  // flat array (no nested meta in this response)
+  data: AuditLog[]; // flat array (no nested meta in this response)
 }
 
 export type GetAuditLogsResponse = {
