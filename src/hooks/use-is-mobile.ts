@@ -1,17 +1,15 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useSyncExternalStore } from 'react';
 
 export function useIsMobile(breakpoint = 768) {
-  const [isMobile, setIsMobile] = useState(false);
-
-  useEffect(() => {
-    const check = () => setIsMobile(window.innerWidth < breakpoint);
-    check();
+  const subscribe = (onChange: () => void) => {
     const mq = window.matchMedia(`(max-width: ${breakpoint - 1}px)`);
-    mq.addEventListener('change', check);
-    return () => mq.removeEventListener('change', check);
-  }, [breakpoint]);
+    mq.addEventListener('change', onChange);
+    return () => mq.removeEventListener('change', onChange);
+  };
+  const getSnapshot = () => window.innerWidth < breakpoint;
+  const getServerSnapshot = () => false;
 
-  return isMobile;
+  return useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
 }

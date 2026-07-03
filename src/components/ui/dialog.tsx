@@ -2,7 +2,6 @@
 
 import type { ComponentPropsWithoutRef, ElementRef } from 'react';
 import * as DialogPrimitive from '@radix-ui/react-dialog';
-import { forwardRef } from 'react';
 import { FiX } from 'react-icons/fi';
 import { cn } from '@/libs';
 import { VisuallyHidden } from './visually-hidden';
@@ -12,10 +11,7 @@ export const DialogTrigger = DialogPrimitive.Trigger;
 export const DialogClose = DialogPrimitive.Close;
 export const DialogPortal = DialogPrimitive.Portal;
 
-export const DialogOverlay = forwardRef<
-  ElementRef<typeof DialogPrimitive.Overlay>,
-  ComponentPropsWithoutRef<typeof DialogPrimitive.Overlay>
->(({ className, ...props }, ref) => (
+export const DialogOverlay = ({ ref, className, ...props }: ComponentPropsWithoutRef<typeof DialogPrimitive.Overlay> & { ref?: React.RefObject<ElementRef<typeof DialogPrimitive.Overlay> | null> }) => (
   <DialogPrimitive.Overlay
     ref={ref}
     className={cn(
@@ -24,7 +20,7 @@ export const DialogOverlay = forwardRef<
     )}
     {...props}
   />
-));
+);
 DialogOverlay.displayName = 'DialogOverlay';
 
 type DialogContentProps = ComponentPropsWithoutRef<typeof DialogPrimitive.Content> & {
@@ -33,10 +29,7 @@ type DialogContentProps = ComponentPropsWithoutRef<typeof DialogPrimitive.Conten
   hideClose?: boolean;
 };
 
-export const DialogContent = forwardRef<
-  ElementRef<typeof DialogPrimitive.Content>,
-  DialogContentProps
->(({ className, children, title, description, hideClose, ...props }, ref) => (
+export const DialogContent = ({ ref, className, children, title, description, hideClose, ...props }: DialogContentProps & { ref?: React.RefObject<ElementRef<typeof DialogPrimitive.Content> | null> }) => (
   <DialogPortal>
     <DialogOverlay />
     <DialogPrimitive.Content
@@ -74,12 +67,12 @@ export const DialogContent = forwardRef<
       {children}
 
       {!hideClose && (
-        <DialogPrimitive.Close className="absolute top-4 right-4 rounded-lg p-1.5 text-slate-400 transition-all hover:bg-slate-100 hover:text-slate-600 focus:outline-none focus:ring-2 focus:ring-primary-500/20">
+        <DialogPrimitive.Close className="absolute top-4 right-4 rounded-lg p-1.5 text-slate-400 transition-all hover:bg-slate-100 hover:text-slate-600 focus:ring-2 focus:ring-primary-500/20 focus:outline-none">
           <FiX className="h-5 w-5" />
           <VisuallyHidden>Close</VisuallyHidden>
         </DialogPrimitive.Close>
       )}
     </DialogPrimitive.Content>
   </DialogPortal>
-));
+);
 DialogContent.displayName = 'DialogContent';

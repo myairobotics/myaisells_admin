@@ -118,7 +118,7 @@ function SalesAgentDetailPanel({ agent, onClose }: { agent: SalesAgent; onClose:
               <span className="mt-0.5 shrink-0 text-slate-400">{row.icon}</span>
               <div className="min-w-0 flex-1">
                 <p className="text-xs font-medium text-slate-400">{row.label}</p>
-                <p className={`mt-0.5 break-all text-sm text-slate-700 ${'mono' in row && row.mono ? 'font-mono' : 'font-medium'}`}>{String(row.value)}</p>
+                <p className={`mt-0.5 text-sm break-all text-slate-700 ${'mono' in row && row.mono ? 'font-mono' : 'font-medium'}`}>{String(row.value)}</p>
               </div>
             </div>
           ))}
@@ -157,8 +157,14 @@ export default function SalesAgentsManagement() {
   const totalPending = agents.filter(a => a.status === 'pending').length;
   const totalSuspended = agents.filter(a => a.status === 'suspended').length;
 
-  const handleSearch = (val: string) => { setSearch(val); setPage(1); };
-  const handleFilter = (f: StatusFilter) => { setStatusFilter(f); setPage(1); };
+  const handleSearch = (val: string) => {
+    setSearch(val);
+    setPage(1);
+  };
+  const handleFilter = (f: StatusFilter) => {
+    setStatusFilter(f);
+    setPage(1);
+  };
 
   return (
     <div className="flex h-full w-full flex-col space-y-5 overflow-x-hidden overflow-y-auto">
@@ -208,7 +214,12 @@ export default function SalesAgentsManagement() {
                 <EmptyState
                   icon={<FiUserCheck />}
                   message="No sales agents found"
-                  onClear={search || statusFilter !== 'all' ? () => { setSearch(''); setStatusFilter('all'); } : undefined}
+                  onClear={search || statusFilter !== 'all'
+                    ? () => {
+                        setSearch('');
+                        setStatusFilter('all');
+                      }
+                    : undefined}
                 />
               )
             : (
@@ -216,12 +227,12 @@ export default function SalesAgentsManagement() {
                   <table className="w-full text-sm">
                     <thead className="border-b border-slate-100 bg-slate-50/70">
                       <tr>
-                        <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Agent</th>
-                        <th className="hidden px-5 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500 sm:table-cell">Email</th>
-                        <th className="hidden px-5 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500 md:table-cell">Territory</th>
-                        <th className="hidden px-5 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500 lg:table-cell">Type</th>
-                        <th className="hidden px-5 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500 xl:table-cell">Referral Code</th>
-                        <th className="px-5 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-500">Status</th>
+                        <th className="px-5 py-3 text-left text-xs font-semibold tracking-wider text-slate-500 uppercase">Agent</th>
+                        <th className="hidden px-5 py-3 text-left text-xs font-semibold tracking-wider text-slate-500 uppercase sm:table-cell">Email</th>
+                        <th className="hidden px-5 py-3 text-left text-xs font-semibold tracking-wider text-slate-500 uppercase md:table-cell">Territory</th>
+                        <th className="hidden px-5 py-3 text-left text-xs font-semibold tracking-wider text-slate-500 uppercase lg:table-cell">Type</th>
+                        <th className="hidden px-5 py-3 text-left text-xs font-semibold tracking-wider text-slate-500 uppercase xl:table-cell">Referral Code</th>
+                        <th className="px-5 py-3 text-left text-xs font-semibold tracking-wider text-slate-500 uppercase">Status</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100">
@@ -234,7 +245,9 @@ export default function SalesAgentsManagement() {
                                 <p className="font-semibold text-slate-800">{agentFullName(agent)}</p>
                                 {agent.assigned_businesses_count !== undefined && (
                                   <p className="text-xs text-slate-400">
-                                    {agent.assigned_businesses_count} {agent.assigned_businesses_count === 1 ? 'business' : 'businesses'}
+                                    {agent.assigned_businesses_count}
+                                    {' '}
+                                    {agent.assigned_businesses_count === 1 ? 'business' : 'businesses'}
                                   </p>
                                 )}
                               </div>

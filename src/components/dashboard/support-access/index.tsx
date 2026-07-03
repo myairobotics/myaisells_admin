@@ -281,7 +281,12 @@ export default function SupportAccess() {
                 <EmptyState
                   icon={<FiShield />}
                   message="No support sessions found"
-                  onClear={search || statusFilter !== 'all' ? () => { setSearch(''); setStatusFilter('all'); } : undefined}
+                  onClear={search || statusFilter !== 'all'
+                    ? () => {
+                        setSearch('');
+                        setStatusFilter('all');
+                      }
+                    : undefined}
                 />
               )
             : (

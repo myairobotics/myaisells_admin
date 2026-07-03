@@ -29,6 +29,7 @@ function VideoCard({ item, onClick }: { item: HowToItem; onClick: () => void }) 
       <div className="relative aspect-video overflow-hidden bg-slate-900">
         {thumb
           ? (
+              // eslint-disable-next-line next/no-img-element -- thumb is a dynamic backend-hosted URL, not a domain we can add to next.config remotePatterns
               <img
                 src={thumb}
                 alt={item.title}
@@ -105,8 +106,10 @@ function VideoModal({ item, onClose }: { item: HowToItem; onClose: () => void })
                 src={videoSrc}
                 controls
                 autoPlay
-                className="w-full aspect-video"
-              />
+                className="aspect-video w-full"
+              >
+                <track kind="captions" />
+              </video>
             )
           : (
               <div className="flex aspect-video items-center justify-center bg-slate-900 text-slate-500">
@@ -134,7 +137,7 @@ function VideoCardSkeleton() {
   return (
     <div className="animate-pulse overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
       <div className="aspect-video bg-slate-200" />
-      <div className="p-4 space-y-2">
+      <div className="space-y-2 p-4">
         <div className="h-4 w-3/4 rounded bg-slate-200" />
         <div className="h-3 w-full rounded bg-slate-100" />
         <div className="h-3 w-1/3 rounded bg-slate-100" />
@@ -201,7 +204,7 @@ export default function HelpCenter() {
             placeholder="Search tutorials…"
             value={search}
             onChange={e => setSearch(e.target.value)}
-            className="w-full rounded-xl border border-slate-200/60 bg-white py-3 pr-4 pl-9 text-sm text-slate-700 shadow-sm outline-none transition-all focus:border-rose-400 focus:ring-2 focus:ring-rose-500/20"
+            className="w-full rounded-xl border border-slate-200/60 bg-white py-3 pr-4 pl-9 text-sm text-slate-700 shadow-sm transition-all outline-none focus:border-rose-400 focus:ring-2 focus:ring-rose-500/20"
           />
         </div>
       </div>

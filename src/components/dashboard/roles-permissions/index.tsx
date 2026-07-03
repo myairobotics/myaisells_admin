@@ -160,7 +160,7 @@ function RoleCard({
                       {role.permissions.map(p => (
                         <div
                           key={p.id}
-                          className="group flex items-center gap-1.5 rounded-lg border border-slate-200 bg-slate-50 py-1.5 pl-2.5 pr-1.5"
+                          className="group flex items-center gap-1.5 rounded-lg border border-slate-200 bg-slate-50 py-1.5 pr-1.5 pl-2.5"
                         >
                           <FiCheck className="h-3 w-3 shrink-0 text-emerald-500" />
                           <span className="text-xs font-medium text-slate-700">{p.name}</span>
@@ -419,8 +419,8 @@ export default function RolesPermissions() {
                         <Skeleton height={18} width={120} borderRadius={6} />
                       </div>
                       <div className="grid gap-2 p-4 sm:grid-cols-2">
-                        {Array.from({ length: 4 }).map((__, j) => (
-                          <div key={j} className="rounded-lg border border-slate-100 p-3">
+                        {Array.from({ length: 4 }, (_, j) => `perm-skel-${j}`).map(permKey => (
+                          <div key={permKey} className="rounded-lg border border-slate-100 p-3">
                             <Skeleton height={14} width={160} borderRadius={6} />
                             <div className="mt-1.5">
                               <Skeleton height={12} borderRadius={6} />

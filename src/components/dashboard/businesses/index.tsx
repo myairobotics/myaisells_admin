@@ -54,7 +54,6 @@ const FILTERS: { value: StatusFilter; label: string }[] = [
   { value: 'cancelled', label: 'Cancelled' },
 ];
 
-
 export default function BusinessesManagement() {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');

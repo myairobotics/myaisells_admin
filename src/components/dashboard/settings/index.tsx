@@ -158,8 +158,11 @@ export default function PlatformSettings() {
   const isFetching = plansFetching || configFetching;
 
   const handleRefetch = () => {
-    if (activeTab === 'plans') refetchPlans();
-    else refetchConfig();
+    if (activeTab === 'plans') {
+      refetchPlans();
+    } else {
+      refetchConfig();
+    }
   };
 
   return (
@@ -240,37 +243,37 @@ export default function PlatformSettings() {
                 </div>
               )
             : !config
-              ? (
-                  <div className="flex h-64 items-center justify-center">
-                    <p className="text-slate-500">Platform config unavailable</p>
-                  </div>
-                )
-              : (
-                  <div className="divide-y divide-slate-100 px-6">
-                    <p className="py-4 text-xs font-semibold uppercase tracking-wider text-slate-400">General</p>
-                    <ConfigRow icon={<FiGlobe />} label="Platform Name" value={config.platform_name} />
-                    <ConfigRow icon={<FiMail />} label="Support Email" value={config.support_email} />
-                    {config.support_url && <ConfigRow icon={<FiGlobe />} label="Support URL" value={config.support_url} />}
-
-                    <p className="py-4 text-xs font-semibold uppercase tracking-wider text-slate-400">Billing</p>
-                    <ConfigRow icon={<FiClock />} label="Trial Period" value={`${config.trial_period_days} days`} />
-                    <ConfigRow icon={<FiClock />} label="Grace Period" value={`${config.grace_period_days} days`} />
-                    <ConfigRow icon={<FiZap />} label="Default Token Allocation" value={config.default_token_allocation.toLocaleString()} />
-
-                    <p className="py-4 text-xs font-semibold uppercase tracking-wider text-slate-400">Access Controls</p>
-                    <ConfigRow icon={<FiUsers />} label="Allow Self-Signup" value={config.allow_self_signup} />
-                    <ConfigRow icon={<FiMail />} label="Require Email Verification" value={config.require_email_verification} />
-                    <ConfigRow icon={<FiShield />} label="Maintenance Mode" value={config.maintenance_mode} />
-
-                    <div className="py-4">
-                      <p className="text-xs text-slate-400">
-                        Last updated:
-                        {' '}
-                        {new Date(config.updated_at).toLocaleString('en-US', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
-                      </p>
+                ? (
+                    <div className="flex h-64 items-center justify-center">
+                      <p className="text-slate-500">Platform config unavailable</p>
                     </div>
-                  </div>
-                )}
+                  )
+                : (
+                    <div className="divide-y divide-slate-100 px-6">
+                      <p className="py-4 text-xs font-semibold tracking-wider text-slate-400 uppercase">General</p>
+                      <ConfigRow icon={<FiGlobe />} label="Platform Name" value={config.platform_name} />
+                      <ConfigRow icon={<FiMail />} label="Support Email" value={config.support_email} />
+                      {config.support_url && <ConfigRow icon={<FiGlobe />} label="Support URL" value={config.support_url} />}
+
+                      <p className="py-4 text-xs font-semibold tracking-wider text-slate-400 uppercase">Billing</p>
+                      <ConfigRow icon={<FiClock />} label="Trial Period" value={`${config.trial_period_days} days`} />
+                      <ConfigRow icon={<FiClock />} label="Grace Period" value={`${config.grace_period_days} days`} />
+                      <ConfigRow icon={<FiZap />} label="Default Token Allocation" value={config.default_token_allocation.toLocaleString()} />
+
+                      <p className="py-4 text-xs font-semibold tracking-wider text-slate-400 uppercase">Access Controls</p>
+                      <ConfigRow icon={<FiUsers />} label="Allow Self-Signup" value={config.allow_self_signup} />
+                      <ConfigRow icon={<FiMail />} label="Require Email Verification" value={config.require_email_verification} />
+                      <ConfigRow icon={<FiShield />} label="Maintenance Mode" value={config.maintenance_mode} />
+
+                      <div className="py-4">
+                        <p className="text-xs text-slate-400">
+                          Last updated:
+                          {' '}
+                          {new Date(config.updated_at).toLocaleString('en-US', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                        </p>
+                      </div>
+                    </div>
+                  )}
         </div>
       )}
     </div>
