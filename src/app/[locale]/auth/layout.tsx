@@ -33,12 +33,12 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
         <div className="relative z-10 p-10">
           <Link href="/" className="inline-flex">
             <Image
-              src="/assets/logo.svg"
-              alt="MYaiSells"
-              width={140}
+              src="/assets/logo.png"
+              alt="Xynexi"
+              width={66}
               height={36}
               priority
-              className="h-9 w-auto brightness-0 invert"
+              className="h-9 w-auto"
             />
           </Link>
         </div>
@@ -91,9 +91,9 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
         <div className="flex items-center border-b border-slate-100 bg-white px-6 py-4 lg:hidden">
           <Link href="/" className="inline-flex">
             <Image
-              src="/assets/logo.svg"
-              alt="MYaiSells"
-              width={120}
+              src="/assets/logo.png"
+              alt="Xynexi"
+              width={59}
               height={32}
               priority
               className="h-8 w-auto"
