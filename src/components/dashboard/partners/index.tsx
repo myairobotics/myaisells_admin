@@ -1,6 +1,7 @@
 'use client';
 
-import type { PartnerListItem } from '@/types';
+import type { PartnerListItem, PartnerStatus } from '@/types';
+import Link from 'next/link';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import {
@@ -25,7 +26,6 @@ import {
   useCreatePartnerMutation,
   useGetAllPartnersQuery,
 } from '@/services';
-import PartnerDetail from './PartnerDetail';
 
 type OnboardFormValues = {
   first_name: string;
@@ -36,28 +36,28 @@ type OnboardFormValues = {
   password: string;
 };
 
+const STATUS_BADGE: Record<PartnerStatus, { badge: string; dot: string }> = {
+  active: { badge: 'bg-emerald-100 text-emerald-700', dot: 'bg-emerald-500' },
+  pending: { badge: 'bg-amber-100 text-amber-700', dot: 'bg-amber-500' },
+  suspended: { badge: 'bg-red-100 text-red-700', dot: 'bg-red-500' },
+  cancelled: { badge: 'bg-slate-100 text-slate-500', dot: 'bg-slate-400' },
+};
+
 export default function Partners() {
   const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState<'all' | 'pending' | 'active'>('all');
+  const [statusFilter, setStatusFilter] = useState<'all' | PartnerStatus>('all');
   const [page, setPage] = useState(1);
   const [showModal, setShowModal] = useState(false);
-  const [selectedPartnerId, setSelectedPartnerId] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
 
   const limit = 10;
-  const { data, isLoading } = useGetAllPartnersQuery({ page, limit });
+  const { data, isLoading } = useGetAllPartnersQuery({ page, limit, search: searchTerm || undefined });
   const [createPartner, { isLoading: isCreating }] = useCreatePartnerMutation();
 
   const partners = data?.data?.data || [];
   const meta = data?.data?.meta;
 
-  const filteredPartners = partners.filter((p) => {
-    const matchesSearch
-      = p.first_name.toLowerCase().includes(searchTerm.toLowerCase())
-        || p.last_name.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = statusFilter === 'all' || p.status === statusFilter;
-    return matchesSearch && matchesStatus;
-  });
+  const filteredPartners = partners.filter(p => statusFilter === 'all' || p.status === statusFilter);
 
   const {
     register,
@@ -195,7 +195,10 @@ export default function Partners() {
         {/* Search + filter bar */}
         <SearchFilterBar
           search={searchTerm}
-          onSearch={(v) => { setSearchTerm(v); setPage(1); }}
+          onSearch={(v) => {
+            setSearchTerm(v);
+            setPage(1);
+          }}
           placeholder="Search by name..."
         >
           <FilterPills
@@ -203,9 +206,14 @@ export default function Partners() {
               { value: 'all', label: 'All' },
               { value: 'pending', label: 'Pending' },
               { value: 'active', label: 'Active' },
+              { value: 'suspended', label: 'Suspended' },
+              { value: 'cancelled', label: 'Cancelled' },
             ]}
             value={statusFilter}
-            onChange={(f) => { setStatusFilter(f); setPage(1); }}
+            onChange={(f) => {
+              setStatusFilter(f);
+              setPage(1);
+            }}
           />
         </SearchFilterBar>
 
@@ -226,7 +234,12 @@ export default function Partners() {
                   <EmptyState
                     icon={<PiUser />}
                     message="No partners found"
-                    onClear={searchTerm || statusFilter !== 'all' ? () => { setSearchTerm(''); setStatusFilter('all'); } : undefined}
+                    onClear={searchTerm || statusFilter !== 'all'
+                      ? () => {
+                          setSearchTerm('');
+                          setStatusFilter('all');
+                        }
+                      : undefined}
                   />
                 )
               : (
@@ -246,27 +259,28 @@ export default function Partners() {
                               <div className="flex items-center gap-3">
                                 <Avatar name={`${partner.first_name} ${partner.last_name}`} size="md" />
                                 <span className="font-semibold text-slate-800">
-                                  {partner.first_name} {partner.last_name}
+                                  {partner.first_name}
+                                  {' '}
+                                  {partner.last_name}
                                 </span>
                               </div>
                             </td>
                             <td className="px-5 py-3.5">
                               <Badge
-                                className={partner.status === 'active' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}
-                                dot={partner.status === 'active' ? 'bg-emerald-500' : 'bg-amber-500'}
+                                className={STATUS_BADGE[partner.status]?.badge ?? STATUS_BADGE.pending.badge}
+                                dot={STATUS_BADGE[partner.status]?.dot ?? STATUS_BADGE.pending.dot}
                               >
                                 {partner.status.charAt(0).toUpperCase() + partner.status.slice(1)}
                               </Badge>
                             </td>
                             <td className="px-5 py-3.5 text-right">
-                              <button
-                                type="button"
-                                onClick={() => setSelectedPartnerId(partner.id)}
+                              <Link
+                                href={`/partners/${partner.id}`}
                                 className="inline-flex items-center gap-1.5 rounded-lg px-3.5 py-2 text-xs font-semibold text-primary-600 transition-all hover:bg-primary-50"
                               >
                                 <PiEye className="h-4 w-4" />
                                 View
-                              </button>
+                              </Link>
                             </td>
                           </tr>
                         ))}
@@ -278,16 +292,6 @@ export default function Partners() {
           <Pagination page={page} totalPages={meta?.pages ?? 1} total={meta?.total} itemLabel="partner" onPageChange={setPage} />
         </div>
       </div>
-
-      {/* Partner detail modal */}
-      <Modal
-        open={selectedPartnerId !== null}
-        onOpenChange={open => { if (!open) setSelectedPartnerId(null); }}
-        title="Partner Details"
-        className="max-w-lg"
-      >
-        {selectedPartnerId && <PartnerDetail partnerId={selectedPartnerId} />}
-      </Modal>
     </div>
   );
 }
