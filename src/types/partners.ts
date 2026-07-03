@@ -44,7 +44,7 @@ export interface CreatePartnerRequest {
   region: string;
   tag: string;
   password: string;
-  role_id: string;
+  roleId: string;
 }
 
 export interface CreatePartnerResponse {

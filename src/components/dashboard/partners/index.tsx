@@ -35,7 +35,7 @@ type OnboardFormValues = {
   region: string;
   tag: string;
   password: string;
-  role_id: string;
+  roleId: string;
 };
 
 const STATUS_BADGE: Record<PartnerStatus, { badge: string; dot: string }> = {
@@ -157,11 +157,11 @@ export default function Partners() {
             {...register('tag', { required: 'Tag is required' })}
           />
 
-          <FormField label="Role" id="role_id" error={errors.role_id?.message}>
+          <FormField label="Role" id="roleId" error={errors.roleId?.message}>
             <select
-              id="role_id"
+              id="roleId"
               className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-800 transition-all outline-none focus:border-primary-400 focus:bg-white focus:ring-2 focus:ring-primary-500/20"
-              {...register('role_id', { required: 'Role is required' })}
+              {...register('roleId', { required: 'Role is required' })}
             >
               <option value="">Select a role</option>
               {partnerRoles.map(role => (
