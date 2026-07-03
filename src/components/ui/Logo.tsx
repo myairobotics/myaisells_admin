@@ -16,18 +16,18 @@ const Logo: React.FC = () => {
       className="group cursor-pointer"
     >
       <Image
-        width={1000}
-        height={1000}
-        src="/assets/logo.svg"
+        width={220}
+        height={120}
+        src="/assets/logo.png"
         className="hidden h-10 w-auto transition-transform group-hover:scale-105 md:block"
-        alt="logo"
+        alt="Xynexi"
       />
       <Image
-        width={1000}
-        height={1000}
-        src="/assets/logo_min.svg"
+        width={220}
+        height={120}
+        src="/assets/logo.png"
         className="block h-9 w-auto transition-transform group-hover:scale-105 md:hidden"
-        alt="logo"
+        alt="Xynexi"
       />
     </div>
   );

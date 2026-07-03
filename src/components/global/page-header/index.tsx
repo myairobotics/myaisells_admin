@@ -1,8 +1,8 @@
 import type { ReactElement, ReactNode } from 'react';
 
 type PageHeaderProps = {
-  title: string;
-  subtitle?: string;
+  title: ReactNode;
+  subtitle?: ReactNode;
   icon?: ReactElement;
   actions?: ReactNode;
   gradient?: string;
