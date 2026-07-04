@@ -26,7 +26,7 @@ export const Env = createEnv({
     VERCEL_PROJECT_PRODUCTION_URL: z.string().url().optional().default(''),
 
     // Auth
-    NEXTAUTH_URL: z.string().url().optional().default('http://localhost:3000'),
+    NEXTAUTH_URL: z.string().url().optional().default('https://admin.myaisells.com'),
     NEXTAUTH_SECRET: z.string().min(8).optional().default('defaultsecret123'),
     AUTH_SECRET: z.string().min(8).optional().default('defaultsecret123'),
     AUTH_TRUST_HOST: z.preprocess(val => val === 'true', z.boolean()).default(false),
@@ -34,8 +34,8 @@ export const Env = createEnv({
 
   client: {
     NEXT_PUBLIC_ENVIRONMENT: z.enum(['development', 'staging', 'production', 'demo']).default('development'),
-    NEXT_PUBLIC_APP_URL: z.string().url().default('http://localhost:3000'),
-    NEXT_PUBLIC_APP_BASE_URL: z.string().url().default('http://localhost:3000'),
+    NEXT_PUBLIC_APP_URL: z.string().url().default('https://admin.myaisells.com'),
+    NEXT_PUBLIC_APP_BASE_URL: z.string().url().default('http://admin.myaisells.com'),
     NEXT_PUBLIC_NEW_APP_BASE_URL: z.string().url().optional().default(''),
     NEXT_PUBLIC_DOMAIN_URL: z.string().url().optional().default(''),
     NEXT_PUBLIC_DOMAIN_WEBSITE_URL: z.string().url().optional().default(''),

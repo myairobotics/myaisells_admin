@@ -14,7 +14,7 @@ export const getAppUrl = () => {
     return Env.NEXT_PUBLIC_DEMO_APP_URL || `https://${Env.VERCEL_URL || 'demo.myairesource.us'}`;
   }
 
-  return Env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+  return Env.NEXT_PUBLIC_APP_URL || 'https://admin.myaisells.com';
 };
 
 const defaultApiVersionPath = '/api';
@@ -34,7 +34,7 @@ export const getBaseUrl = (API_VERSION_PATH: string = defaultApiVersionPath) => 
     return `${baseUrl}${API_VERSION_PATH}`;
   }
 
-  const baseUrl = Env.NEXT_PUBLIC_DEMO_URL || 'http://localhost:3000';
+  const baseUrl = Env.NEXT_PUBLIC_DEMO_URL || 'http://admin.myaisells.com';
   return `${baseUrl}${API_VERSION_PATH}`;
 };
 
