@@ -34,7 +34,7 @@ export const getBaseUrl = (API_VERSION_PATH: string = defaultApiVersionPath) => 
     return `${baseUrl}${API_VERSION_PATH}`;
   }
 
-  const baseUrl = Env.NEXT_PUBLIC_DEMO_URL || 'http://admin.myaisells.com';
+  const baseUrl = Env.NEXT_PUBLIC_DEMO_URL || 'https://admin.myaisells.com';
   return `${baseUrl}${API_VERSION_PATH}`;
 };
 
