@@ -35,7 +35,7 @@ export const Env = createEnv({
   client: {
     NEXT_PUBLIC_ENVIRONMENT: z.enum(['development', 'staging', 'production', 'demo']).default('development'),
     NEXT_PUBLIC_APP_URL: z.string().url().default('https://admin.myaisells.com'),
-    NEXT_PUBLIC_APP_BASE_URL: z.string().url().default('http://admin.myaisells.com'),
+    NEXT_PUBLIC_APP_BASE_URL: z.string().url().default('https://admin.myaisells.com'),
     NEXT_PUBLIC_NEW_APP_BASE_URL: z.string().url().optional().default(''),
     NEXT_PUBLIC_DOMAIN_URL: z.string().url().optional().default(''),
     NEXT_PUBLIC_DOMAIN_WEBSITE_URL: z.string().url().optional().default(''),

@@ -41,7 +41,7 @@ const dmSans = DM_Sans({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(Env.NEXT_PUBLIC_APP_URL || 'http://admin.myaisells.com'),
+  metadataBase: new URL(Env.NEXT_PUBLIC_APP_URL || 'https://admin.myaisells.com'),
   title: 'MYaiSells - Human-AI',
   description:
     'MYai is an advanced AI-powered platform designed to simplify complex tasks, enhance productivity, and provide intelligent solutions.',
@@ -52,7 +52,7 @@ export const metadata: Metadata = {
     title: 'MYaiSells - Human-AI',
     description:
       'MYai is an advanced AI-powered platform designed to simplify complex tasks, enhance productivity, and provide intelligent solutions.',
-    url: Env.NEXT_PUBLIC_APP_URL || 'http://admin.myaisells.com',
+    url: Env.NEXT_PUBLIC_APP_URL || 'https://admin.myaisells.com',
     type: 'website',
     images: [{ url: '/assets/logo.png' }],
   },
