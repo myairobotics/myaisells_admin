@@ -13,11 +13,11 @@ inputs:
   pnpm-version:
     description: pnpm version
     required: false
-    default: "10"
+    default: '10'
   restore-nextjs-cache:
     description: Whether to restore Next.js build cache
     required: false
-    default: "false"
+    default: 'false'
 
 runs:
   using: composite
