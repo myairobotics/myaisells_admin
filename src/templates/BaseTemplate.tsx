@@ -4,10 +4,11 @@ import type { NavSection } from '@myairobotics/ui';
 import {
   DashboardHeader,
   DashboardSidebarContent,
-  Logo,
   LogoutConfirmDialog,
 } from '@myairobotics/ui';
 import { signOut, useSession } from 'next-auth/react';
+import Image from 'next/image';
+import Link from 'next/link';
 import { useState } from 'react';
 import {
   FiActivity,
@@ -106,7 +107,18 @@ const BaseTemplate = ({ children }: BaseTemplateProps) => {
   return (
     <div className="min-h-screen bg-slate-50">
       <DashboardHeader
-        logo={<Logo />}
+        logo={(
+          <Link href="/">
+            <Image
+              src="/xynexi.png"
+              alt="Xynexi"
+              width={100}
+              height={369}
+              priority
+              className="h-14 cursor-pointer object-contain"
+            />
+          </Link>
+        )}
         userName={fullName}
         userInitials={initials}
         userEmail={user?.email}

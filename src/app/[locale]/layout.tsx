@@ -54,14 +54,14 @@ export const metadata: Metadata = {
       'MYai is an advanced AI-powered platform designed to simplify complex tasks, enhance productivity, and provide intelligent solutions.',
     url: Env.NEXT_PUBLIC_APP_URL || 'https://admin.myaisells.com',
     type: 'website',
-    images: [{ url: '/assets/logo.png' }],
+    images: [{ url: '/xynexi.png' }],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Xynexi - Human-AI',
     description:
       'MYai is an advanced AI-powered platform designed to simplify complex tasks, enhance productivity, and provide intelligent solutions.',
-    images: ['/assets/logo.png'],
+    images: ['/xynexi.png'],
   },
   icons: {
     icon: [
