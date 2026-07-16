@@ -16,8 +16,8 @@ importers:
         specifier: ^20.0.0
         version: 20.0.0
       '@myairobotics/ui':
-        specifier: file:../myai-ui/myairobotics-ui-0.13.0.tgz
-        version: file:../myai-ui/myairobotics-ui-0.13.0.tgz(@types/react-dom@19.2.3(@types/react@19.2.2))(@types/react@19.2.2)(next@16.0.1(@babel/core@7.28.5)(@opentelemetry/api@1.9.0)(@playwright/test@1.56.1)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+        specifier: ^0.13.0
+        version: 0.13.0(@types/react-dom@19.2.3(@types/react@19.2.2))(@types/react@19.2.2)(next@16.0.1(@babel/core@7.28.5)(@opentelemetry/api@1.9.0)(@playwright/test@1.56.1)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       '@reduxjs/toolkit':
         specifier: ^2.10.1
         version: 2.10.1(react-redux@9.2.0(@types/react@19.2.2)(react@19.2.0)(redux@5.0.1))(react@19.2.0)
@@ -1459,9 +1459,8 @@ packages:
       '@cfworker/json-schema':
         optional: true
 
-  '@myairobotics/ui@file:../myai-ui/myairobotics-ui-0.13.0.tgz':
-    resolution: {integrity: sha512-rH3W7n/kmNiFeZJHDp00jnF9RmQiyCSx2svIHGFGPmdpWdbfJeDXZCFxjxP5JWvt6ZYzprV3gQ6Iv4MGGab36Q==, tarball: file:../myai-ui/myairobotics-ui-0.13.0.tgz}
-    version: 0.13.0
+  '@myairobotics/ui@0.13.0':
+    resolution: {integrity: sha512-YAc78n2la4JNcJAkgTgiv86qNbzXhAYLupQLX3A3kPcrwQ5djYCjQc22F9X++uO6OfbMRv+tKKLXPKn4upfQSw==, tarball: https://npm.pkg.github.com/download/@myairobotics/ui/0.13.0/badadda159911b16c9d837935536b8df9acdee24}
     engines: {node: '>=20'}
     peerDependencies:
       next: '>=15'
@@ -8345,7 +8344,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@myairobotics/ui@file:../myai-ui/myairobotics-ui-0.13.0.tgz(@types/react-dom@19.2.3(@types/react@19.2.2))(@types/react@19.2.2)(next@16.0.1(@babel/core@7.28.5)(@opentelemetry/api@1.9.0)(@playwright/test@1.56.1)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(react-dom@19.2.0(react@19.2.0))(react@19.2.0)':
+  '@myairobotics/ui@0.13.0(@types/react-dom@19.2.3(@types/react@19.2.2))(@types/react@19.2.2)(next@16.0.1(@babel/core@7.28.5)(@opentelemetry/api@1.9.0)(@playwright/test@1.56.1)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(react-dom@19.2.0(react@19.2.0))(react@19.2.0)':
     dependencies:
       '@radix-ui/react-dialog': 1.1.19(@types/react-dom@19.2.3(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       '@radix-ui/react-dismissable-layer': 1.1.15(@types/react-dom@19.2.3(@types/react@19.2.2))(@types/react@19.2.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
