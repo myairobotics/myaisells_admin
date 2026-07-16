@@ -1,6 +1,7 @@
 'use client';
 
 import type { SupportSession, SupportSessionStatus } from '@/types';
+import { Badge, EmptyState, FilterPills, PageHeader, Pagination, SearchFilterBar, SidePanel, StatCard, TableRowSkeleton } from '@myairobotics/ui';
 import { useState } from 'react';
 import {
   FiAlertCircle,
@@ -16,8 +17,6 @@ import {
   FiXCircle,
 } from 'react-icons/fi';
 import { toast } from 'react-toastify';
-import { PageHeader } from '@/components/global/page-header';
-import { Badge, EmptyState, FilterPills, Pagination, SearchFilterBar, SidePanel, StatCard, TableRowSkeleton } from '@/components/ui';
 import { useGetSupportSessionsQuery, useTerminateSupportSessionMutation } from '@/services';
 
 /* ─── Status config ───────────────────────────────────────────────── */

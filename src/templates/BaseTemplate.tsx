@@ -1,11 +1,16 @@
 'use client';
 
+import type { NavSection } from '@myairobotics/ui';
+import {
+  DashboardHeader,
+  DashboardSidebarContent,
+  Logo,
+  LogoutConfirmDialog,
+} from '@myairobotics/ui';
 import { signOut, useSession } from 'next-auth/react';
 import { useState } from 'react';
-import { FaBell } from 'react-icons/fa';
 import {
   FiActivity,
-  FiAlertTriangle,
   FiBarChart2,
   FiBriefcase,
   FiCalendar,
@@ -16,32 +21,19 @@ import {
   FiLink,
   FiList,
   FiLock,
-  FiLogOut,
   FiSettings,
   FiShield,
-  FiUser,
   FiUserCheck,
   FiUserPlus,
   FiUsers,
   FiZap,
 } from 'react-icons/fi';
-import { HiOutlineMenuAlt1 } from 'react-icons/hi';
-import { LuChevronsUpDown } from 'react-icons/lu';
-import {
-  DialogContent,
-  DialogRoot,
-  Dropdown,
-  DropdownItem,
-  DropdownSeparator,
-  Logo,
-  Tab,
-} from '@/components/ui';
 
 type BaseTemplateProps = {
   children: React.ReactNode;
 };
 
-const NAV_SECTIONS = [
+const NAV_SECTIONS: NavSection[] = [
   {
     label: 'Overview',
     items: [
@@ -92,100 +84,11 @@ const NAV_SECTIONS = [
   },
 ];
 
-function LogoutConfirmDialog({
-  open,
-  onCancel,
-  onConfirm,
-  isLoggingOut,
-}: {
-  open: boolean;
-  onCancel: () => void;
-  onConfirm: () => void;
-  isLoggingOut: boolean;
-}) {
-  return (
-    <DialogRoot
-      open={open}
-      onOpenChange={(open) => {
-        if (!open) {
-          onCancel();
-        }
-      }}
-    >
-      <DialogContent hideClose title="Sign out" className="max-w-sm">
-        <div className="flex flex-col items-center gap-4 py-2 text-center">
-          <div className="flex h-14 w-14 items-center justify-center rounded-full bg-red-100">
-            <FiAlertTriangle className="h-7 w-7 text-red-500" />
-          </div>
-          <div>
-            <p className="text-sm text-slate-500">
-              Are you sure you want to sign out of your account?
-            </p>
-          </div>
-          <div className="flex w-full gap-3 pt-1">
-            <button
-              type="button"
-              onClick={onCancel}
-              className="flex-1 rounded-xl border border-slate-200 py-2.5 text-sm font-semibold text-slate-600 transition-colors hover:bg-slate-50"
-            >
-              Cancel
-            </button>
-            <button
-              type="button"
-              onClick={onConfirm}
-              disabled={isLoggingOut}
-              className="flex-1 rounded-xl bg-red-500 py-2.5 text-sm font-bold text-white transition-colors hover:bg-red-600 disabled:opacity-60"
-            >
-              {isLoggingOut ? 'Signing out…' : 'Sign out'}
-            </button>
-          </div>
-        </div>
-      </DialogContent>
-    </DialogRoot>
-  );
-}
-
-const SidebarContent = ({ onLinkClick }: { onLinkClick?: () => void }) => (
-  <div className="flex h-full flex-col">
-    <div className="flex-1 overflow-y-auto p-3">
-      {NAV_SECTIONS.map(section => (
-        <div key={section.label} className="mb-4">
-          <p className="mb-1 px-3 text-[10px] font-bold tracking-widest text-slate-400 uppercase">
-            {section.label}
-          </p>
-          <div className="w-full space-y-0.5">
-            {section.items.map(item => (
-              <button type="button" key={item.link} onClick={onLinkClick} className="w-full">
-                <Tab name={item.name} link={item.link} icon={item.icon} />
-              </button>
-            ))}
-          </div>
-        </div>
-      ))}
-    </div>
-  </div>
-);
-
 const BaseTemplate = ({ children }: BaseTemplateProps) => {
   const { data: session } = useSession();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [showLogoutDialog, setShowLogoutDialog] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
-
-  // const signingOut = useRef(false);
-  // const sessionError = (session as any)?.error;
-  // useEffect(() => {
-  //   console.log('[BaseTemplate] session update', {
-  //     status: session ? 'loaded' : 'null',
-  //     error: sessionError ?? 'none',
-  //     accessToken: (session as any)?.accessToken?.slice(-10) ?? 'none',
-  //   });
-  //   if (sessionError === 'TokenExpired' && !signingOut.current) {
-  //     console.log('[BaseTemplate] TokenExpired detected — calling signOut');
-  //     signingOut.current = true;
-  //     signOut({ callbackUrl: '/auth/signin' });
-  //   }
-  // }, [sessionError, session]);
 
   const user = session?.user;
   const fullName = user?.first_name
@@ -202,85 +105,21 @@ const BaseTemplate = ({ children }: BaseTemplateProps) => {
 
   return (
     <div className="min-h-screen bg-slate-50">
-      <header className="fixed top-0 right-0 left-0 z-50 border-b border-primary-200/50 bg-white/90 backdrop-blur-xl">
-        <div className="container mx-auto flex h-16 items-center justify-between px-4 md:px-6">
-          <div className="flex items-center">
-            <Logo />
-          </div>
-
-          <div className="flex items-center gap-3">
-            {/* Notifications */}
-            <button
-              type="button"
-              className="group relative hidden h-11 w-11 items-center justify-center rounded-xl bg-linear-to-br from-primary-500 to-primary-600 shadow-lg shadow-primary-500/30 transition-all hover:scale-105 hover:shadow-xl hover:shadow-primary-500/40 md:flex"
-            >
-              <FaBell className="text-lg text-white transition-transform group-hover:scale-110" />
-              <span className="absolute top-2 right-2 h-2 w-2 animate-pulse rounded-full border-2 border-primary-500 bg-white shadow-lg" />
-            </button>
-
-            {/* User dropdown — desktop only */}
-            <div className="hidden md:block">
-              <Dropdown
-                align="end"
-                trigger={(
-                  <button
-                    type="button"
-                    className="flex items-center gap-3 rounded-xl border-2 border-primary-200 bg-primary-50/50 px-4 py-2.5 transition-all hover:border-primary-300 hover:bg-primary-100/50"
-                  >
-                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-linear-to-br from-primary-500 to-primary-700 text-xs font-bold text-white ring-2 ring-primary-200">
-                      {initials}
-                    </div>
-                    <span className="max-w-[120px] truncate text-sm font-semibold text-primary-700">
-                      {fullName}
-                    </span>
-                    <LuChevronsUpDown className="h-4 w-4 shrink-0 text-primary-600" />
-                  </button>
-                )}
-              >
-                {/* User info header */}
-                <div className="px-3 py-2.5">
-                  <p className="text-sm font-semibold text-slate-800">{fullName}</p>
-                  {user?.email && (
-                    <p className="truncate text-xs text-slate-500">{user.email}</p>
-                  )}
-                </div>
-
-                <DropdownSeparator />
-
-                <DropdownItem className="gap-2 text-slate-600">
-                  <FiUser className="h-4 w-4" />
-                  My profile
-                </DropdownItem>
-
-                <DropdownSeparator />
-
-                <DropdownItem
-                  onSelect={() => setShowLogoutDialog(true)}
-                  className="text-red-600 focus:bg-red-50 focus:text-red-700"
-                >
-                  <FiLogOut className="h-4 w-4" />
-                  Sign out
-                </DropdownItem>
-              </Dropdown>
-            </div>
-
-            {/* Mobile menu toggle */}
-            <button
-              type="button"
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="flex h-11 w-11 items-center justify-center rounded-xl bg-linear-to-br from-primary-500 to-primary-600 shadow-lg shadow-primary-500/30 transition-all hover:scale-105 hover:shadow-xl hover:shadow-primary-500/40 md:hidden"
-            >
-              <HiOutlineMenuAlt1 className="text-xl text-white" />
-            </button>
-          </div>
-        </div>
-      </header>
+      <DashboardHeader
+        logo={<Logo />}
+        userName={fullName}
+        userInitials={initials}
+        userEmail={user?.email}
+        onLogoutClick={() => setShowLogoutDialog(true)}
+        onMobileMenuToggle={() => setIsMobileMenuOpen(prev => !prev)}
+        isMobileMenuOpen={isMobileMenuOpen}
+      />
 
       <div className="flex pt-16">
         {/* Desktop sidebar */}
         <aside className="fixed top-16 left-0 hidden h-[calc(100vh-4rem)] w-64 overflow-hidden border-r border-primary-200/50 bg-white shadow-sm md:block">
           <div className="h-px bg-slate-200" />
-          <SidebarContent />
+          <DashboardSidebarContent sections={NAV_SECTIONS} />
         </aside>
 
         {/* Mobile sidebar overlay */}
@@ -296,7 +135,7 @@ const BaseTemplate = ({ children }: BaseTemplateProps) => {
               onClick={e => e.stopPropagation()}
             >
               <div className="h-px bg-slate-200" />
-              <SidebarContent onLinkClick={() => setIsMobileMenuOpen(false)} />
+              <DashboardSidebarContent sections={NAV_SECTIONS} onLinkClick={() => setIsMobileMenuOpen(false)} />
             </aside>
           </div>
         )}

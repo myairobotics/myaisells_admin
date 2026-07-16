@@ -1,6 +1,18 @@
 'use client';
 
 import type { UserItem } from '@/types';
+import {
+  Avatar,
+  Badge,
+  EmptyState,
+  FilterPills,
+  PageHeader,
+  Pagination,
+  SearchFilterBar,
+  SidePanel,
+  StatCard,
+  TableRowSkeleton,
+} from '@myairobotics/ui';
 import { useState } from 'react';
 import {
   FiActivity,
@@ -16,18 +28,6 @@ import {
   FiUserX,
 } from 'react-icons/fi';
 import { toast } from 'react-toastify';
-import { PageHeader } from '@/components/global/page-header';
-import {
-  Avatar,
-  Badge,
-  EmptyState,
-  FilterPills,
-  Pagination,
-  SearchFilterBar,
-  SidePanel,
-  StatCard,
-  TableRowSkeleton,
-} from '@/components/ui';
 import {
   useGetViewUsersQuery,
   useUpdateUserStatusMutation,

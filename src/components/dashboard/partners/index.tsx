@@ -1,6 +1,18 @@
 'use client';
 
 import type { PartnerListItem, PartnerStatus } from '@/types';
+import {
+  Avatar,
+  Badge,
+  EmptyState,
+  FilterPills,
+  FormField,
+  Modal,
+  PageHeader,
+  Pagination,
+  SearchFilterBar,
+  TableRowSkeleton,
+} from '@myairobotics/ui';
 import Link from 'next/link';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -10,18 +22,6 @@ import {
 } from 'react-icons/fi';
 import { PiEye, PiEyeSlash, PiUser } from 'react-icons/pi';
 import { toast } from 'react-toastify';
-import { PageHeader } from '@/components/global/page-header';
-import {
-  Avatar,
-  Badge,
-  EmptyState,
-  FilterPills,
-  FormField,
-  Modal,
-  Pagination,
-  SearchFilterBar,
-  TableRowSkeleton,
-} from '@/components/ui';
 import {
   useCreatePartnerMutation,
   useGetAllPartnersQuery,

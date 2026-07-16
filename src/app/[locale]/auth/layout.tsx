@@ -79,7 +79,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
         {/* Bottom strip */}
         <div className="relative z-10 border-t border-white/10 px-10 py-5">
           <p className="text-xs text-primary-300">
-            {`© ${new Date().getFullYear()} MYaiSells. All rights reserved.`}
+            {`© ${new Date().getFullYear()} Xynexi. All rights reserved.`}
           </p>
         </div>
       </aside>

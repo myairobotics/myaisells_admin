@@ -1,6 +1,7 @@
 'use client';
 
 import type { AnalyticsDataPoint, AnalyticsPeriod } from '@/types';
+import { PageHeader } from '@myairobotics/ui';
 import { useState } from 'react';
 import {
   FiActivity,
@@ -12,7 +13,6 @@ import {
   FiUsers,
   FiZap,
 } from 'react-icons/fi';
-import { PageHeader } from '@/components/global/page-header';
 import { useGetAnalyticsOverviewQuery } from '@/services';
 
 /* ─── SVG sparkline ───────────────────────────────────────────────── */

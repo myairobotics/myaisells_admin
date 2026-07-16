@@ -2,8 +2,8 @@ import type { Metadata } from 'next';
 import MultipleVideoUpload from '@/components/dashboard/multiple-video-upload';
 
 export const metadata: Metadata = {
-  title: 'MyaiSells Admin - Upload',
-  description: 'Upload video files to MyaiSells help center.',
+  title: 'Xynexi Admin - Upload',
+  description: 'Upload video files to Xynexi help center.',
 };
 
 const UploadPage = () => {

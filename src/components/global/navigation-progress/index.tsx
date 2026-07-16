@@ -95,7 +95,7 @@ export function NavigationProgress() {
   return (
     <div
       aria-hidden="true"
-      className="pointer-events-none fixed top-0 left-0 z-[99999] h-[2px] transition-all ease-out"
+      className="pointer-events-none fixed top-0 left-0 z-99999 h-0.5 transition-all ease-out"
       style={{
         width: `${width}%`,
         opacity: visible ? 1 : 0,

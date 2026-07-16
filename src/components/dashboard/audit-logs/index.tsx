@@ -1,6 +1,7 @@
 'use client';
 
 import type { AuditLog, AuditLogsFilters } from '@/types';
+import { Badge, DatePicker, EmptyState, FormField, Loader, PageHeader, Pagination, SearchInput, SidePanel, TableRowSkeleton } from '@myairobotics/ui';
 import { useState } from 'react';
 import {
   FiActivity,
@@ -14,8 +15,6 @@ import {
   FiRefreshCw,
   FiX,
 } from 'react-icons/fi';
-import { PageHeader } from '@/components/global/page-header';
-import { Badge, EmptyState, FormField, Loader, Pagination, SearchInput, SidePanel, TableRowSkeleton } from '@/components/ui';
 import {
   useGetAuditLogsQuery,
   useGetAuditLogStatsQuery,
@@ -299,22 +298,22 @@ export default function AuditLogs() {
             </FormField>
 
             <FormField label="From" id="filter-from" labelClassName="mb-1 block text-xs font-medium text-slate-500">
-              <input
-                id="filter-from"
-                type="date"
-                value={filters.from || ''}
-                onChange={e => handleFilterChange('from', e.target.value)}
-                className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700 outline-none focus:border-primary-400 focus:ring-2 focus:ring-primary-500/20"
+              <DatePicker
+                value={filters.from ? new Date(filters.from) : null}
+                onChange={date => handleFilterChange('from', date ? date.toISOString().slice(0, 10) : '')}
+                maxDate={filters.to ? new Date(filters.to) : undefined}
+                placeholder="From"
+                className="w-full"
               />
             </FormField>
 
             <FormField label="To" id="filter-to" labelClassName="mb-1 block text-xs font-medium text-slate-500">
-              <input
-                id="filter-to"
-                type="date"
-                value={filters.to || ''}
-                onChange={e => handleFilterChange('to', e.target.value)}
-                className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700 outline-none focus:border-primary-400 focus:ring-2 focus:ring-primary-500/20"
+              <DatePicker
+                value={filters.to ? new Date(filters.to) : null}
+                onChange={date => handleFilterChange('to', date ? date.toISOString().slice(0, 10) : '')}
+                minDate={filters.from ? new Date(filters.from) : undefined}
+                placeholder="To"
+                className="w-full"
               />
             </FormField>
           </div>

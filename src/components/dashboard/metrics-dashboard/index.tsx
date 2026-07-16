@@ -1,5 +1,6 @@
 'use client';
 
+import { Badge, EmptyState, StatCardSkeleton, StatCard as UiStatCard } from '@myairobotics/ui';
 import {
   FiActivity,
   FiAlertTriangle,
@@ -16,7 +17,6 @@ import {
   FiUsers,
   FiZap,
 } from 'react-icons/fi';
-import { Badge, EmptyState, StatCardSkeleton, StatCard as UiStatCard } from '@/components/ui';
 import {
   useGetDashboardGrowthQuery,
   useGetDashboardLeaderboardsQuery,

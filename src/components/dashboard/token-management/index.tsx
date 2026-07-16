@@ -1,6 +1,7 @@
 'use client';
 
 import type { TokenAllocation, TokenTransaction, TokenTransactionType } from '@/types';
+import { EmptyState, PageHeader, Pagination, SearchFilterBar, SidePanel, StatCard, TableRowSkeleton } from '@myairobotics/ui';
 import { useState } from 'react';
 import {
   FiArrowDownLeft,
@@ -11,8 +12,6 @@ import {
   FiUser,
   FiZap,
 } from 'react-icons/fi';
-import { PageHeader } from '@/components/global/page-header';
-import { EmptyState, Pagination, SearchFilterBar, SidePanel, StatCard, TableRowSkeleton } from '@/components/ui';
 import { useGetTokenAllocationsQuery, useGetTokenTransactionsQuery } from '@/services';
 
 /* ─── Helpers ─────────────────────────────────────────────────────── */

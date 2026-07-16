@@ -1,11 +1,11 @@
 'use client';
 
 import type { VideoUploadFormWithUrls } from '@/types';
+import { Input } from '@myairobotics/ui';
 import Image from 'next/image';
 import { useEffect } from 'react';
 import { FiX } from 'react-icons/fi';
 import { PiFilmSlate, PiImage } from 'react-icons/pi';
-import { Input } from '@/components/ui';
 import { ALLOWED_TYPES, FILE_SIZE_LIMITS } from '@/types';
 
 interface VideoUploadItemProps {

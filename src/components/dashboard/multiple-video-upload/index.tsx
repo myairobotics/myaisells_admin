@@ -2,10 +2,10 @@
 
 import type { FileAsset, VideoUploadForm, VideoUploadFormWithUrls } from '@/types';
 import { randomUUID } from 'node:crypto';
+import { Button } from '@myairobotics/ui';
 import { useState } from 'react';
 import { PiPlus, PiUploadSimple } from 'react-icons/pi';
 import { toast } from 'react-toastify';
-import { Button } from '@/components/ui';
 import { useCreateHowToMutation } from '@/services/help';
 import { useUploadFilesMutation } from '@/services/upload';
 import { VideoUploadItem } from '../video-upload-item';

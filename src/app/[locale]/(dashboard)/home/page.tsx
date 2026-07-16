@@ -21,7 +21,7 @@ export default async function Home() {
               Here's an overview of
               {' '}
               <span className="font-bold text-white">
-                MyaiSells
+                Xynexi
               </span>
               {' '}
               performance in the last 7 days
