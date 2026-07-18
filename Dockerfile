@@ -40,6 +40,7 @@ ENV NEXT_PUBLIC_ENCRYPTION_KEY=dev_encryption_key_123
 ENV NEXT_PUBLIC_ENCRYPTION_SALT=dev_salt_123
 ENV NEXT_PUBLIC_POSTHOG_KEY=ph_test_123456
 ENV NEXT_PUBLIC_POSTHOG_HOST=https://app.posthog.com
+ENV NODE_AUTH_TOKEN=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
 
 # Step 4: Install dependencies + Tailwind native binding for Alpine (musl)
 RUN npm install && npm install @tailwindcss/oxide-linux-x64-musl
@@ -71,6 +72,7 @@ ENV NEXT_PUBLIC_DEMO_URL=https://pre-production.myairesource.us
 ENV NEXTAUTH_URL=https://admin.myaisells.com
 ENV NEXTAUTH_SECRET=CNwC4RsQeADriV8deXuXLwDF1TJvrDYlxvlyOjcRJkE=
 ENV AUTH_TRUST_HOST=true
+ENV NODE_AUTH_TOKEN=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
 
 # Step 11: Expose the default port (3000 for Next.js)
 EXPOSE 3000
