@@ -23,7 +23,7 @@ jobs:
         uses: ./.github/actions/setup-project
         with:
           node-version: 22.x
-          node-auth-token: ${{ secrets.GITHUB_TOKEN }}
+          node-auth-token: ${{ secrets.GH_PACKAGES_TOKEN }}
 
       - name: Build app
         run: pnpm run build
