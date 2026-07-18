@@ -37,6 +37,12 @@ runs:
       with:
         path: node_modules
         key: node-modules-${{ inputs.node-version }}-${{ inputs.pnpm-version }}-${{ hashFiles('pnpm-lock.yaml') }}
+        
+    - name: Configure GitHub Packages auth
+      shell: bash
+      run: pnpm config set "//npm.pkg.github.com/:_authToken" "${NODE_AUTH_TOKEN}"
+      env:
+        NODE_AUTH_TOKEN: ${{ inputs.node-auth-token }}
 
     - name: Install dependencies
       if: steps.cache-node-modules.outputs.cache-hit != 'true'
