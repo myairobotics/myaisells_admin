@@ -33,12 +33,12 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
         <div className="relative z-10 p-10">
           <Link href="/" className="inline-flex">
             <Image
-              src="/assets/logo.png"
+              src="/xynexi.png"
               alt="Xynexi"
-              width={66}
-              height={36}
+              width={677}
+              height={369}
               priority
-              className="h-9 w-auto"
+              className="h-9 w-auto object-contain"
             />
           </Link>
         </div>
@@ -79,7 +79,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
         {/* Bottom strip */}
         <div className="relative z-10 border-t border-white/10 px-10 py-5">
           <p className="text-xs text-primary-300">
-            {`© ${new Date().getFullYear()} MYaiSells. All rights reserved.`}
+            {`© ${new Date().getFullYear()} Xynexi. All rights reserved.`}
           </p>
         </div>
       </aside>
@@ -91,12 +91,12 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
         <div className="flex items-center border-b border-slate-100 bg-white px-6 py-4 lg:hidden">
           <Link href="/" className="inline-flex">
             <Image
-              src="/assets/logo.png"
+              src="/xynexi.png"
               alt="Xynexi"
-              width={59}
-              height={32}
+              width={677}
+              height={369}
               priority
-              className="h-8 w-auto"
+              className="h-8 w-auto object-contain"
             />
           </Link>
         </div>

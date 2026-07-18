@@ -1,10 +1,9 @@
 'use client';
 
+import { Badge, EmptyState, PageHeader, SearchFilterBar, TableRowSkeleton } from '@myairobotics/ui';
 import { useState } from 'react';
 import { FiCheckCircle, FiDollarSign, FiXCircle } from 'react-icons/fi';
 import { PiCreditCard, PiCurrencyDollar } from 'react-icons/pi';
-import { PageHeader } from '@/components/global/page-header';
-import { Badge, EmptyState, SearchFilterBar, TableRowSkeleton } from '@/components/ui';
 import { useGetPaymentsHistoryQuery } from '@/services';
 
 export default function PaymentsHistory() {

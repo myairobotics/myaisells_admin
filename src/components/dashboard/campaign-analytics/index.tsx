@@ -1,10 +1,9 @@
 'use client';
 
+import { PageHeader, StatCardSkeleton } from '@myairobotics/ui';
 import { AgCharts } from 'ag-charts-react';
 import { useMemo } from 'react';
 import { PiChartLine, PiUsers } from 'react-icons/pi';
-import { PageHeader } from '@/components/global/page-header';
-import { StatCardSkeleton } from '@/components/ui';
 import {
   useGetCampaignConversationMetricsQuery,
   useGetCampaignsMetricsQuery,

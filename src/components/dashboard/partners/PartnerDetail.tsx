@@ -1,6 +1,7 @@
 'use client';
 
 import type { Partner, PartnerStatus } from '@/types';
+import { Badge, EmptyState, FormField, InfoField, Modal, PageHeader, Pagination, SectionDivider, Skeleton, StatCard } from '@myairobotics/ui';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
@@ -24,8 +25,6 @@ import {
   FiUsers,
 } from 'react-icons/fi';
 import { toast } from 'react-toastify';
-import { PageHeader } from '@/components/global/page-header';
-import { Badge, EmptyState, FormField, InfoField, Modal, Pagination, SectionDivider, Skeleton, StatCard } from '@/components/ui';
 import {
   useAssignPartnerLocationMutation,
   useDeletePartnerMutation,

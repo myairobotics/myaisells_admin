@@ -1,6 +1,18 @@
 'use client';
 
 import type { SalesAgent, SalesAgentStatus } from '@/types';
+import {
+  Avatar,
+  Badge,
+  EmptyState,
+  FilterPills,
+  PageHeader,
+  Pagination,
+  SearchFilterBar,
+  SidePanel,
+  StatCard,
+  TableRowSkeleton,
+} from '@myairobotics/ui';
 import { useState } from 'react';
 import {
   FiAward,
@@ -17,18 +29,6 @@ import {
   FiUserCheck,
   FiUsers,
 } from 'react-icons/fi';
-import { PageHeader } from '@/components/global/page-header';
-import {
-  Avatar,
-  Badge,
-  EmptyState,
-  FilterPills,
-  Pagination,
-  SearchFilterBar,
-  SidePanel,
-  StatCard,
-  TableRowSkeleton,
-} from '@/components/ui';
 import { useGetAdminSalesAgentsQuery } from '@/services';
 
 type StatusFilter = 'all' | SalesAgentStatus;

@@ -1,6 +1,7 @@
 'use client';
 
 import type { BusinessStatus } from '@/types';
+import { Badge, InfoField, ProgressBar, SectionDivider, Skeleton } from '@myairobotics/ui';
 import {
   FiBriefcase,
   FiCalendar,
@@ -14,7 +15,6 @@ import {
   FiZap,
 } from 'react-icons/fi';
 import { toast } from 'react-toastify';
-import { Badge, InfoField, ProgressBar, SectionDivider, Skeleton } from '@/components/ui';
 import {
   useActivateBusinessMutation,
   useCancelBusinessMutation,

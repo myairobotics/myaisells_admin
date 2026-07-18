@@ -1,6 +1,7 @@
 'use client';
 
 import type { AttributionSource, ReferredUser } from '@/types';
+import { Badge, EmptyState, FormField, Modal, PageHeader, Pagination, StatCard, TableRowSkeleton } from '@myairobotics/ui';
 import { useState } from 'react';
 import {
   FiArrowRight,
@@ -10,8 +11,6 @@ import {
   FiUsers,
 } from 'react-icons/fi';
 import { toast } from 'react-toastify';
-import { PageHeader } from '@/components/global/page-header';
-import { Badge, EmptyState, FormField, Modal, Pagination, StatCard, TableRowSkeleton } from '@/components/ui';
 import {
   useGetReferralMetricsQuery,
   useGetReferredUsersQuery,

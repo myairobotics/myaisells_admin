@@ -1,6 +1,7 @@
 'use client';
 
 import type { HowToItem } from '@/types';
+import { EmptyState, PageHeader, Pagination } from '@myairobotics/ui';
 import { useState } from 'react';
 import {
   FiBookOpen,
@@ -11,8 +12,6 @@ import {
   FiSearch,
   FiX,
 } from 'react-icons/fi';
-import { PageHeader } from '@/components/global/page-header';
-import { EmptyState, Pagination } from '@/components/ui';
 import { useGetAllHowTosQuery } from '@/services';
 
 /* ─── Video card ──────────────────────────────────────────────────── */

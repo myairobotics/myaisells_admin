@@ -6,6 +6,16 @@ import type {
   AdminInviteStatus,
   InviteAdminRequest,
 } from '@/types';
+import {
+  Badge,
+  EmptyState,
+  FormField,
+  Modal,
+  PageHeader,
+  Pagination,
+  StatCard,
+  TableRowSkeleton,
+} from '@myairobotics/ui';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import {
@@ -21,16 +31,6 @@ import {
   FiXCircle,
 } from 'react-icons/fi';
 import { toast } from 'react-toastify';
-import { PageHeader } from '@/components/global/page-header';
-import {
-  Badge,
-  EmptyState,
-  FormField,
-  Modal,
-  Pagination,
-  StatCard,
-  TableRowSkeleton,
-} from '@/components/ui';
 import {
   useActivateAdminMutation,
   useCancelAdminInviteMutation,

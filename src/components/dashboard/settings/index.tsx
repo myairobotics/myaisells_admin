@@ -1,6 +1,7 @@
 'use client';
 
 import type { PlatformConfig, SubscriptionPlan } from '@/types';
+import { Badge, PageHeader } from '@myairobotics/ui';
 import { useState } from 'react';
 import {
   FiCheck,
@@ -17,8 +18,6 @@ import {
   FiX,
   FiZap,
 } from 'react-icons/fi';
-import { PageHeader } from '@/components/global/page-header';
-import { Badge } from '@/components/ui';
 import { useGetPlatformConfigQuery, useGetSubscriptionPlansQuery } from '@/services';
 
 /* ─── Tab types ───────────────────────────────────────────────────── */

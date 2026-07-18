@@ -1,6 +1,7 @@
 'use client';
 
 import type { Permission, Role } from '@/types';
+import { Badge, FormField, PageHeader, Skeleton } from '@myairobotics/ui';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import {
@@ -17,8 +18,6 @@ import {
   FiZap,
 } from 'react-icons/fi';
 import { toast } from 'react-toastify';
-import { PageHeader } from '@/components/global/page-header';
-import { Badge, FormField, Skeleton } from '@/components/ui';
 import {
   useAddPermissionsToRoleMutation,
   useCreatePermissionMutation,
