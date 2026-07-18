@@ -1,11 +1,6 @@
 name: Setup Node.js and dependencies
 description: Setup Node.js environment with pnpm dependencies
 
-on:
-  push:
-    branches:
-      - main
-
 inputs:
   node-version:
     description: Node.js version
@@ -14,6 +9,9 @@ inputs:
     description: pnpm version
     required: false
     default: '10'
+  node-auth-token:
+    description: Token for GitHub Packages registry
+    required: true
   restore-nextjs-cache:
     description: Whether to restore Next.js build cache
     required: false
@@ -44,6 +42,8 @@ runs:
       if: steps.cache-node-modules.outputs.cache-hit != 'true'
       shell: bash
       run: pnpm install --frozen-lockfile
+      env:
+        NODE_AUTH_TOKEN: ${{ inputs.node-auth-token }}
 
     - name: Restore Next.js build output
       if: inputs.restore-nextjs-cache == 'true'
