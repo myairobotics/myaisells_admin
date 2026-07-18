@@ -35,7 +35,9 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Build Docker image
-        run: docker build -t ${{ secrets.DOCKER_USERNAME }}/myai-admin:latest .
+        run: docker build --secret id=npm_token,env=NODE_AUTH_TOKEN -t ${{ secrets.DOCKER_USERNAME }}/myai-admin:latest .
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GH_PACKAGES_TOKEN }}
 
       - name: Push Docker image
         run: docker push ${{ secrets.DOCKER_USERNAME }}/myai-admin:latest
