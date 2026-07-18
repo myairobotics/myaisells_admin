@@ -42,6 +42,11 @@ ENV NEXT_PUBLIC_POSTHOG_KEY=ph_test_123456
 ENV NEXT_PUBLIC_POSTHOG_HOST=https://app.posthog.com
 ENV NODE_AUTH_TOKEN=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
 
+RUN --mount=type=secret,id=npm_token \
+    printf '@myairobotics:registry=https://npm.pkg.github.com\n//npm.pkg.github.com/:_authToken=%s\n' "$(cat /run/secrets/npm_token)" > /root/.npmrc && \
+    npm install && npm install @tailwindcss/oxide-linux-x64-musl && \
+    rm -f /root/.npmrc
+
 # Step 4: Install dependencies + Tailwind native binding for Alpine (musl)
 RUN npm install && npm install @tailwindcss/oxide-linux-x64-musl
 
