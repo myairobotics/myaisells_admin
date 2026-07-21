@@ -6,6 +6,7 @@ import type {
   EditPartnerRequest,
   GetAllPartnersResponse,
   GetOnePartnerResponse,
+  GetPartnerAdminUsersResponse,
   GetPartnerAppointmentPerformanceResponse,
   GetPartnerAuditLogsResponse,
   GetPartnerCampaignPerformanceResponse,
@@ -13,6 +14,7 @@ import type {
   GetPartnerReferralCodeResponse,
   GetPartnerRevenueResponse,
   PartnerActionResponse,
+  PartnerSupportAccessResponse,
   TransferPartnerOwnershipRequest,
   UpdatePartnerStatusRequest,
 } from '@/types';
@@ -126,6 +128,22 @@ export const partnersApi = baseApi.injectEndpoints({
       }),
       providesTags: ['Partner'],
     }),
+
+    getPartnerAdminUsers: builder.query<GetPartnerAdminUsersResponse, { partnerId: string; page?: number; limit?: number }>({
+      query: ({ partnerId, page, limit }) => ({
+        url: `${baseUrl}/partners/${partnerId}/admin-users`,
+        params: { ...(page && { page }), ...(limit && { limit }) },
+      }),
+      providesTags: ['Partner'],
+    }),
+
+    partnerSupportAccess: builder.mutation<PartnerSupportAccessResponse, string>({
+      query: partnerId => ({
+        url: `${baseUrl}/partners/${partnerId}/support-access`,
+        method: 'POST',
+      }),
+      invalidatesTags: ['Partner'],
+    }),
   }),
 });
 
@@ -144,4 +162,6 @@ export const {
   useGetPartnerCampaignPerformanceQuery,
   useGetPartnerAppointmentPerformanceQuery,
   useGetPartnerAuditLogsQuery,
+  useGetPartnerAdminUsersQuery,
+  usePartnerSupportAccessMutation,
 } = partnersApi;

@@ -227,10 +227,10 @@ export default function TokenManagement() {
 
       {/* Summary strip */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <StatCard label="Total Allocated" value={summary ? formatTokens(summary.total_allocated) : '—'} icon={<FiZap />} iconBg="bg-indigo-100 text-indigo-600" valueColor="text-indigo-700" />
-        <StatCard label="Total Consumed" value={summary ? formatTokens(summary.total_consumed) : '—'} icon={<FiArrowDownLeft />} iconBg="bg-amber-100 text-amber-600" valueColor="text-amber-700" />
-        <StatCard label="Remaining" value={summary ? formatTokens(summary.total_remaining) : '—'} icon={<FiArrowUpRight />} iconBg="bg-emerald-100 text-emerald-600" valueColor="text-emerald-700" />
-        <StatCard label="Active Businesses" value={summary ? summary.active_businesses.toLocaleString() : '—'} icon={<FiCalendar />} iconBg="bg-violet-100 text-violet-600" valueColor="text-violet-700" />
+        <StatCard label="Total Allocated" value={summary ? formatTokens(summary.total_allocated) : 'N/A'} icon={<FiZap />} iconBg="bg-indigo-100 text-indigo-600" valueColor="text-indigo-700" />
+        <StatCard label="Total Consumed" value={summary ? formatTokens(summary.total_consumed) : 'N/A'} icon={<FiArrowDownLeft />} iconBg="bg-amber-100 text-amber-600" valueColor="text-amber-700" />
+        <StatCard label="Remaining" value={summary ? formatTokens(summary.total_remaining) : 'N/A'} icon={<FiArrowUpRight />} iconBg="bg-emerald-100 text-emerald-600" valueColor="text-emerald-700" />
+        <StatCard label="Active Businesses" value={summary ? summary.active_businesses.toLocaleString() : 'N/A'} icon={<FiCalendar />} iconBg="bg-violet-100 text-violet-600" valueColor="text-violet-700" />
       </div>
 
       <SearchFilterBar

@@ -30,7 +30,7 @@ const baseQueryWithReauth: BaseQueryFn<string | FetchArgs, unknown, FetchBaseQue
   //   console.log('[baseApi] 401 received', { url, message, isAuthError });
 
   //   if (isAuthError) {
-  //     console.log('[baseApi] auth error confirmed — calling signOut');
+  //     console.log('[baseApi] auth error confirmed, calling signOut');
   //     signOut({ callbackUrl: '/auth/signin' });
   //   }
   // }
@@ -40,6 +40,26 @@ const baseQueryWithReauth: BaseQueryFn<string | FetchArgs, unknown, FetchBaseQue
 export const baseApi = createApi({
   reducerPath: 'api',
   baseQuery: baseQueryWithReauth,
-  tagTypes: ['User', 'Partner', 'Business', 'SalesAgent', 'Token', 'SupportSession', 'Referral', 'Setting', 'Permission', 'Role', 'AuditLog', 'AdminManagement'],
+  tagTypes: [
+    'User',
+    'Partner',
+    'Business',
+    'SalesAgent',
+    'Token',
+    'SupportSession',
+    'Referral',
+    'Setting',
+    'Permission',
+    'Role',
+    'AuditLog',
+    'AdminManagement',
+    'Territory',
+    'Commission',
+    'Billing',
+    'Security',
+    'Notification',
+    'Currency',
+    'BusinessSupport',
+  ],
   endpoints: () => ({}),
 });

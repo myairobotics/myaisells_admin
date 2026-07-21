@@ -264,9 +264,9 @@ export default function MetricsDashboard() {
                               </div>
                               <div className="flex flex-wrap gap-2">
                                 {support?.byActorPool.length
-                                  ? support.byActorPool.map(p => (
-                                      <Badge key={p.actor_pool} className="bg-slate-100 text-slate-600 capitalize">
-                                        {p.actor_pool.replace('_', ' ')}
+                                  ? support.byActorPool.map((p, i) => (
+                                      <Badge key={p.actor_pool ?? `unknown-${i}`} className="bg-slate-100 text-slate-600 capitalize">
+                                        {(p.actor_pool ?? 'unknown').replace('_', ' ')}
                                         :
                                         {' '}
                                         {p.count}

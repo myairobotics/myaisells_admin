@@ -165,7 +165,7 @@ export type GetDashboardGrowthResponse = ApiAdminResponse<DashboardGrowth> & {
 };
 
 export interface DashboardSupportActivityByPool {
-  actor_pool: string;
+  actor_pool: string | null;
   count: string;
 }
 
@@ -177,5 +177,69 @@ export interface DashboardSupportActivity {
 }
 
 export type GetDashboardSupportActivityResponse = ApiAdminResponse<DashboardSupportActivity> & {
+  message: string;
+};
+
+export interface DashboardSectionResult<T> {
+  data: T | null;
+  error: string | null;
+}
+
+export interface DashboardFull {
+  summary: DashboardSectionResult<DashboardSummary>;
+  leaderboards: DashboardSectionResult<DashboardLeaderboards>;
+  growth: DashboardSectionResult<DashboardGrowth>;
+  supportActivity: DashboardSectionResult<DashboardSupportActivity>;
+  generatedAt: string;
+}
+
+export type GetDashboardFullResponse = ApiAdminResponse<DashboardFull> & {
+  message: string;
+};
+
+export interface DashboardMyBusinesses {
+  total: number;
+  active: number;
+  pendingSetup: number;
+}
+
+export interface DashboardMyRecentlyOnboarded {
+  id: string;
+  name: string;
+  email: string;
+  dateJoined: string;
+}
+
+export interface DashboardMyConversion {
+  totalBusinesses: number;
+  convertedBusinesses: number;
+  conversionRatePercentage: number;
+}
+
+export interface DashboardMyRevenue {
+  totalRevenueAttributed: number;
+  totalSubscriptions: number;
+  activeSubscriptions: number;
+}
+
+export interface DashboardMyCommission {
+  byStatus: Record<string, number>;
+  byBusiness: unknown[];
+  trend: unknown[];
+}
+
+export interface DashboardMy {
+  businesses: DashboardMyBusinesses;
+  recentlyOnboarded: DashboardMyRecentlyOnboarded[];
+  campaigns: DashboardSummaryCampaigns;
+  appointments: DashboardSummaryAppointments;
+  conversion: DashboardMyConversion;
+  revenue: DashboardMyRevenue;
+  tokenUsage: DashboardSummaryTokenUsage;
+  commission: DashboardMyCommission;
+  generatedAt: string;
+}
+
+export type GetDashboardMyResponse = ApiAdminResponse<DashboardMy> & {
   message: string;
 };

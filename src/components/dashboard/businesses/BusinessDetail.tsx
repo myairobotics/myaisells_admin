@@ -1,33 +1,27 @@
 'use client';
 
-import type { BusinessStatus } from '@/types';
-import { Badge, InfoField, ProgressBar, SectionDivider, Skeleton } from '@myairobotics/ui';
+import { Badge, InfoField, SectionDivider, Skeleton } from '@myairobotics/ui';
+import { useState } from 'react';
 import {
   FiBriefcase,
   FiCalendar,
+  FiCheckCircle,
   FiGlobe,
-  FiHash,
+  FiHeadphones,
   FiLayers,
   FiMail,
   FiMapPin,
   FiPhone,
   FiUser,
+  FiXCircle,
   FiZap,
 } from 'react-icons/fi';
 import { toast } from 'react-toastify';
 import {
-  useActivateBusinessMutation,
-  useCancelBusinessMutation,
   useGetAdminBusinessQuery,
-  useSuspendBusinessMutation,
+  useUpdateBusinessStatusMutation,
 } from '@/services';
-
-const STATUS_CONFIG: Record<BusinessStatus, { label: string; dot: string; pill: string }> = {
-  active: { label: 'Active', dot: 'bg-emerald-500', pill: 'bg-emerald-100 text-emerald-700' },
-  pending_setup: { label: 'Pending Setup', dot: 'bg-amber-500', pill: 'bg-amber-100 text-amber-700' },
-  suspended: { label: 'Suspended', dot: 'bg-red-500', pill: 'bg-red-100 text-red-700' },
-  cancelled: { label: 'Cancelled', dot: 'bg-slate-400', pill: 'bg-slate-100 text-slate-500' },
-};
+import BusinessSupportPanel from './BusinessSupportPanel';
 
 type BusinessDetailProps = {
   businessId: string;
@@ -36,16 +30,13 @@ type BusinessDetailProps = {
 export default function BusinessDetail({ businessId }: BusinessDetailProps) {
   const { data, isLoading } = useGetAdminBusinessQuery(businessId);
   const business = data?.data;
+  const [showSupportMode, setShowSupportMode] = useState(false);
 
-  const [activate, { isLoading: isActivating }] = useActivateBusinessMutation();
-  const [suspend, { isLoading: isSuspending }] = useSuspendBusinessMutation();
-  const [cancel, { isLoading: isCancelling }] = useCancelBusinessMutation();
-
-  const isActing = isActivating || isSuspending || isCancelling;
+  const [updateStatus, { isLoading: isActing }] = useUpdateBusinessStatusMutation();
 
   const handleActivate = async () => {
     try {
-      await activate(businessId).unwrap();
+      await updateStatus({ id: businessId, body: { status: 'active' } }).unwrap();
       toast.success('Business activated successfully');
     } catch {
       toast.error('Failed to activate business');
@@ -54,7 +45,7 @@ export default function BusinessDetail({ businessId }: BusinessDetailProps) {
 
   const handleSuspend = async () => {
     try {
-      await suspend(businessId).unwrap();
+      await updateStatus({ id: businessId, body: { status: 'suspended' } }).unwrap();
       toast.success('Business suspended');
     } catch {
       toast.error('Failed to suspend business');
@@ -63,7 +54,7 @@ export default function BusinessDetail({ businessId }: BusinessDetailProps) {
 
   const handleCancel = async () => {
     try {
-      await cancel(businessId).unwrap();
+      await updateStatus({ id: businessId, body: { status: 'cancelled' } }).unwrap();
       toast.success('Business cancelled');
     } catch {
       toast.error('Failed to cancel business');
@@ -106,23 +97,19 @@ export default function BusinessDetail({ businessId }: BusinessDetailProps) {
     );
   }
 
-  const statusCfg = STATUS_CONFIG[business.status] ?? STATUS_CONFIG.cancelled;
+  const { profile, attribution, subscription, setupProgress } = business;
   const initials = business.name.slice(0, 2).toUpperCase();
 
   const fields: { icon: React.ComponentType<{ className?: string }>; label: string; value: string; mono?: boolean }[] = [
     { icon: FiMail, label: 'Email', value: business.email },
-    ...(business.contact_person ? [{ icon: FiUser, label: 'Contact Person', value: business.contact_person }] : []),
-    ...(business.phone ? [{ icon: FiPhone, label: 'Phone', value: business.phone }] : []),
-    ...(business.website ? [{ icon: FiGlobe, label: 'Website', value: business.website }] : []),
-    ...(business.industry ? [{ icon: FiBriefcase, label: 'Industry', value: business.industry }] : []),
-    ...(business.subscription_plan ? [{ icon: FiLayers, label: 'Plan', value: business.subscription_plan }] : []),
-    ...(business.token_balance !== undefined ? [{ icon: FiZap, label: 'Token Balance', value: business.token_balance.toLocaleString() }] : []),
-    ...((business.country || business.region || business.state) ? [{ icon: FiMapPin, label: 'Location', value: [business.address, business.state, business.region, business.country].filter(Boolean).join(', ') }] : []),
-    ...(business.partner_name ? [{ icon: FiUser, label: 'Partner', value: business.partner_name }] : []),
-    ...(business.sales_agent_name ? [{ icon: FiUser, label: 'Sales Agent', value: business.sales_agent_name }] : []),
-    ...(business.referral_code ? [{ icon: FiHash, label: 'Referral Code', value: business.referral_code, mono: true }] : []),
-    ...(business.created_by ? [{ icon: FiUser, label: 'Created By', value: business.created_by }] : []),
-    { icon: FiCalendar, label: 'Joined', value: new Date(business.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) },
+    ...(profile.phone ? [{ icon: FiPhone, label: 'Phone', value: profile.phone }] : []),
+    ...(profile.website ? [{ icon: FiGlobe, label: 'Website', value: profile.website }] : []),
+    ...(subscription ? [{ icon: FiLayers, label: 'Plan', value: subscription.planName }] : []),
+    { icon: FiZap, label: 'Wallet Balance', value: business.walletBalance.toLocaleString() },
+    ...((profile.address || profile.country) ? [{ icon: FiMapPin, label: 'Location', value: [profile.address, profile.country].filter(Boolean).join(', ') }] : []),
+    ...(attribution.partner ? [{ icon: FiUser, label: 'Partner', value: attribution.partner.name }] : []),
+    ...(attribution.salesAgent ? [{ icon: FiUser, label: 'Sales Agent', value: attribution.salesAgent.name }] : []),
+    { icon: FiCalendar, label: 'Joined', value: new Date(business.dateJoined).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) },
   ];
 
   return (
@@ -134,15 +121,46 @@ export default function BusinessDetail({ businessId }: BusinessDetailProps) {
         </div>
         <div className="text-center">
           <h3 className="text-lg font-bold text-slate-900">{business.name}</h3>
-          <Badge className={`mt-1 ${statusCfg.pill}`} dot={statusCfg.dot}>{statusCfg.label}</Badge>
+          {business.isActive
+            ? <Badge className="mt-1 bg-emerald-100 text-emerald-700" dot="bg-emerald-500">Active</Badge>
+            : <Badge className="mt-1 bg-red-100 text-red-700" dot="bg-red-500">Inactive</Badge>}
+        </div>
+      </div>
+
+      {/* Campaigns / appointments */}
+      <div className="grid grid-cols-2 gap-3">
+        <div className="rounded-xl border border-slate-100 bg-slate-50 px-4 py-3 text-center">
+          <p className="text-lg font-bold text-slate-800">
+            {business.campaigns.active}
+            /
+            {business.campaigns.total}
+          </p>
+          <p className="text-[11px] font-semibold tracking-wider text-slate-400 uppercase">Active Campaigns</p>
+        </div>
+        <div className="rounded-xl border border-slate-100 bg-slate-50 px-4 py-3 text-center">
+          <p className="text-lg font-bold text-slate-800">
+            {business.appointments.completed}
+            /
+            {business.appointments.total}
+          </p>
+          <p className="text-[11px] font-semibold tracking-wider text-slate-400 uppercase">Completed Appointments</p>
         </div>
       </div>
 
       {/* Setup progress */}
-      {business.setup_completion !== undefined && (
+      {setupProgress.length > 0 && (
         <div className="rounded-xl border border-slate-100 bg-slate-50 px-4 py-3">
           <p className="mb-2 text-[11px] font-semibold tracking-wider text-slate-400 uppercase">Setup Progress</p>
-          <ProgressBar value={business.setup_completion} colorized barWidth="flex-1" />
+          <div className="space-y-1.5">
+            {setupProgress.map(item => (
+              <div key={item.module} className="flex items-center justify-between gap-2 text-sm">
+                <span className="text-slate-600">{item.module}</span>
+                {item.status === 'COMPLETE'
+                  ? <FiCheckCircle className="h-4 w-4 shrink-0 text-emerald-500" />
+                  : <FiXCircle className="h-4 w-4 shrink-0 text-amber-500" />}
+              </div>
+            ))}
+          </div>
         </div>
       )}
 
@@ -155,43 +173,55 @@ export default function BusinessDetail({ businessId }: BusinessDetailProps) {
         ))}
       </div>
 
+      <button
+        type="button"
+        onClick={() => setShowSupportMode(true)}
+        className="flex w-full items-center justify-center gap-2 rounded-xl border border-primary-200 bg-primary-50 px-4 py-2.5 text-sm font-bold text-primary-700 transition-all hover:bg-primary-100"
+      >
+        <FiHeadphones className="h-4 w-4" />
+        Enter Support Mode
+      </button>
+
       {/* Status actions */}
-      {business.status !== 'cancelled' && (
-        <>
-          <SectionDivider label="Actions" />
-          <div className="flex flex-wrap gap-2">
-            {business.status !== 'active' && (
-              <button
-                type="button"
-                onClick={handleActivate}
-                disabled={isActing}
-                className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-bold text-white shadow-sm transition-all hover:bg-emerald-700 disabled:opacity-50"
-              >
-                <FiZap className="h-4 w-4" />
-                {isActivating ? 'Activating…' : 'Activate'}
-              </button>
-            )}
-            {business.status === 'active' && (
-              <button
-                type="button"
-                onClick={handleSuspend}
-                disabled={isActing}
-                className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-amber-500 px-4 py-2.5 text-sm font-bold text-white shadow-sm transition-all hover:bg-amber-600 disabled:opacity-50"
-              >
-                {isSuspending ? 'Suspending…' : 'Suspend'}
-              </button>
-            )}
-            <button
-              type="button"
-              onClick={handleCancel}
-              disabled={isActing}
-              className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-red-200 bg-red-50 px-4 py-2.5 text-sm font-bold text-red-600 transition-all hover:bg-red-100 disabled:opacity-50"
-            >
-              {isCancelling ? 'Cancelling…' : 'Cancel Account'}
-            </button>
-          </div>
-        </>
-      )}
+      <SectionDivider label="Actions" />
+      <div className="flex flex-wrap gap-2">
+        {!business.isActive && (
+          <button
+            type="button"
+            onClick={handleActivate}
+            disabled={isActing}
+            className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-bold text-white shadow-sm transition-all hover:bg-emerald-700 disabled:opacity-50"
+          >
+            <FiZap className="h-4 w-4" />
+            {isActing ? 'Activating…' : 'Activate'}
+          </button>
+        )}
+        {business.isActive && (
+          <button
+            type="button"
+            onClick={handleSuspend}
+            disabled={isActing}
+            className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-amber-500 px-4 py-2.5 text-sm font-bold text-white shadow-sm transition-all hover:bg-amber-600 disabled:opacity-50"
+          >
+            {isActing ? 'Suspending…' : 'Suspend'}
+          </button>
+        )}
+        <button
+          type="button"
+          onClick={handleCancel}
+          disabled={isActing}
+          className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-red-200 bg-red-50 px-4 py-2.5 text-sm font-bold text-red-600 transition-all hover:bg-red-100 disabled:opacity-50"
+        >
+          {isActing ? 'Cancelling…' : 'Cancel Account'}
+        </button>
+      </div>
+
+      <BusinessSupportPanel
+        businessId={businessId}
+        businessName={business.name}
+        open={showSupportMode}
+        onClose={() => setShowSupportMode(false)}
+      />
     </div>
   );
 }

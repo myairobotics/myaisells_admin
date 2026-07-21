@@ -115,6 +115,18 @@ export interface AdminActionResponse {
   message: string;
 }
 
+export interface UpdateAdminRequest {
+  first_name?: string;
+  last_name?: string;
+  email?: string;
+  role_id?: string;
+}
+
+export interface ResetAdminPasswordData {
+  admin_id: string;
+  email: string;
+}
+
 export type GetAdminManagementStatsResponse = ApiAdminResponse<AdminManagementStats>;
 export type GetAdminsResponse = ApiAdminResponse<AdminsListData>;
 export type GetAdminResponse = ApiAdminResponse<AdminAccount>;
@@ -123,3 +135,6 @@ export type GetAdminInvitesResponse = ApiAdminResponse<AdminInvitesListData>;
 export type ResendAdminInviteResponse = ApiAdminResponse<ResendAdminInviteData>;
 export type ValidateInviteTokenResponse = ApiAdminResponse<ValidateInviteTokenData>;
 export type AcceptAdminInviteResponse = ApiAdminResponse<AcceptAdminInviteData>;
+export type UpdateAdminResponse = ApiAdminResponse<AdminAccount>;
+export type ArchiveAdminResponse = ApiAdminResponse<AdminActionResponse>;
+export type ResetAdminPasswordResponse = ApiAdminResponse<ResetAdminPasswordData>;

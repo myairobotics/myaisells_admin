@@ -1,10 +1,11 @@
 import type {
-  BusinessActionResponse,
+  BusinessSupportAccessResponse,
+  CreateBusinessOnboardingResponse,
   CreateBusinessRequest,
-  CreateBusinessResponse,
   GetAdminBusinessesResponse,
   GetAdminBusinessResponse,
-  GetBusinessStatsResponse,
+  UpdateBusinessStatusRequest,
+  UpdateBusinessStatusResponse,
 } from '@/types';
 import { baseApi } from '@/store/api/baseApi';
 import { getBaseUrl } from '@/utils/Helpers';
@@ -13,15 +14,32 @@ const baseUrl = getBaseUrl('/api/admin');
 
 export const businessesApi = baseApi.injectEndpoints({
   endpoints: builder => ({
-    getBusinessStats: builder.query<GetBusinessStatsResponse, void>({
-      query: () => ({ url: `${baseUrl}/businesses/stats` }),
-      providesTags: ['Business'],
-    }),
-
-    getAdminBusinesses: builder.query<GetAdminBusinessesResponse, { page?: number; limit?: number; status?: string; search?: string }>({
-      query: ({ page = 1, limit = 15, status, search } = {}) => ({
+    getAdminBusinesses: builder.query<GetAdminBusinessesResponse, {
+      page?: number;
+      limit?: number;
+      status?: string;
+      search?: string;
+      partner?: string;
+      attributionSource?: string;
+      setupStatus?: string;
+      country?: string;
+      dateFrom?: string;
+      dateTo?: string;
+    }>({
+      query: ({ page = 1, limit = 15, status, search, partner, attributionSource, setupStatus, country, dateFrom, dateTo } = {}) => ({
         url: `${baseUrl}/businesses`,
-        params: { page, limit, ...(status && { status }), ...(search && { search }) },
+        params: {
+          page,
+          limit,
+          ...(status && { status }),
+          ...(search && { search }),
+          ...(partner && { partner }),
+          ...(attributionSource && { attributionSource }),
+          ...(setupStatus && { setupStatus }),
+          ...(country && { country }),
+          ...(dateFrom && { dateFrom }),
+          ...(dateTo && { dateTo }),
+        },
       }),
       providesTags: ['Business'],
     }),
@@ -31,35 +49,28 @@ export const businessesApi = baseApi.injectEndpoints({
       providesTags: ['Business'],
     }),
 
-    createBusiness: builder.mutation<CreateBusinessResponse, CreateBusinessRequest>({
+    createBusinessOnboarding: builder.mutation<CreateBusinessOnboardingResponse, CreateBusinessRequest>({
       query: body => ({
-        url: `${baseUrl}/businesses`,
+        url: `${baseUrl}/business-onboarding`,
         method: 'POST',
         body,
       }),
       invalidatesTags: ['Business'],
     }),
 
-    activateBusiness: builder.mutation<BusinessActionResponse, string>({
-      query: id => ({
-        url: `${baseUrl}/businesses/${id}/activate`,
+    updateBusinessStatus: builder.mutation<UpdateBusinessStatusResponse, { id: string; body: UpdateBusinessStatusRequest }>({
+      query: ({ id, body }) => ({
+        url: `${baseUrl}/businesses/${id}/status`,
         method: 'PATCH',
+        body,
       }),
       invalidatesTags: ['Business'],
     }),
 
-    suspendBusiness: builder.mutation<BusinessActionResponse, string>({
+    businessSupportAccess: builder.mutation<BusinessSupportAccessResponse, string>({
       query: id => ({
-        url: `${baseUrl}/businesses/${id}/suspend`,
-        method: 'PATCH',
-      }),
-      invalidatesTags: ['Business'],
-    }),
-
-    cancelBusiness: builder.mutation<BusinessActionResponse, string>({
-      query: id => ({
-        url: `${baseUrl}/businesses/${id}/cancel`,
-        method: 'PATCH',
+        url: `${baseUrl}/businesses/${id}/support-access`,
+        method: 'POST',
       }),
       invalidatesTags: ['Business'],
     }),
@@ -67,18 +78,15 @@ export const businessesApi = baseApi.injectEndpoints({
 });
 
 export const {
-  useGetBusinessStatsQuery,
-  useLazyGetBusinessStatsQuery,
-
   useGetAdminBusinessesQuery,
   useLazyGetAdminBusinessesQuery,
 
   useGetAdminBusinessQuery,
   useLazyGetAdminBusinessQuery,
 
-  useCreateBusinessMutation,
+  useCreateBusinessOnboardingMutation,
 
-  useActivateBusinessMutation,
-  useSuspendBusinessMutation,
-  useCancelBusinessMutation,
+  useUpdateBusinessStatusMutation,
+
+  useBusinessSupportAccessMutation,
 } = businessesApi;

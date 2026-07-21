@@ -5,9 +5,11 @@ import type {
   AdminInvite,
   AdminInviteStatus,
   InviteAdminRequest,
+  UpdateAdminRequest,
 } from '@/types';
 import {
   Badge,
+  Dropdown,
   EmptyState,
   FormField,
   Modal,
@@ -19,8 +21,12 @@ import {
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import {
+  FiArchive,
   FiCheckCircle,
+  FiEdit2,
+  FiKey,
   FiMail,
+  FiMoreVertical,
   FiRefreshCw,
   FiSlash,
   FiUser,
@@ -33,6 +39,7 @@ import {
 import { toast } from 'react-toastify';
 import {
   useActivateAdminMutation,
+  useArchiveAdminMutation,
   useCancelAdminInviteMutation,
   useDeactivateAdminMutation,
   useGetAdminInvitesQuery,
@@ -41,6 +48,8 @@ import {
   useGetRolesQuery,
   useInviteAdminMutation,
   useResendAdminInviteMutation,
+  useResetAdminPasswordMutation,
+  useUpdateAdminMutation,
 } from '@/services';
 
 /* ─── Invite Status Badge ─────────────────────────────────────────── */
@@ -129,6 +138,61 @@ function InviteAdminForm({ onClose }: { onClose: () => void }) {
   );
 }
 
+/* ─── Edit admin modal ────────────────────────────────────────────── */
+
+function EditAdminModal({ admin, open, onClose }: { admin: AdminAccount; open: boolean; onClose: () => void }) {
+  const { data: rolesData } = useGetRolesQuery();
+  const roles = rolesData?.data ?? [];
+  const [updateAdmin, { isLoading }] = useUpdateAdminMutation();
+  const { register, handleSubmit, formState: { errors } } = useForm<UpdateAdminRequest>({
+    defaultValues: {
+      first_name: admin.firstName,
+      last_name: admin.lastName,
+      email: admin.email,
+      role_id: admin.roleId,
+    },
+  });
+
+  const onSubmit = async (values: UpdateAdminRequest) => {
+    try {
+      await updateAdmin({ adminId: admin.id, body: values }).unwrap();
+      toast.success('Admin updated');
+      onClose();
+    } catch {
+      toast.error('Failed to update admin');
+    }
+  };
+
+  return (
+    <Modal open={open} onOpenChange={o => !o && onClose()} title="Edit Admin" className="max-w-md">
+      <form onSubmit={handleSubmit(onSubmit)} className="mt-1 space-y-4">
+        <FormField label="First Name" id="edit_first_name" error={errors.first_name?.message} {...register('first_name')} />
+        <FormField label="Last Name" id="edit_last_name" error={errors.last_name?.message} {...register('last_name')} />
+        <FormField label="Email Address" id="edit_email" type="email" error={errors.email?.message} {...register('email')} />
+        <FormField label="Role" id="edit_role_id">
+          <select
+            id="edit_role_id"
+            className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-800 transition-all outline-none focus:border-primary-400 focus:bg-white focus:ring-2 focus:ring-primary-500/20"
+            {...register('role_id')}
+          >
+            {roles.map(role => (
+              <option key={role.id} value={role.id}>{role.label || role.name}</option>
+            ))}
+          </select>
+        </FormField>
+        <div className="flex gap-3 pt-1">
+          <button type="button" onClick={onClose} className="flex-1 rounded-xl border border-slate-200 py-2.5 text-sm font-semibold text-slate-600 transition-colors hover:bg-slate-50">
+            Cancel
+          </button>
+          <button type="submit" disabled={isLoading} className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-primary-600 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-primary-700 disabled:opacity-60">
+            {isLoading ? 'Saving…' : 'Save Changes'}
+          </button>
+        </div>
+      </form>
+    </Modal>
+  );
+}
+
 /* ─── Admins Table ────────────────────────────────────────────────── */
 
 function AdminsTab() {
@@ -136,6 +200,9 @@ function AdminsTab() {
   const { data, isLoading, isFetching } = useGetAdminsQuery({ page, limit: 15 });
   const [deactivate, { isLoading: deactivating }] = useDeactivateAdminMutation();
   const [activate, { isLoading: activating }] = useActivateAdminMutation();
+  const [archiveAdmin] = useArchiveAdminMutation();
+  const [resetPassword] = useResetAdminPasswordMutation();
+  const [editingAdmin, setEditingAdmin] = useState<AdminAccount | null>(null);
 
   const admins: AdminAccount[] = data?.data?.admins ?? [];
   const pagination = data?.data?.pagination;
@@ -152,6 +219,24 @@ function AdminsTab() {
       }
     } catch {
       toast.error('Action failed');
+    }
+  };
+
+  const handleArchive = async (admin: AdminAccount) => {
+    try {
+      await archiveAdmin(admin.id).unwrap();
+      toast.success(`${admin.firstName} archived`);
+    } catch {
+      toast.error('Failed to archive admin');
+    }
+  };
+
+  const handleResetPassword = async (admin: AdminAccount) => {
+    try {
+      await resetPassword(admin.id).unwrap();
+      toast.success(`Password reset email sent to ${admin.email}`);
+    } catch {
+      toast.error('Failed to reset password');
     }
   };
 
@@ -200,7 +285,7 @@ function AdminsTab() {
                 </td>
                 <td className="hidden px-5 py-3.5 md:table-cell">
                   <Badge variant="rounded" className="bg-slate-100 text-slate-600">
-                    {admin.role?.label || admin.role?.name || '—'}
+                    {admin.role?.label || admin.role?.name || 'N/A'}
                   </Badge>
                 </td>
                 <td className="hidden px-5 py-3.5 text-sm text-slate-500 lg:table-cell">
@@ -217,31 +302,56 @@ function AdminsTab() {
                         <Badge className="bg-slate-100 text-slate-500" icon={<FiSlash className="h-3 w-3" />}>Inactive</Badge>
                       )}
                 </td>
-                <td className="px-5 py-3.5 text-right">
-                  <button
-                    type="button"
-                    onClick={() => handleToggle(admin)}
-                    disabled={deactivating || activating || isFetching}
-                    className={`rounded-lg border px-3 py-1.5 text-xs font-semibold transition-colors disabled:opacity-50 ${
-                      admin.isActive
-                        ? 'border-red-200 text-red-600 hover:bg-red-50'
-                        : 'border-emerald-200 text-emerald-600 hover:bg-emerald-50'
-                    }`}
-                  >
-                    {admin.isActive
-                      ? (
-                          <span className="flex items-center gap-1">
-                            <FiUserMinus className="h-3 w-3" />
-                            Deactivate
-                          </span>
-                        )
-                      : (
-                          <span className="flex items-center gap-1">
-                            <FiUserCheck className="h-3 w-3" />
-                            Activate
-                          </span>
-                        )}
-                  </button>
+                <td className="px-5 py-3.5">
+                  <div className="flex items-center justify-end gap-2">
+                    <button
+                      type="button"
+                      onClick={() => handleToggle(admin)}
+                      disabled={deactivating || activating || isFetching}
+                      className={`rounded-lg border px-3 py-1.5 text-xs font-semibold transition-colors disabled:opacity-50 ${
+                        admin.isActive
+                          ? 'border-red-200 text-red-600 hover:bg-red-50'
+                          : 'border-emerald-200 text-emerald-600 hover:bg-emerald-50'
+                      }`}
+                    >
+                      {admin.isActive
+                        ? (
+                            <span className="flex items-center gap-1">
+                              <FiUserMinus className="h-3 w-3" />
+                              Deactivate
+                            </span>
+                          )
+                        : (
+                            <span className="flex items-center gap-1">
+                              <FiUserCheck className="h-3 w-3" />
+                              Activate
+                            </span>
+                          )}
+                    </button>
+                    <Dropdown
+                      align="end"
+                      trigger={(
+                        <button type="button" className="rounded-lg border border-slate-200 p-1.5 text-slate-500 hover:bg-slate-50">
+                          <FiMoreVertical className="h-3.5 w-3.5" />
+                        </button>
+                      )}
+                    >
+                      <div className="w-44 py-1">
+                        <button type="button" onClick={() => setEditingAdmin(admin)} className="flex w-full items-center gap-2 px-3 py-2 text-left text-xs font-medium text-slate-700 hover:bg-slate-50">
+                          <FiEdit2 className="h-3.5 w-3.5" />
+                          Edit
+                        </button>
+                        <button type="button" onClick={() => handleResetPassword(admin)} className="flex w-full items-center gap-2 px-3 py-2 text-left text-xs font-medium text-slate-700 hover:bg-slate-50">
+                          <FiKey className="h-3.5 w-3.5" />
+                          Reset Password
+                        </button>
+                        <button type="button" onClick={() => handleArchive(admin)} className="flex w-full items-center gap-2 px-3 py-2 text-left text-xs font-medium text-red-600 hover:bg-red-50">
+                          <FiArchive className="h-3.5 w-3.5" />
+                          Archive
+                        </button>
+                      </div>
+                    </Dropdown>
+                  </div>
                 </td>
               </tr>
             ))}
@@ -250,6 +360,10 @@ function AdminsTab() {
       </div>
 
       <Pagination page={page} totalPages={totalPages} total={pagination?.total} itemLabel="admin" onPageChange={setPage} />
+
+      {editingAdmin && (
+        <EditAdminModal admin={editingAdmin} open onClose={() => setEditingAdmin(null)} />
+      )}
     </>
   );
 }
@@ -401,7 +515,7 @@ export default function AdminManagement() {
       {/* Stats strip */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         {statCards.map(s => (
-          <StatCard key={s.label} label={s.label} value={statsLoading ? '—' : s.value} icon={s.icon} iconBg={s.iconBg} valueColor={s.color} />
+          <StatCard key={s.label} label={s.label} value={statsLoading ? 'N/A' : s.value} icon={s.icon} iconBg={s.iconBg} valueColor={s.color} />
         ))}
       </div>
 

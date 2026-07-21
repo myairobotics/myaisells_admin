@@ -15,10 +15,12 @@ import {
   FiDollarSign,
   FiEdit2,
   FiHash,
+  FiHeadphones,
   FiMail,
   FiMapPin,
   FiRepeat,
   FiSend,
+  FiShield,
   FiTag,
   FiTrash2,
   FiUser,
@@ -30,12 +32,14 @@ import {
   useDeletePartnerMutation,
   useGetAllPartnersQuery,
   useGetOnePartnerQuery,
+  useGetPartnerAdminUsersQuery,
   useGetPartnerAppointmentPerformanceQuery,
   useGetPartnerAuditLogsQuery,
   useGetPartnerCampaignPerformanceQuery,
   useGetPartnerClientsQuery,
   useGetPartnerReferralCodeQuery,
   useGetPartnerRevenueQuery,
+  usePartnerSupportAccessMutation,
   useTransferPartnerOwnershipMutation,
   useUpdatePartnerMutation,
   useUpdatePartnerStatusMutation,
@@ -45,7 +49,7 @@ type PartnerDetailProps = {
   partnerId: string;
 };
 
-type DetailTab = 'team' | 'clients' | 'performance' | 'audit';
+type DetailTab = 'team' | 'admin-users' | 'clients' | 'performance' | 'audit';
 
 const STATUS_CONFIG: Record<PartnerStatus, { label: string; dot: string; pill: string }> = {
   active: { label: 'Active', dot: 'bg-emerald-500', pill: 'bg-emerald-100 text-emerald-700' },
@@ -56,6 +60,7 @@ const STATUS_CONFIG: Record<PartnerStatus, { label: string; dot: string; pill: s
 
 const TABS: { id: DetailTab; label: string }[] = [
   { id: 'team', label: 'Team' },
+  { id: 'admin-users', label: 'Admin Users' },
   { id: 'clients', label: 'Clients' },
   { id: 'performance', label: 'Performance' },
   { id: 'audit', label: 'Audit Log' },
@@ -305,6 +310,16 @@ function DetailSidebar({ partner, onDeleted }: { partner: Partner; onDeleted: ()
   const [showLocation, setShowLocation] = useState(false);
   const [showTransfer, setShowTransfer] = useState(false);
   const [showDelete, setShowDelete] = useState(false);
+  const [supportAccess, { isLoading: isEnteringSupport }] = usePartnerSupportAccessMutation();
+
+  const handleSupportAccess = async () => {
+    try {
+      await supportAccess(partner.id).unwrap();
+      toast.success('Support mode entered. This access has been audit-logged');
+    } catch {
+      toast.error('Failed to enter support mode');
+    }
+  };
 
   const initials = `${partner.first_name.charAt(0)}${partner.last_name.charAt(0)}`.toUpperCase();
   const fullName = `${partner.first_name} ${partner.last_name}`;
@@ -312,8 +327,8 @@ function DetailSidebar({ partner, onDeleted }: { partner: Partner; onDeleted: ()
 
   const fields: { icon: React.ComponentType<{ className?: string }>; label: string; value: string; mono?: boolean }[] = [
     { icon: FiMail, label: 'Email', value: partner.email },
-    { icon: FiTag, label: 'Tag', value: partner.tag || '—' },
-    { icon: FiMapPin, label: 'Region', value: partner.region || '—' },
+    { icon: FiTag, label: 'Tag', value: partner.tag || 'N/A' },
+    { icon: FiMapPin, label: 'Region', value: partner.region || 'N/A' },
     { icon: FiCalendar, label: 'Last Login', value: formatDate(partner.last_login_at, true) },
     ...(referralData?.data ? [{ icon: FiHash, label: 'Referral Code', value: referralData.data, mono: true }] : []),
   ];
@@ -365,6 +380,15 @@ function DetailSidebar({ partner, onDeleted }: { partner: Partner; onDeleted: ()
             <FiRepeat className="h-4 w-4" />
             Transfer Ownership
           </button>
+          <button
+            type="button"
+            onClick={handleSupportAccess}
+            disabled={isEnteringSupport}
+            className="col-span-2 flex items-center justify-center gap-2 rounded-xl border border-primary-200 bg-primary-50 px-4 py-2.5 text-sm font-semibold text-primary-700 transition-all hover:bg-primary-100 disabled:opacity-50"
+          >
+            <FiHeadphones className="h-4 w-4" />
+            {isEnteringSupport ? 'Entering…' : 'Enter Support Mode'}
+          </button>
           <button type="button" onClick={() => setShowDelete(true)} className="col-span-2 flex items-center justify-center gap-2 rounded-xl border border-red-200 bg-red-50 px-4 py-2.5 text-sm font-semibold text-red-600 transition-all hover:bg-red-100">
             <FiTrash2 className="h-4 w-4" />
             Delete Partner
@@ -407,6 +431,50 @@ function TeamTab({ partner }: { partner: Partner }) {
           </Badge>
         </div>
       ))}
+    </div>
+  );
+}
+
+/* ─── Admin users tab ──────────────────────────────────────────────── */
+
+function AdminUsersTab({ partnerId }: { partnerId: string }) {
+  const [page, setPage] = useState(1);
+  const { data, isLoading } = useGetPartnerAdminUsersQuery({ partnerId, page, limit: 10 });
+  const users = data?.data?.data ?? [];
+  const meta = data?.data?.meta;
+
+  if (isLoading) {
+    return (
+      <div className="space-y-2">
+        {Array.from({ length: 4 }, (_, i) => `skel-${i}`).map(k => (
+          <Skeleton key={k} width="100%" height={52} borderRadius={12} />
+        ))}
+      </div>
+    );
+  }
+
+  if (users.length === 0) {
+    return <EmptyState icon={<FiShield />} message="No admin users for this partner" />;
+  }
+
+  return (
+    <div className="space-y-2">
+      {users.map(u => (
+        <div key={u.id} className="flex items-center justify-between rounded-xl border border-slate-100 bg-slate-50/70 px-4 py-3">
+          <div>
+            <p className="text-sm font-semibold text-slate-800">
+              {u.first_name}
+              {' '}
+              {u.last_name}
+            </p>
+            <p className="text-xs text-slate-500">{u.email}</p>
+          </div>
+          <Badge className={u.status === 'active' ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-500'}>
+            {u.status}
+          </Badge>
+        </div>
+      ))}
+      {meta && <Pagination page={meta.page} totalPages={meta.pages} total={meta.total} itemLabel="admin user" onPageChange={setPage} />}
     </div>
   );
 }
@@ -649,6 +717,7 @@ export default function PartnerDetail({ partnerId }: PartnerDetailProps) {
 
           <div className="rounded-2xl border border-slate-200/60 bg-white p-5 shadow-sm">
             {tab === 'team' && <TeamTab partner={partner} />}
+            {tab === 'admin-users' && <AdminUsersTab partnerId={partnerId} />}
             {tab === 'clients' && <ClientsTab partnerId={partnerId} />}
             {tab === 'performance' && <PerformanceTab partnerId={partnerId} />}
             {tab === 'audit' && <AuditTab partnerId={partnerId} />}

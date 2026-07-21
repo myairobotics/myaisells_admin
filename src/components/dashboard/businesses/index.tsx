@@ -1,6 +1,6 @@
 'use client';
 
-import type { AdminBusiness, BusinessStatus, CreateBusinessRequest } from '@/types';
+import type { AdminBusiness, CreateBusinessRequest } from '@/types';
 import {
   Badge,
   EmptyState,
@@ -9,7 +9,6 @@ import {
   Modal,
   PageHeader,
   Pagination,
-  ProgressBar,
   SearchFilterBar,
   StatCard,
   TableRowSkeleton,
@@ -19,39 +18,28 @@ import { useForm } from 'react-hook-form';
 import {
   FiBriefcase,
   FiLayers,
-  FiPercent,
   FiRefreshCw,
   FiUserPlus,
-  FiZap,
 } from 'react-icons/fi';
 import { toast } from 'react-toastify';
 import {
-  useCreateBusinessMutation,
+  useCreateBusinessOnboardingMutation,
   useGetAdminBusinessesQuery,
-  useGetBusinessStatsQuery,
 } from '@/services';
 import BusinessDetail from './BusinessDetail';
 
-type StatusFilter = 'all' | BusinessStatus;
+type StatusFilter = 'all' | 'active' | 'inactive';
 
-const STATUS_CONFIG: Record<BusinessStatus, { label: string; dot: string; badge: string }> = {
-  active: { label: 'Active', dot: 'bg-emerald-500', badge: 'bg-emerald-100 text-emerald-700' },
-  pending_setup: { label: 'Pending Setup', dot: 'bg-amber-500', badge: 'bg-amber-100 text-amber-700' },
-  suspended: { label: 'Suspended', dot: 'bg-red-500', badge: 'bg-red-100 text-red-700' },
-  cancelled: { label: 'Cancelled', dot: 'bg-slate-400', badge: 'bg-slate-100 text-slate-500' },
-};
-
-function StatusBadge({ status }: { status: BusinessStatus }) {
-  const cfg = STATUS_CONFIG[status] ?? STATUS_CONFIG.cancelled;
-  return <Badge className={cfg.badge} dot={cfg.dot}>{cfg.label}</Badge>;
+function StatusBadge({ isActive }: { isActive: boolean }) {
+  return isActive
+    ? <Badge className="bg-emerald-100 text-emerald-700" dot="bg-emerald-500">Active</Badge>
+    : <Badge className="bg-red-100 text-red-700" dot="bg-red-500">Inactive</Badge>;
 }
 
 const FILTERS: { value: StatusFilter; label: string }[] = [
   { value: 'all', label: 'All' },
   { value: 'active', label: 'Active' },
-  { value: 'pending_setup', label: 'Pending' },
-  { value: 'suspended', label: 'Suspended' },
-  { value: 'cancelled', label: 'Cancelled' },
+  { value: 'inactive', label: 'Inactive' },
 ];
 
 export default function BusinessesManagement() {
@@ -64,17 +52,15 @@ export default function BusinessesManagement() {
   const { data, isLoading, isFetching, refetch } = useGetAdminBusinessesQuery({
     page,
     limit: 15,
-    ...(statusFilter !== 'all' && { status: statusFilter }),
+    ...(statusFilter !== 'all' && { status: statusFilter === 'active' ? 'active' : 'suspended' }),
     ...(search.trim() && { search: search.trim() }),
   });
 
-  const { data: statsData } = useGetBusinessStatsQuery();
-  const [createBusiness, { isLoading: isCreating }] = useCreateBusinessMutation();
+  const [createBusiness, { isLoading: isCreating }] = useCreateBusinessOnboardingMutation();
 
   const businesses: AdminBusiness[] = data?.data?.data ?? [];
-  const meta = data?.data?.meta;
-  const totalPages = meta?.pages ?? 1;
-  const stats = statsData?.data;
+  const pagination = data?.data?.pagination;
+  const totalPages = pagination?.totalPages ?? 1;
 
   const {
     register,
@@ -165,22 +151,10 @@ export default function BusinessesManagement() {
             {...register('email', { required: 'Email is required' })}
           />
           <FormField
-            label="Contact Person"
-            id="contact_person"
-            placeholder="John Doe"
-            {...register('contact_person')}
-          />
-          <FormField
             label="Phone"
             id="phone"
             placeholder="+1 555 0100"
             {...register('phone')}
-          />
-          <FormField
-            label="Industry"
-            id="industry"
-            placeholder="Technology"
-            {...register('industry')}
           />
           <FormField
             label="Website"
@@ -195,22 +169,10 @@ export default function BusinessesManagement() {
             {...register('country')}
           />
           <FormField
-            label="Region"
-            id="region"
-            placeholder="North America"
-            {...register('region')}
-          />
-          <FormField
             label="Subscription Plan"
             id="subscription_plan"
             placeholder="Pro"
             {...register('subscription_plan')}
-          />
-          <FormField
-            label="Referral Code"
-            id="referral_code"
-            placeholder="PARTNER123"
-            {...register('referral_code')}
           />
           <FormField
             label="Address"
@@ -232,10 +194,7 @@ export default function BusinessesManagement() {
 
       {/* Stat strip */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <StatCard label="Total" value={stats?.total ?? meta?.total ?? 0} icon={<FiBriefcase />} iconBg="bg-violet-100 text-violet-600" valueColor="text-violet-700" />
-        <StatCard label="Active" value={stats?.active ?? 0} icon={<FiZap />} iconBg="bg-emerald-100 text-emerald-600" valueColor="text-emerald-700" />
-        <StatCard label="Pending Setup" value={stats?.pending_setup ?? 0} icon={<FiPercent />} iconBg="bg-amber-100 text-amber-600" valueColor="text-amber-700" />
-        <StatCard label="Suspended" value={stats?.suspended ?? 0} icon={<FiLayers />} iconBg="bg-red-100 text-red-500" valueColor="text-red-600" />
+        <StatCard label="Total" value={pagination?.total ?? 0} icon={<FiBriefcase />} iconBg="bg-violet-100 text-violet-600" valueColor="text-violet-700" />
       </div>
 
       {/* Search + filter bar */}
@@ -249,7 +208,7 @@ export default function BusinessesManagement() {
           ? (
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
-                  <tbody><TableRowSkeleton cols={6} rows={8} /></tbody>
+                  <tbody><TableRowSkeleton cols={5} rows={8} /></tbody>
                 </table>
               </div>
             )
@@ -273,9 +232,8 @@ export default function BusinessesManagement() {
                       <tr>
                         <th className="px-5 py-3 text-left text-xs font-semibold tracking-wider text-slate-500 uppercase">Business</th>
                         <th className="hidden px-5 py-3 text-left text-xs font-semibold tracking-wider text-slate-500 uppercase sm:table-cell">Email</th>
-                        <th className="hidden px-5 py-3 text-left text-xs font-semibold tracking-wider text-slate-500 uppercase md:table-cell">Industry</th>
                         <th className="hidden px-5 py-3 text-left text-xs font-semibold tracking-wider text-slate-500 uppercase lg:table-cell">Plan</th>
-                        <th className="hidden px-5 py-3 text-left text-xs font-semibold tracking-wider text-slate-500 uppercase xl:table-cell">Setup</th>
+                        <th className="hidden px-5 py-3 text-left text-xs font-semibold tracking-wider text-slate-500 uppercase xl:table-cell">Wallet</th>
                         <th className="px-5 py-3 text-left text-xs font-semibold tracking-wider text-slate-500 uppercase">Status</th>
                       </tr>
                     </thead>
@@ -291,23 +249,18 @@ export default function BusinessesManagement() {
                             </div>
                           </td>
                           <td className="hidden px-5 py-3.5 text-slate-500 sm:table-cell">{biz.email}</td>
-                          <td className="hidden px-5 py-3.5 text-slate-500 md:table-cell">{biz.industry ?? '—'}</td>
                           <td className="hidden px-5 py-3.5 lg:table-cell">
-                            {biz.subscription_plan
+                            {biz.subscription
                               ? (
                                   <Badge variant="rounded" className="bg-slate-100 text-slate-600" icon={<FiLayers className="h-3 w-3" />}>
-                                    {biz.subscription_plan}
+                                    {biz.subscription.planName}
                                   </Badge>
                                 )
-                              : <span className="text-slate-400">—</span>}
+                              : <span className="text-slate-400">N/A</span>}
                           </td>
-                          <td className="hidden px-5 py-3.5 xl:table-cell">
-                            {biz.setup_completion !== undefined
-                              ? <ProgressBar value={biz.setup_completion} />
-                              : <span className="text-slate-400">—</span>}
-                          </td>
+                          <td className="hidden px-5 py-3.5 text-slate-500 xl:table-cell">{biz.walletBalance.toLocaleString()}</td>
                           <td className="px-5 py-3.5">
-                            <StatusBadge status={biz.status} />
+                            <StatusBadge isActive={biz.isActive} />
                           </td>
                         </tr>
                       ))}
@@ -316,7 +269,7 @@ export default function BusinessesManagement() {
                 </div>
               )}
 
-        <Pagination page={page} totalPages={totalPages} total={meta?.total} itemLabel="business" onPageChange={setPage} />
+        <Pagination page={page} totalPages={totalPages} total={pagination?.total} itemLabel="business" onPageChange={setPage} />
       </div>
 
       {/* Business detail modal */}

@@ -397,7 +397,7 @@ export default function AnalyticsDashboard() {
               subscription
               {summary.churned_subscriptions !== 1 ? 's' : ''}
               {' '}
-              churned this period —
+              churned this period:
               {' '}
               {summary.active_subscriptions > 0
                 ? `${((summary.churned_subscriptions / (summary.active_subscriptions + summary.churned_subscriptions)) * 100).toFixed(1)}% churn rate`

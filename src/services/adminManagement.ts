@@ -2,6 +2,7 @@ import type {
   AcceptAdminInviteRequest,
   AcceptAdminInviteResponse,
   AdminActionResponse,
+  ArchiveAdminResponse,
   GetAdminInvitesResponse,
   GetAdminManagementStatsResponse,
   GetAdminResponse,
@@ -9,6 +10,9 @@ import type {
   InviteAdminRequest,
   InviteAdminResponse,
   ResendAdminInviteResponse,
+  ResetAdminPasswordResponse,
+  UpdateAdminRequest,
+  UpdateAdminResponse,
   ValidateInviteTokenResponse,
 } from '@/types';
 import { baseApi } from '@/store/api/baseApi';
@@ -85,6 +89,31 @@ export const adminManagementApi = baseApi.injectEndpoints({
       invalidatesTags: ['AdminManagement'],
     }),
 
+    updateAdmin: builder.mutation<UpdateAdminResponse, { adminId: string; body: UpdateAdminRequest }>({
+      query: ({ adminId, body }) => ({
+        url: `${baseUrl}/management/admins/${adminId}`,
+        method: 'PATCH',
+        body,
+      }),
+      invalidatesTags: ['AdminManagement'],
+    }),
+
+    archiveAdmin: builder.mutation<ArchiveAdminResponse, string>({
+      query: adminId => ({
+        url: `${baseUrl}/management/admins/${adminId}/archive`,
+        method: 'PATCH',
+      }),
+      invalidatesTags: ['AdminManagement'],
+    }),
+
+    resetAdminPassword: builder.mutation<ResetAdminPasswordResponse, string>({
+      query: adminId => ({
+        url: `${baseUrl}/management/admins/${adminId}/reset-password`,
+        method: 'POST',
+      }),
+      invalidatesTags: ['AdminManagement'],
+    }),
+
     validateInviteToken: builder.query<ValidateInviteTokenResponse, string>({
       query: token => ({ url: `${baseUrl}/management/admins/invites/validate/${token}` }),
     }),
@@ -113,6 +142,9 @@ export const {
   useCancelAdminInviteMutation,
   useDeactivateAdminMutation,
   useActivateAdminMutation,
+  useUpdateAdminMutation,
+  useArchiveAdminMutation,
+  useResetAdminPasswordMutation,
   useValidateInviteTokenQuery,
   useLazyValidateInviteTokenQuery,
   useAcceptAdminInviteMutation,
