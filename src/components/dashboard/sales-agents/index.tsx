@@ -254,10 +254,10 @@ export default function SalesAgentsManagement() {
                             </div>
                           </td>
                           <td className="hidden px-5 py-3.5 text-slate-500 sm:table-cell">{agent.email}</td>
-                          <td className="hidden px-5 py-3.5 text-slate-500 md:table-cell">{agentTerritory(agent) ?? <span className="text-slate-400">—</span>}</td>
+                          <td className="hidden px-5 py-3.5 text-slate-500 md:table-cell">{agentTerritory(agent) ?? <span className="text-slate-400">N/A</span>}</td>
                           <td className="hidden px-5 py-3.5 lg:table-cell"><AgentTypeBadge type={agent.agent_type} /></td>
                           <td className="hidden px-5 py-3.5 xl:table-cell">
-                            {agent.referral_code ? <span className="font-mono text-xs text-slate-600">{agent.referral_code}</span> : <span className="text-slate-400">—</span>}
+                            {agent.referral_code ? <span className="font-mono text-xs text-slate-600">{agent.referral_code}</span> : <span className="text-slate-400">N/A</span>}
                           </td>
                           <td className="px-5 py-3.5"><StatusBadge status={agent.status} /></td>
                         </tr>

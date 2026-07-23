@@ -188,6 +188,28 @@ export interface PartnerAuditLogsData {
   meta: PartnerAuditLogsMeta;
 }
 
+export interface PartnerAdminUser {
+  id: string;
+  first_name: string;
+  last_name: string;
+  email: string;
+  status: string;
+  role: string | null;
+}
+
+export interface PartnerAdminUsersData {
+  data: PartnerAdminUser[];
+  meta: PartnerClientsMeta;
+}
+
+export interface PartnerSupportAccessData {
+  partner: Partner;
+  [key: string]: unknown;
+}
+
+export type GetPartnerAdminUsersResponse = ApiAdminResponse<PartnerAdminUsersData>;
+export type PartnerSupportAccessResponse = ApiAdminResponse<PartnerSupportAccessData>;
+
 export type GetAllPartnersResponse = ApiAdminResponse<PartnerListData>;
 export type GetOnePartnerResponse = ApiAdminResponse<Partner>;
 export type GetPartnerClientsResponse = ApiAdminResponse<PartnerClientsData>;

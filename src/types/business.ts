@@ -28,52 +28,87 @@ export type BusinessList = Business[];
 export type BusinessResponse = ApiResponse<Business>;
 export type BusinessListResponse = ApiResponse<BusinessList>;
 
-export type BusinessStatus = 'active' | 'pending_setup' | 'suspended' | 'cancelled';
+/** `PATCH /businesses/:id/status` accepts a subset of these; the read side never returns a "status" field (see `isActive` / `subscription.status` on `AdminBusiness` instead). */
+export type BusinessStatus = 'active' | 'suspended' | 'cancelled';
+
+export interface AdminBusinessAttributionRef {
+  id: string;
+  name: string;
+}
+
+export interface AdminBusinessSubscriptionSummary {
+  status: string;
+  planName: string;
+  amountPaid: number;
+  startDate?: string;
+  endDate?: string | null;
+}
 
 export interface AdminBusiness {
   id: string;
   name: string;
   email: string;
-  phone?: string;
-  website?: string;
-  country?: string;
-  region?: string;
-  state?: string;
-  address?: string;
-  industry?: string;
-  contact_person?: string;
-  status: BusinessStatus;
-  subscription_plan?: string;
-  token_balance?: number;
-  partner_id?: string;
-  partner_name?: string;
-  sales_agent_id?: string;
-  sales_agent_name?: string;
-  referral_code?: string;
-  created_by?: string;
-  setup_completion?: number;
-  created_at: string;
-  updated_at?: string;
+  isActive: boolean;
+  dateJoined: string;
+  businessName: string;
+  website: string;
+  country: string;
+  attributionSource: string;
+  partner: AdminBusinessAttributionRef | null;
+  salesAgent: AdminBusinessAttributionRef | null;
+  subscription: AdminBusinessSubscriptionSummary | null;
+  walletBalance: number;
 }
 
-export interface AdminBusinessMeta {
+export interface AdminBusinessProfile {
+  businessName: string;
+  logo: string;
+  phone: string;
+  website: string;
+  address: string;
+  country: string;
+  businessEmail: string;
+  description: string;
+  offering: string;
+}
+
+export interface AdminBusinessAttribution {
+  source: string;
+  partner: AdminBusinessAttributionRef | null;
+  salesAgent: AdminBusinessAttributionRef | null;
+}
+
+export interface AdminBusinessSetupProgressItem {
+  module: string;
+  status: 'COMPLETE' | 'INCOMPLETE';
+  missing: string[];
+}
+
+export interface AdminBusinessDetail {
+  id: string;
+  name: string;
+  email: string;
+  isActive: boolean;
+  dateJoined: string;
+  profile: AdminBusinessProfile;
+  attribution: AdminBusinessAttribution;
+  subscription: AdminBusinessSubscriptionSummary | null;
+  walletBalance: number;
+  campaigns: { total: number; active: number };
+  appointments: { total: number; completed: number };
+  setupProgress: AdminBusinessSetupProgressItem[];
+}
+
+export interface AdminBusinessPagination {
   total: number;
   page: number;
   limit: number;
-  pages: number;
+  totalPages: number;
 }
 
 export interface AdminBusinessListData {
   data: AdminBusiness[];
-  meta: AdminBusinessMeta;
-}
-
-export interface BusinessStats {
-  total: number;
-  active: number;
-  pending_setup: number;
-  suspended: number;
-  cancelled: number;
+  pagination: AdminBusinessPagination;
 }
 
 export interface CreateBusinessRequest {
@@ -88,9 +123,11 @@ export interface CreateBusinessRequest {
   industry?: string;
   contact_person?: string;
   subscription_plan?: string;
-  partner_id?: string;
-  sales_agent_id?: string;
-  referral_code?: string;
+}
+
+export interface CreateBusinessOnboardingData {
+  business: AdminBusinessDetail;
+  temp_password: string;
 }
 
 export interface BusinessActionResponse {
@@ -98,7 +135,18 @@ export interface BusinessActionResponse {
   message: string;
 }
 
+export interface UpdateBusinessStatusRequest {
+  status: BusinessStatus;
+  reason?: string;
+}
+
+export interface BusinessSupportAccessData {
+  business: AdminBusinessDetail;
+  [key: string]: unknown;
+}
+
 export type GetAdminBusinessesResponse = ApiAdminResponse<AdminBusinessListData>;
-export type GetAdminBusinessResponse = ApiAdminResponse<AdminBusiness>;
-export type GetBusinessStatsResponse = ApiAdminResponse<BusinessStats>;
-export type CreateBusinessResponse = ApiAdminResponse<AdminBusiness>;
+export type GetAdminBusinessResponse = ApiAdminResponse<AdminBusinessDetail>;
+export type CreateBusinessOnboardingResponse = ApiAdminResponse<CreateBusinessOnboardingData>;
+export type UpdateBusinessStatusResponse = ApiAdminResponse<AdminBusiness>;
+export type BusinessSupportAccessResponse = ApiAdminResponse<BusinessSupportAccessData>;

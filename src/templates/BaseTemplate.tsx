@@ -16,12 +16,15 @@ import {
   FiBriefcase,
   FiCalendar,
   FiCreditCard,
+  FiDollarSign,
   FiGlobe,
   FiGrid,
   FiHelpCircle,
+  FiKey,
   FiLink,
   FiList,
   FiLock,
+  FiMap,
   FiSettings,
   FiShield,
   FiUserCheck,
@@ -29,6 +32,7 @@ import {
   FiUsers,
   FiZap,
 } from 'react-icons/fi';
+import NotificationBell from '@/components/global/notifications/NotificationBell';
 
 type BaseTemplateProps = {
   children: React.ReactNode;
@@ -48,6 +52,7 @@ const NAV_SECTIONS: NavSection[] = [
       { name: 'Businesses', link: '/businesses', icon: <FiBriefcase /> },
       { name: 'Users', link: '/users-management', icon: <FiUsers /> },
       { name: 'Sales Agents', link: '/sales-agents', icon: <FiUserCheck /> },
+      { name: 'Territories', link: '/territories', icon: <FiMap /> },
     ],
   },
   {
@@ -57,6 +62,8 @@ const NAV_SECTIONS: NavSection[] = [
       { name: 'Appointments', link: '/appointments', icon: <FiCalendar /> },
       { name: 'Subscriptions', link: '/subscription', icon: <FiCreditCard /> },
       { name: 'Token Management', link: '/token-management', icon: <FiZap /> },
+      { name: 'Billing', link: '/billing', icon: <FiDollarSign /> },
+      { name: 'Commissions', link: '/commissions', icon: <FiCreditCard /> },
     ],
   },
   {
@@ -80,6 +87,8 @@ const NAV_SECTIONS: NavSection[] = [
     items: [
       { name: 'Referral Management', link: '/referral-management', icon: <FiLink /> },
       { name: 'Platform Settings', link: '/settings', icon: <FiSettings /> },
+      { name: 'Currencies', link: '/currencies', icon: <FiDollarSign /> },
+      { name: 'My Security', link: '/security', icon: <FiKey /> },
       { name: 'Help Center', link: '/help', icon: <FiHelpCircle /> },
     ],
   },
@@ -122,6 +131,7 @@ const BaseTemplate = ({ children }: BaseTemplateProps) => {
         userName={fullName}
         userInitials={initials}
         userEmail={user?.email}
+        notificationSlot={<NotificationBell />}
         onLogoutClick={() => setShowLogoutDialog(true)}
         onMobileMenuToggle={() => setIsMobileMenuOpen(prev => !prev)}
         isMobileMenuOpen={isMobileMenuOpen}

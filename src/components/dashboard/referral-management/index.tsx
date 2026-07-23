@@ -267,7 +267,7 @@ export default function ReferralManagement() {
                             <SourceBadge source={user.attributionSource} />
                           </td>
                           <td className="hidden px-5 py-3.5 text-sm text-slate-600 xl:table-cell">
-                            {user.partnerName ?? user.adminName ?? '—'}
+                            {user.partnerName ?? user.adminName ?? 'N/A'}
                           </td>
                           <td className="px-5 py-3.5 text-sm text-slate-500">
                             {new Date(user.dateJoined).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}

@@ -1,6 +1,8 @@
 import type {
+  GetDashboardFullResponse,
   GetDashboardGrowthResponse,
   GetDashboardLeaderboardsResponse,
+  GetDashboardMyResponse,
   GetDashboardOverviewResponse,
   GetDashboardSummaryResponse,
   GetDashboardSupportActivityResponse,
@@ -41,6 +43,18 @@ export const dashboardApi = baseApi.injectEndpoints({
         url: `${baseUrl}/dashboard/support-activity`,
       }),
     }),
+
+    getDashboardFull: builder.query<GetDashboardFullResponse, void>({
+      query: () => ({
+        url: `${baseUrl}/dashboard/full`,
+      }),
+    }),
+
+    getDashboardMy: builder.query<GetDashboardMyResponse, void>({
+      query: () => ({
+        url: `${baseUrl}/dashboard/my`,
+      }),
+    }),
   }),
 });
 
@@ -55,4 +69,8 @@ export const {
   useLazyGetDashboardGrowthQuery,
   useGetDashboardSupportActivityQuery,
   useLazyGetDashboardSupportActivityQuery,
+  useGetDashboardFullQuery,
+  useLazyGetDashboardFullQuery,
+  useGetDashboardMyQuery,
+  useLazyGetDashboardMyQuery,
 } = dashboardApi;

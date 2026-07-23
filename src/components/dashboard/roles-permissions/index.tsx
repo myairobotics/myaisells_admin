@@ -260,7 +260,7 @@ export default function RolesPermissions() {
   const handleFlushCache = async () => {
     try {
       await flushCache().unwrap();
-      toast.success('Permission cache cleared — changes are now live');
+      toast.success('Permission cache cleared, changes are now live');
     } catch {
       toast.error('Failed to flush cache');
     }

@@ -1,9 +1,11 @@
 import MetricsDashboard from '@/components/dashboard/metrics-dashboard';
+import MySalesAgentDashboard from '@/components/dashboard/metrics-dashboard/my-dashboard';
 import { DashboardRefreshButton } from '@/components/dashboard/metrics-dashboard/refresh-button';
 import { auth } from '@/libs/auth';
 
 export default async function Home() {
   const session = await auth();
+  const isSalesAgent = session?.user?.role === 'sales_agent';
 
   return (
     <div className="flex h-full w-full flex-col overflow-x-hidden overflow-y-auto">
@@ -18,22 +20,26 @@ export default async function Home() {
               {`Hello, ${session?.user?.first_name || session?.user?.email || 'Admin'}! 👋`}
             </h1>
             <p className="text-base font-medium text-white/90 md:text-lg">
-              Here's an overview of
-              {' '}
-              <span className="font-bold text-white">
-                Xynexi
-              </span>
-              {' '}
-              performance in the last 7 days
+              {isSalesAgent
+                ? 'Here\'s an overview of your attributed businesses'
+                : (
+                    <>
+                      Here's an overview of
+                      {' '}
+                      <span className="font-bold text-white">Xynexi</span>
+                      {' '}
+                      performance in the last 7 days
+                    </>
+                  )}
             </p>
           </div>
 
-          <DashboardRefreshButton />
+          {!isSalesAgent && <DashboardRefreshButton />}
         </div>
       </div>
 
       <div className="relative flex-1">
-        <MetricsDashboard />
+        {isSalesAgent ? <MySalesAgentDashboard /> : <MetricsDashboard />}
       </div>
     </div>
   );
