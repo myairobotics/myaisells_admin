@@ -24,6 +24,9 @@ jobs:
         with:
           node-version: 22.x
           node-auth-token: ${{ secrets.GH_PACKAGES_TOKEN }}
+          
+      - name: Set image tag
+        run: echo "IMAGE_TAG=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
 
       - name: Build app
         run: pnpm run build
@@ -35,9 +38,9 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Build Docker image
-        run: docker build --secret id=npm_token,env=NODE_AUTH_TOKEN -t ${{ secrets.DOCKER_USERNAME }}/myai-admin:latest .
+        run: docker build --secret id=npm_token,env=NODE_AUTH_TOKEN -t ${{ secrets.DOCKER_USERNAME }}/myai-admin:$IMAGE_TAG .
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GH_PACKAGES_TOKEN }}
 
       - name: Push Docker image
-        run: docker push ${{ secrets.DOCKER_USERNAME }}/myai-admin:latest
+        run: docker push ${{ secrets.DOCKER_USERNAME }}/myai-admin:$IMAGE_TAG
